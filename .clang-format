@@ -1,0 +1,14 @@
+# in Settings , change "Default format" to "Clang-format" and check "Format on save" option
+
+# For private member variables: snake_case_, like "serv_pass_"
+# For public memeber variables: camelCse, like "servPass"
+
+BasedOnStyle: Google       # Use Google's style as the base
+IndentWidth: 2             # Use 2 spaces per indentation level
+AllowShortFunctionsOnASingleLine: false  # Allow simple 1-liner functions inline
+DerivePointerAlignment: false             # Don't guess pointer style, use what's specified
+PointerAlignment: Right     # Align pointers with the variable: `int* ptr` (not `int *ptr`)
+BreakBeforeBraces: Attach   # Puts opening braces on the same line (e.g., `if (...) {`)
+AlwaysBreakTemplateDeclarations: Yes # Always line-break templates for clarity
+UseTab: Never               # Never use tabs for indentation; only spaces
+IndentWidth: 4  # Change this to your preferred number of spaces
