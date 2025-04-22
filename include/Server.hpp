@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/21 14:10:29 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/22 14:46:10 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,36 +18,51 @@
 #include <regex>
 #include <vector>
 #include <stdexcept>
-
-#include <netinet/in.h>
+#include <netinet/in.h> // for struct sockaddr_in
 #include <poll.h>
+#include <signal.h>
+#include <cstring> //for memset
+
+#include <unistd.h> // for sleep() for testing,
+
+#define SPECIAL_CHARS "!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`"
+#define PASSWORD_RULE "Allow contain:\n1.Letters\n2.Digits\n3.Characters in\"!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`\""
 
 class Client;
 class Channel;
 
 class Server{
 	public:
-		Server(std::string serv_pass, int serv_port);
-		Server(const Server& o);
-		Server& operator=(const Server& o);
+		Server(std::string port, std::string password);
 		~Server();
 
-		void	StartServer();
+		void	start();
 
 	private:
 		// Private attributes
-		std::string	serv_pass_;
 		int			serv_port_;
+		std::string	serv_passwd_;
 		static Server*	server_;
 		int			serv_fd_;
 		struct sockaddr_in	serv_addr_;
-		std::unordered_map<int, Client> clients_;
-		std::unordered_map<int, Channel> channels_;
-		std::vector<struct pollfd>	poll_fds_;
+		// std::unordered_map<int, Client> clients_;
+		// std::unordered_map<int, Channel> channels_;
+		std::vector<struct pollfd>	poll_fds_; // using for saving the clients' fds
+
+		static volatile sig_atomic_t	keep_running_; // internal flag
 
 		// private functions
-		Server();
+		Server() = delete;
+		Server(const Server&) = delete;
+		Server& operator=(const Server&) = delete;
+
+		void	setupSignalHandlers();
+		static void	signalHandler(int signum);
 		void	initServer();
 
 
 };
+
+#include "Logger.hpp"
+// #include "Client.hpp"
+// #include "Channel.hpp"

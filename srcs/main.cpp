@@ -6,11 +6,12 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 10:32:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/16 12:58:05 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/22 14:33:57 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
+#include "Server.hpp"
 
 int main(int ac, char** av){
     if (ac != 3){
@@ -18,10 +19,11 @@ int main(int ac, char** av){
         exit(EXIT_FAILURE);
     }
     try{
-        ?????????
-        exit (EXIT_SUCCESS);
+        Server serv(av[1], av[2]);
+        serv.start();
+        exit(EXIT_SUCCESS);
     }catch(const std::exception& e){
-        std::cerr << e.what() << std::endl;
+        std::cerr << RED << e.what() << RESET << std::endl;
         exit(EXIT_FAILURE);
     }
 }

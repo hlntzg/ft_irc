@@ -11,14 +11,14 @@ BLUE = \033[1;34m
 RESET := \033[0;0m
 
 # Directories
-SRCS_DIR = srcs
-OBJS_DIR = objs
-INCLUDE_DIR = include
+SRCS_DIR := srcs
+OBJS_DIR := objs
+INCLUDE := include
 
 # Sources
-SRCS := mainlalala.cpp
+SRCS := main.cpp Logger.cpp Server.cpp
 
-INCLUDE := $(INCLUDE_DIR)/Server.hpp
+#INCLUDE := $(INCLUDE_DIR)/Server.hpp
 
 OBJS := $(addprefix $(OBJS_DIR)/, $(SRCS:.cpp=.o))
 
@@ -26,8 +26,8 @@ OBJS := $(addprefix $(OBJS_DIR)/, $(SRCS:.cpp=.o))
 RM := rm -rf
 MKDIR := mkdir -p
 
-# ECHO = /bin/echo
-# ERRIGNORE = 2>/dev/null
+# DEBUG/INFO/WARNING/ERROR
+LOG_LEVEL := INFO
 
 all: snippet $(NAME)
 	@echo "$(BLUE)███████████████████████   Compiling is DONE  ███████████████████████$(RESET)"
@@ -37,13 +37,13 @@ all: snippet $(NAME)
 head:
 	@echo "$(BLUE)███████████████████████ Making ft_irc Server ███████████████████████$(RESET)"
 
-$(NAME): head $(OBJS) $(INCLUDE)
-	@$(COMPILER) $(FLAGS) $(OBJS) -o $@ -g
+$(NAME): head $(OBJS)
+	@$(COMPILER) $(OBJS) -o $@
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp $(INCLUDE)
 	@$(MKDIR) $(OBJS_DIR)
 	@printf "$(BLUE)█ $(PURPLE)Compiling$(RESET) $<\r\t\t\t\t\t\t\t..."
-	@$(COMPILER) $(FLAGS) -o $@ -c $< -g
+	@$(COMPILER) -DLOG_LEVEL=$(LOG_LEVEL) $(FLAGS) -I$(INCLUDE) -o $@ -c $<
 	@echo "\r\t\t\t\t\t\t\t$(GREEN)      DONE$(BLUE) █$(RESET)"
 
 # Rules for cleant the project

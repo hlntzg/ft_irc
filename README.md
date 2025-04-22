@@ -10,13 +10,15 @@ The server is created using the following steps:
 	4. Listen(using listen());
 	5. Accept(using accept());
 
+## Some Functions
+
 ### 1. socket()
 
 🔧 Purpose:
 The socket() function is used in network programming to create a communication endpoint, known as a socket.
 
 🧱 Syntax:
-```
+```c
 int socket(int domain, int type, int protocol);
 ```
 It returns an integer file descriptor (like a handle) that represents the socket.
@@ -41,7 +43,7 @@ It returns an integer file descriptor (like a handle) that represents the socket
    type (e.g., TCP for SOCK_STREAM).
 
 ✅ Example:
-```
+```c
 int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 ```
 This creates a TCP socket using IPv4 and stores the socket file descriptor in serverSocket.
@@ -55,7 +57,7 @@ Set options on the socket — for example, allow port reuse so you can restart t
 without "address already in use" errors.
 
 🧱 Syntax:
-```
+```c
 int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
 ```
 🧩 Parameter Breakdown:
@@ -68,7 +70,7 @@ int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t
 	optlen    | Size of the option value
 
 ✅ Example:
-```
+```c
 int opt = 1;
 setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 ```
@@ -81,7 +83,7 @@ This allows the socket to reuse the port even if it's in TIME_WAIT state after b
 Bind your socket to a specific IP address and port so it can receive incoming connections.
 
 🧱 Syntax:
-```
+```c
 int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 ```
 🧩 Parameter Breakdown:
@@ -92,7 +94,7 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 	addrlen   |  Size of that address structure
 
 ✅ Example:
-```
+```c
 struct sockaddr_in address;
 address.sin_family = AF_INET;
 address.sin_addr.s_addr = INADDR_ANY;
@@ -101,6 +103,94 @@ address.sin_port = htons(8080);  // Convert port to network byte order
 bind(server_fd, (struct sockaddr *)&address, sizeof(address));
 ```
 This binds the server to all available IPs on port 8080.
+
+```c
+struct sockaddr_in address;
+// Set up the address structure
+address.sin_family = AF_INET;
+address.sin_port = htons(PORT);
+
+// Convert and assign IP address "192.168.3.21"
+if (inet_pton(AF_INET, "192.168.3.21", &address.sin_addr) <= 0) {
+	perror("Invalid IP address");
+	exit(EXIT_FAILURE);
+}
+
+// Bind to IP and port
+if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+	perror("bind failed");
+	exit(EXIT_FAILURE);
+}
+```
+This binds a socket to the specific IP address 192.168.3.21 on port 8080.
+
+#### 3.1 struct sockaddr_in
+```struct sockaddr_in``` is a specialized structure used to define the IPv4 address and port when creating or connecting a socket.
+
+It's used with functions like:
+
+	- bind()
+	- connect()
+	- accept()
+	- sendto(), recvfrom()
+
+✅ Defined in <netinet/in.h>:
+Here’s how it’s typically defined (simplified):
+```c
+struct sockaddr_in {
+    sa_family_t    sin_family;   // Address family: AF_INET
+    in_port_t      sin_port;     // Port number (network byte order)
+    struct in_addr sin_addr;     // IP address
+    char           sin_zero[8];  // Padding, not used
+};
+```
+🔍 Field-by-field breakdown:
+
+	Field      | Type            | Purpose
+	sin_family | sa_family_t     | Always set to AF_INET for IPv4
+	sin_port   | in_port_t       | Port number in network byte order (use htons())
+	sin_addr   | struct in_addr  | IP address (use inet_pton() or inet_addr())
+	sin_zero   | 8 bytes         | Padding to match sockaddr size — ignore it
+
+✅ Example of setting up sockaddr_in:
+```c
+struct sockaddr_in address;
+
+address.sin_family = AF_INET;                            // IPv4
+address.sin_port = htons(8080);                          // Convert to network byte order
+inet_pton(AF_INET, "192.168.1.100", &address.sin_addr);  // Convert string IP to binary
+```
+htons() = Host TO Network Short (for port)
+inet_pton() = presentation-to-network (for IP)
+
+#### 3.2 Comparison: sockaddr_in vs. sockaddr_in6
+```sockaddr_in6``` is used for IPv6.
+
+	Field          | sockaddr_in (IPv4)         | sockaddr_in6 (IPv6)
+	Address family | AF_INET                    | AF_INET6
+	Port           | in_port_t sin_port         | in_port_t sin6_port
+	IP Address     | struct in_addr sin_addr    | struct in6_addr sin6_addr (128 bits)
+	                 (32 bits)
+	Scope ID       | (Not applicable)           | uint32_t sin6_scope_id (for link-local)
+	Flow info      | (Not applicable)           | uint32_t sin6_flowinfo (optional QoS)
+	Padding        | char sin_zero[8] (unused)  | (No padding)
+
+✅ 2. IPv6 Example – sockaddr_in6
+```c
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <string.h>
+
+struct sockaddr_in6 ipv6_addr;
+memset(&ipv6_addr, 0, sizeof(ipv6_addr));
+
+ipv6_addr.sin6_family = AF_INET6;
+ipv6_addr.sin6_port = htons(8080);  // Same function as IPv4
+inet_pton(AF_INET6, "fe80::1", &ipv6_addr.sin6_addr);
+```
+```fe80::1``` is a link-local IPv6 address.
+
+```sin6_scope_id``` can be set for link-local addresses if needed (e.g., eth0 interface).
 
 ### 4. listen()
 
@@ -143,6 +233,73 @@ struct sockaddr_in client_addr;
 socklen_t addrlen = sizeof(client_addr);
 
 client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &addrlen);
+```
+### 6. poll()
+
+ Poll() is used for monitoring multiple file descriptors to see if I/O is possible on any
+ of them. It’s especially useful in network programming and is commonly used in building
+ scalable servers (like your IRC server project) where you want to handle many clients
+ without blocking.
+
+🔧 Header
+```cpp
+#include <poll.h>
+```
+
+📚 Function Signature
+```cpp
+int poll(struct pollfd fds[], nfds_t nfds, int timeout);
+```
+
+🧩 Parameters
+
+	Parameter | Description
+	fds       | Array of pollfd structures (each one represents a file descriptor you want
+				to monitor).
+	nfds      | Number of entries in the fds array.
+	timeout   | Time in milliseconds to wait: - 0 = return immediately - -1 = wait
+				indefinitely - >0 = wait for that many ms
+
+🧱 pollfd Structure
+```cpp
+struct pollfd {
+    int fd;         // File descriptor to monitor
+    short events;   // Events to watch for
+    short revents;  // Events that occurred (filled by poll)
+};
+```
+Common events/revents flags:
+
+	Flag     | Meaning
+
+	POLLIN   | There is data to read
+
+	POLLOUT  | Writing is possible
+
+	POLLERR  | Error condition
+
+	POLLHUP  | Hang up (disconnection)
+
+	POLLNVAL | Invalid request (e.g., bad fd)
+
+🔁 Return Value
+
+	> 0: Number of fds with events
+
+	0: Timeout
+
+	-1: Error (check errno)
+
+## Testing
+
+### Testing SIGTERM
+1. Get the program PID :
+ ```bash
+ ps aux | grep irc_server
+ ```
+2. Kill it:
+```bash
+ kill <PID>
 ```
 
 
