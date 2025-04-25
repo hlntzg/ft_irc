@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/22 14:53:25 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/25 13:53:15 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void	Server::setupSignalHandlers(){
  * 		4) Listen;
  * 		5) Accept;
  */
-void	Server::initServer(){
+void	Server::setupServSocket(){
 	// 1. Socket createtion
 	Logger::log(Logger::INFO, "initServer::Socket createtion ");
 	serv_fd_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -109,6 +109,7 @@ void	Server::initServer(){
 	}
 	// 4. listen, the backlog number(now set to 10) can be changed based on the
 	// performance during testing
+	// After do listen(fd, backlog), now the "fd" become a listening fd.
 	if (listen(serv_fd_, 10) == -1){
 		throw std::runtime_error("Error: something wrong happended on listen");
 	}
@@ -119,14 +120,42 @@ void	Server::initServer(){
 	poll_fds_.push_back({serv_fd_, POLLIN, 0});
 }
 
-void	Server::start(){
+void	Server::startServer(){
 	setupSignalHandlers();
-	initServer();
+	setupServSocket();
 	while (keep_running_){
-		// if (poll())
-		std::cout << "port=" << serv_port_ << std::endl;
-		std::cout << "password=" << serv_passwd_ << std::endl;
-		sleep(10);
+		// poll_fds_.data() points to the first element of your std::vector<pollfd>,
+		// it is the address of the vector too.
+		if(poll(poll_fds_.data(), poll_fds_.size(), -1) < 0){
+			// errno: a global variable that records the error code when the last
+			// system call failed
+			// strerror: convert the errno into a readable strin message
+			throw std::runtime_error(strerror(errno)); // What is strerror and errno
+		}
+		for (size_t i = 0; i < poll_fds_.size(); i++){
+			// Find the pollfd events is POLLIN
+			// "POLLIN" means “ready to read” — e.g., new data available or,
+			// on a listening socket, a new connection is pending.
+			// Bitwise test, "revents & POLLIN" checks whether the POLLIN bit is set.
+			if (poll_fds_[i].events & POLLIN){
+				try {
+					// When there is POLLIN event happens,
+					// for the listeing socket, it means there is new connection;
+					// for the client socket, it means there is new data to be read;
+					if (poll_fds_[i].fd == serv_fd_){
+						acceptNewClient();
+						Logger::log(Logger::DEBUG, "Amount of clients' requests: " +
+									std::to_string(poll_fds_.size() - 1)); // minus 1, because there is on it listening socket
+					} else {
+						processDataFromClient(i);
+					}
+				} catch (std::invalid_argument& e){
+					Logger::log(Logger::WARNING, e.what());
+				} catch (std::exception& e){
+					Logger::log(Logger::ERROR, e.what());
+				}
+			}
+		}
 	}
 	Logger::log(Logger::INFO, "Shutting down Server");
 	if (server_){
@@ -135,4 +164,30 @@ void	Server::start(){
 						// directly like "server_->~Server()"
 	}
 	return;
+}
+
+/**
+ * @brief Saving the new clinet socket into client_fd.
+ * If client_fd > 0, add the client_fd into poll_fds_ vector for the future communation.
+ * 	And save the client into clients_ map.
+ * If client_fd < 0, it means there is an error generated, then throw the error.
+ */
+void	Server::acceptNewClient(){
+	struct sockaddr_in	client_addr;
+	socklen_t	clinetLen = sizeof(client_addr);
+	int	client_fd = accept(serv_fd_, (sockaddr*)&serv_addr_, &clinetLen);
+	if (client_fd > 0){
+		Logger::log(Logger::INFO, "New client '" + std::to_string(client_fd)
+					+ "' has connected");
+		poll_fds_.push_back({client_fd, POLLIN, 0});
+		this->clients_[client_fd] = Client(client_fd);
+	}else{
+		throw std::runtime_error(strerror(errno));
+	}
+}
+
+void	Server::processDataFromClient(size_t idx){
+	std::string	buff;
+	Client*	client = &(clients_[poll_fds_[idx].fd]);
+
 }

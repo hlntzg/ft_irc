@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/22 14:46:10 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/25 13:53:19 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,9 @@
 #include <signal.h>
 #include <cstring> //for memset
 
-#include <unistd.h> // for sleep() for testing,
+// #include <unistd.h> // for sleep() for testing,
+
+
 
 #define SPECIAL_CHARS "!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`"
 #define PASSWORD_RULE "Allow contain:\n1.Letters\n2.Digits\n3.Characters in\"!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`\""
@@ -36,16 +38,16 @@ class Server{
 		Server(std::string port, std::string password);
 		~Server();
 
-		void	start();
+		void	startServer();
 
 	private:
 		// Private attributes
-		int			serv_port_;
-		std::string	serv_passwd_;
-		static Server*	server_;
-		int			serv_fd_;
+		int					serv_port_;
+		std::string			serv_passwd_;
+		static Server*		server_;
+		int					serv_fd_;
 		struct sockaddr_in	serv_addr_;
-		// std::unordered_map<int, Client> clients_;
+		std::unordered_map<int, Client> clients_; // the key is client socket (client_fd)
 		// std::unordered_map<int, Channel> channels_;
 		std::vector<struct pollfd>	poll_fds_; // using for saving the clients' fds
 
@@ -58,11 +60,11 @@ class Server{
 
 		void	setupSignalHandlers();
 		static void	signalHandler(int signum);
-		void	initServer();
-
-
+		void	setupServSocket();
+		void	acceptNewClient();
+		void	processDataFromClient(size_t idx);
 };
 
 #include "Logger.hpp"
-// #include "Client.hpp"
+#include "Client.hpp"
 // #include "Channel.hpp"

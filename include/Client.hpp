@@ -1,29 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/16 10:32:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/25 09:57:06 by jingwu           ###   ########.fr       */
+/*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
+/*   Updated: 2025/04/25 13:31:34 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-#include "Server.hpp"
+#pragma once
 
-int main(int ac, char** av){
-    if (ac != 3){
-        std::cerr << "Usage: ./ircserv <port> <password>\n";
-        return EXIT_FAILURE;
-    }
-    try{
-        Server serv(av[1], av[2]);
-        serv.start();
-        return EXIT_SUCCESS;
-    }catch(const std::exception& e){
-        std::cerr << RED << e.what() << RESET << std::endl;
-        return EXIT_FAILURE;
-    }
-}
+#include <string>
+#include <iostream>
+
+class Client{
+	public:
+		Client();
+		Client(int fd);
+		Client&	operator=(const Client& other);
+		~Client();
+
+	private:
+		int	socket_fd_;
+
+		Client(const Client&) = delete;
+
+
+};

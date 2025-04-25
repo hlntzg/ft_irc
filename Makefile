@@ -16,7 +16,7 @@ OBJS_DIR := objs
 INCLUDE := include
 
 # Sources
-SRCS := main.cpp Logger.cpp Server.cpp
+SRCS := main.cpp Logger.cpp Server.cpp Client.cpp
 
 #INCLUDE := $(INCLUDE_DIR)/Server.hpp
 
