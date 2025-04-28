@@ -1,6 +1,6 @@
 NAME := ircserv
 COMPILER := c++
-FLAGS := -Wall -Wextra -Werror -std=c++11
+FLAGS := -Wall -Wextra -Werror -std=c++17
 
 #colour define
 GREEN := \033[1;32m

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/28 14:46:04 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/25 13:53:15 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,6 @@ Server::Server(std::string port, std::string password){
 	}
 	serv_port_ = port_num;
 	serv_passwd_ = password;
-	epoll_fd_ = epoll_create1(0);
-	if (epoll_fd_ == -1){
-		throw std::runtime_error("Error: epoll_create1 failed");
-	}
 }
 
 Server*	Server::server_ = nullptr;
@@ -56,12 +52,14 @@ Server*	Server::server_ = nullptr;
 volatile sig_atomic_t	Server::keep_running_ = 1;
 
 Server::~Server(){
+	// for (auto&	ch : channels_){
+	// 	ch.second.shutDownChannel();
+	// }
 }
 
 void	Server::signalHandler(int signum){
-	if (signum == SIGINT || signum == SIGTERM){
-		Server::keep_running_ = 0;
-	}
+	(void)signum;
+	Server::keep_running_ = 0;
 }
 
 void	Server::setupSignalHandlers(){
@@ -81,6 +79,7 @@ void	Server::setupSignalHandlers(){
  * 		2) Setsockopt;;
  * 		3) Bind;
  * 		4) Listen;
+ * 		5) Accept;
  */
 void	Server::setupServSocket(){
 	// 1. Socket createtion
@@ -114,57 +113,43 @@ void	Server::setupServSocket(){
 	if (listen(serv_fd_, 10) == -1){
 		throw std::runtime_error("Error: something wrong happended on listen");
 	}
-
-	// 5. register listeing socket for read(EPOLLIN)
-	int flags = fcntl(serv_fd_, F_GETFL, 0);
-	fcntl(serv_fd_, F_SETFL, flags | O_NONBLOCK);
-
-	struct epoll_event ev{};
-	// EPOLLIN for read events + EPOLLET for edge-triggered
-	ev.events = EPOLLIN | EPOLLET;
-	ev.data.fd = serv_fd_;
-	if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, serv_fd_, &ev) == -1){
-		throw std::runtime_error("Error: epoll_ctl ADD listen_fd failed");
-	}
-	// prepare event buffer
-	events_.resize(MAX_EVENTS);
-
 	// add log message
 	Logger::log(Logger::INFO, "Server listening on port " + std::to_string(serv_port_));
+	// POLLIN: 	We're interested in readable events (e.g., new client trying to connect)
+	// 0: Set to 0 now; will be filled by poll() later to tell what actually happened
+	poll_fds_.push_back({serv_fd_, POLLIN, 0});
 }
 
 void	Server::startServer(){
 	setupSignalHandlers();
 	setupServSocket();
 	while (keep_running_){
-		// Wait indefinitely for events
-		int nready = epoll_wait(epoll_fd_, events_.data(), events_.size(), -1);
-		if (nready < 0){
-			if (errno == EINTR){
-				continue; // restart on signal
-			}
-			throw std::runtime_error("Error:" + std::string("epoll_wait: ") + strerror(errno));
+		// poll_fds_.data() points to the first element of your std::vector<pollfd>,
+		// it is the address of the vector too.
+		if(poll(poll_fds_.data(), poll_fds_.size(), -1) < 0){
+			// errno: a global variable that records the error code when the last
+			// system call failed
+			// strerror: convert the errno into a readable strin message
+			throw std::runtime_error(strerror(errno)); // What is strerror and errno
 		}
-		for (int i = 0; i < nready; i++){
-			int		fd = events_[i].data.fd;
-			auto	evs = events_[i].events;
-			// 1) new connections on listening socket, accept it
-			if (fd == serv_fd_){
-				acceptNewClient();
-				Logger::log(Logger::DEBUG, "Active clients: " +
-							std::to_string(clients_.size()));
-				continue;
-			}
-			// 2) check for error or hang-up
-			else if (evs & (EPOLLERR | EPOLLHUP)){
-				removeClient(fd, "disconnected");
-				continue;
-			}
-			// 3) date to read
-			else if (evs & EPOLLIN){
+		for (size_t i = 0; i < poll_fds_.size(); i++){
+			// Find the pollfd events is POLLIN
+			// "POLLIN" means “ready to read” — e.g., new data available or,
+			// on a listening socket, a new connection is pending.
+			// Bitwise test, "revents & POLLIN" checks whether the POLLIN bit is set.
+			if (poll_fds_[i].events & POLLIN){
 				try {
-					processDataFromClient(i);
-				}catch (std::invalid_argument& e){
+					// When there is POLLIN event happens,
+					// for the listeing socket, it means there is new connection;
+					// for the client socket, it means there is new data to be read;
+					if (poll_fds_[i].fd == serv_fd_){
+						acceptNewClient();
+						Logger::log(Logger::DEBUG, "Amount of clients' requests: " +
+									std::to_string(poll_fds_.size() - 1)); // minus 1, because there is on it listening socket
+					} else {
+						processDataFromClient(i);
+					}
+				} catch (std::invalid_argument& e){
 					Logger::log(Logger::WARNING, e.what());
 				} catch (std::exception& e){
 					Logger::log(Logger::ERROR, e.what());
@@ -173,73 +158,36 @@ void	Server::startServer(){
 		}
 	}
 	Logger::log(Logger::INFO, "Shutting down Server");
-	for (auto const& [fd, cli] : clients_) {
-		epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
-		close(fd);
+	if (server_){
+		close (server_->serv_fd_);
+		delete server_; // safely delete, calls destructor. Don't call destructor
+						// directly like "server_->~Server()"
 	}
-	clients_.clear();
-	close(epoll_fd_);
-	close(serv_fd_);
 	return;
 }
 
 /**
- * @brief This function will accept all the pending connections at once.
+ * @brief Saving the new clinet socket into client_fd.
+ * If client_fd > 0, add the client_fd into poll_fds_ vector for the future communation.
+ * 	And save the client into clients_ map.
+ * If client_fd < 0, it means there is an error generated, then throw the error.
  */
 void	Server::acceptNewClient(){
-	// Process all pending connections at once before processing other events
-	while (true) {
-        sockaddr_in client_addr;
-        socklen_t  clientLen = sizeof(client_addr);
-        int client_fd = accept(serv_fd_,
-                               reinterpret_cast<sockaddr*>(&client_addr),
-                               &clientLen);
-        if (client_fd < 0) {
-            // No more pending connections
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                return ;
-            }
-            // real errors
-            throw std::runtime_error("accept failed: " + std::string(strerror(errno)));
-        }
-
-        // setting non-blockning mode
-        int flags = fcntl(client_fd, F_GETFL, 0);
-        fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
-
-        // Register new client into epoll
-        epoll_event ev{};
-        ev.events = EPOLLIN;
-        ev.data.fd = client_fd;
-        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, client_fd, &ev) == -1) {
-            close(client_fd);
-            throw std::runtime_error("epoll_ctl ADD client failed");
-        }
-        clients_[client_fd] = Client(client_fd);
-        Logger::log(Logger::INFO, "New client " + std::to_string(client_fd));
-    }
+	struct sockaddr_in	client_addr;
+	socklen_t	clinetLen = sizeof(client_addr);
+	int	client_fd = accept(serv_fd_, (sockaddr*)&serv_addr_, &clinetLen);
+	if (client_fd > 0){
+		Logger::log(Logger::INFO, "New client '" + std::to_string(client_fd)
+					+ "' has connected");
+		poll_fds_.push_back({client_fd, POLLIN, 0});
+		this->clients_[client_fd] = Client(client_fd);
+	}else{
+		throw std::runtime_error(strerror(errno));
+	}
 }
 
-void	Server::processDataFromClient(int idx){
-	int	client_fd = events_[idx].data.fd;
-	Client* client = &(clients_[client_fd]);
-	if (!client->receiveRawData()){
-		Logger::log(Logger::INFO, "Client '" + std::to_string(client_fd) + "' disconnected");
-		removeClient(client_fd, "Client disconnect");
-		return;
-	}
-	std::string	buffer;
-	// extract one line command/message that separate by CRLF
-	while (client->getNextMessage(buffer)){
-		Message	msg(buffer);
-	}
+void	Server::processDataFromClient(size_t idx){
+	std::string	buff;
+	Client*	client = &(clients_[poll_fds_[idx].fd]);
 
-}
-
-void	Server::removeClient(int fd, std::string reason){
-	// for testing only now, latter will implement
-	Logger::log(Logger::INFO, "Removing client " + std::to_string(fd) + ": " + reason);
-    epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
-    close(fd);
-    clients_.erase(fd);
 }

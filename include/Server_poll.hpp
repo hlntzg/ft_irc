@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/28 14:46:19 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/25 13:53:19 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,9 @@
 #include <vector>
 #include <stdexcept>
 #include <netinet/in.h> // for struct sockaddr_in
-#include <sys/epoll.h>
+#include <poll.h>
 #include <signal.h>
 #include <cstring> //for memset
-#include <fcntl.h>  // for fcntl()
 
 // #include <unistd.h> // for sleep() for testing,
 
@@ -47,12 +46,10 @@ class Server{
 		std::string			serv_passwd_;
 		static Server*		server_;
 		int					serv_fd_;
-		int					epoll_fd_;
 		struct sockaddr_in	serv_addr_;
-		static constexpr int	MAX_EVENTS = 1024;
 		std::unordered_map<int, Client> clients_; // the key is client socket (client_fd)
 		// std::unordered_map<int, Channel> channels_;
-		std::vector<struct epoll_event>	events_; // using for saving the clients' fds
+		std::vector<struct pollfd>	poll_fds_; // using for saving the clients' fds
 
 		static volatile sig_atomic_t	keep_running_; // internal flag
 
@@ -65,11 +62,9 @@ class Server{
 		static void	signalHandler(int signum);
 		void	setupServSocket();
 		void	acceptNewClient();
-		void	processDataFromClient(int idx);
-		void	removeClient(int fd, std::string reason);
+		void	processDataFromClient(size_t idx);
 };
 
 #include "Logger.hpp"
 #include "Client.hpp"
-#include "Message.hpp"
 // #include "Channel.hpp"

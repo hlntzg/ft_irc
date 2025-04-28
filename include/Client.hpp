@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/25 13:31:34 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/28 14:37:36 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,12 @@ class Client{
 		Client&	operator=(const Client& other);
 		~Client();
 
+		bool	receiveRawData();
+		bool	getNextMessage(std::string& buffer);
+
 	private:
 		int	socket_fd_;
+		std::string	raw_data_;
 
 		Client(const Client&) = delete;
 

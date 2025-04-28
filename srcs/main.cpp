@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 10:32:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/25 09:57:06 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/28 11:12:01 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int main(int ac, char** av){
     }
     try{
         Server serv(av[1], av[2]);
-        serv.start();
+        serv.startServer();
         return EXIT_SUCCESS;
     }catch(const std::exception& e){
         std::cerr << RED << e.what() << RESET << std::endl;

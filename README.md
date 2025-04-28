@@ -290,6 +290,127 @@ Common events/revents flags:
 
 	-1: Error (check errno)
 
+### 7. epoll()
+`epoll` is Linux’s high-performance I/O multiplexing API designed to efficiently monitor
+large numbers of file descriptors (typically sockets). It solves the O(N) scanning problem
+of `select/poll` by letting the kernel maintain an “interest list” and only reporting FDs
+that actually have events.
+
+#### 7.1 Core Concepts
+ 1) Epoll Instance
+ You create it with
+ ```cpp
+ int epfd = epoll_create1(0);
+ ```
+This returns a file descriptor (`epfd`) representing your interest list.
+
+ 2) Registering FDs
+ Use `epoll_ctl()` to add, modify, or delete sockets you want to watch:
+ ```cpp
+ struct epoll_event ev;
+ ev.events = EPOLLIN;      // e.g. want read-ready events
+ ev.data.fd = listen_fd;
+ epoll_ctl(epfd, EPOLL_CTL_ADD, listen_fd, &ev);
+ ```
+ 3) Waiting for Events
+Call epoll_wait() to block until one or more FDs are ready:
+```cpp
+const int MAX_EVENTS = 1024;
+std::vector<struct epoll_event> events(MAX_EVENTS);
+
+int n = epoll_wait(epfd, events.data(), events.size(), timeout_ms);
+for (int i = 0; i < n; ++i) {
+    int fd = events[i].data.fd;
+    uint32_t evs = events[i].events;
+    // handle evs & EPOLLIN, EPOLLOUT, EPOLLERR, etc.
+}
+```
+#### 7.2 Triggering Modes
+ * Level-Triggered (LT) (default)
+	As long as data remains to be read or the socket stays writable, epoll_wait will keep returning that FD. Simpler to program but can cause extra wakeups.
+
+ * Edge-Triggered (ET) (set via EPOLLET)<br>
+ 	Only notifies you once when the state changes (e.g. from no data → data available). You must set the socket to non-blocking and then loop on read()/write() until they return EAGAIN, or you’ll miss further data.
+
+#### 7.3 Common Event Flags
+
+* `EPOLLIN` – data to read (or new connection on listen socket)
+* `EPOLLOUT` – ready to write
+* `EPOLLERR` – error condition (e.g. reset)
+* `EPOLLHUP` – hangup (peer closed)
+* `EPOLLRDHUP` – peer performed orderly shutdown (FIN)
+* `EPOLLET` – enable edge-triggered mode
+* `EPOLLONESHOT` – auto-disable after event, must rearm explicitly
+
+#### 7.4 Why Use epoll?
+ * Scalability: O(1) or O(active_fds) behavior → ideal for thousands of concurrent
+ connections.
+ * Low Overhead: Kernel only wakes your thread when there’s actual work, avoiding wasted
+ scans or syscalls.
+
+ * Flexibility: Choose LT or ET, combine flags for one-shot usage, and watch for
+ half-closes via `EPOLLRDHUP`.
+
+### 8. fcntl()
+`fcntl()` (file control) is a system call in Unix/Linux that changes the behavior of an
+already opened file descriptor.
+
+A file descriptor can represent:
+
+ * a regular file
+ * a socket (for networking)
+ * a pipe
+ * a device
+
+You can use `fcntl()` to:
+
+ * Get or set the file descriptor flags (e.g., set non-blocking)
+ * Get or set the file status flags (e.g., O_NONBLOCK, O_APPEND)
+ * Lock a file
+ * Duplicate a file descriptor
+ * etc.
+
+Its general syntax:
+```cpp
+int fcntl(int fd, int cmd, ... /* arg */ );
+```
+ * `fd` is the file descriptor you want to operate on.
+ * `cmd` is what you want to do (like F_GETFL, F_SETFL, etc.)
+ * `arg` is optional, depending on the command.
+
+#### 8.1 What is Non-blocking I/O?
+Normally, I/O is blocking.
+For example:
+ * When you `read()` from a socket, if there is no data available, the program will block (pause) and wait until data arrives.
+ * When you `write()` to a socket, if the buffer is full, your program will block until it can send.
+
+Non-blocking I/O changes this behavior:
+ * When you `read()`, if there is no data available, it immediately returns -1 and sets errno = `EAGAIN`.
+ * When you `write()`, if the buffer is full, it immediately returns -1 and sets errno = `EAGAIN`.
+Your program doesn't get stuck anymore — it can do something else instead of waiting.
+👉 In event-driven servers (epoll, kqueue, etc.), non-blocking is critical because you don't want your server to "freeze" when talking to slow clients.
+
+#### 8.2 How to use fcntl() to set non-blocking mode
+Step 1: Get the current flags
+```cpp
+int flags = fcntl(fd, F_GETFL, 0);
+if (flags == -1) {
+    perror("fcntl get");
+    exit(EXIT_FAILURE);
+}
+
+```
+Step 2: Add `O_NONBLOCK`
+```cpp
+flags |= O_NONBLOCK;
+if (fcntl(fd, F_SETFL, flags) == -1) {
+    perror("fcntl set");
+    exit(EXIT_FAILURE);
+}
+
+```
+After this, all `read()`, `write()` on this fd will become non-blocking.
+
 ## Testing
 
 ### Testing SIGTERM
