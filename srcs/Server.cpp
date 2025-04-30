@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/30 08:57:05 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/30 13:59:02 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,18 +241,25 @@ void	Server::processDataFromClient(int idx){
 		try{
 			Message	msg(buffer);
 			msg.parseMessage();
-			???????
-
+			executeCommand(msg, *client);
 		} catch (std::exception& e){
 			Logger::log(Logger::WARNING, e.what());
 		}
 	}
 }
 
+// Not finish yet
 void	Server::removeClient(int fd, std::string reason){
 	// for testing only now, latter will implement
 	Logger::log(Logger::INFO, "Removing client " + std::to_string(fd) + ": " + reason);
     epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
     close(fd);
     clients_.erase(fd);
+}
+
+/**
+ * @brief 
+ */
+void	executeCommand(Message& msg, Client& cli){
+	
 }

@@ -9,6 +9,8 @@ class Message{
 	Message(std::string& message);
 	~Message();
 
+	void	parseMessage();
+
 	private:
 	std::string	msg_;
 

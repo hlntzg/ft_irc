@@ -745,3 +745,5 @@ After this, all `read()`, `write()` on this fd will become non-blocking.
 https://www.geeksforgeeks.org/socket-programming-cc/
 
 https://datatracker.ietf.org/doc/html/rfc1459
+
+http://chi.cs.uchicago.edu/chirc/irc.html

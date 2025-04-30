@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/28 14:46:19 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/30 13:47:26 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 
 class Client;
 class Channel;
+class Message;
 
 class Server{
 	public:
@@ -67,6 +68,7 @@ class Server{
 		void	acceptNewClient();
 		void	processDataFromClient(int idx);
 		void	removeClient(int fd, std::string reason);
+		void	executeCommand(Message& msg, Client& cli);
 };
 
 #include "Logger.hpp"
