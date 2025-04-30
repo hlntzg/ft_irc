@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/28 14:46:04 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/04/30 08:57:05 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,6 +220,13 @@ void	Server::acceptNewClient(){
     }
 }
 
+/**
+ * @brief This function will first try to receive the data from client socket first. If
+ * receive successfully, then store it in client instantiation; otherwise, it means
+ * the client wants to close the connection. Second, if the receive the client data
+ * succeffuly, then get the line separate by CRLF, saving into buffer. then parse it,
+ * execute it.
+ */
 void	Server::processDataFromClient(int idx){
 	int	client_fd = events_[idx].data.fd;
 	Client* client = &(clients_[client_fd]);
@@ -231,9 +238,15 @@ void	Server::processDataFromClient(int idx){
 	std::string	buffer;
 	// extract one line command/message that separate by CRLF
 	while (client->getNextMessage(buffer)){
-		Message	msg(buffer);
-	}
+		try{
+			Message	msg(buffer);
+			msg.parseMessage();
+			???????
 
+		} catch (std::exception& e){
+			Logger::log(Logger::WARNING, e.what());
+		}
+	}
 }
 
 void	Server::removeClient(int fd, std::string reason){
