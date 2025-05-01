@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/30 13:59:02 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/01 14:09:49 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,22 @@ Server::Server(std::string port, std::string password){
 Server*	Server::server_ = nullptr;
 
 volatile sig_atomic_t	Server::keep_running_ = 1;
+
+
+
+/**
+ * @brief Define the commands that an unregistered client can execute. Currenctly
+ * set to PASS, NICK, USER and QUIT
+ */
+const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
+	PASS,
+	NICK,
+	USER,
+	QUIT
+};
+
+
+
 
 Server::~Server(){
 }
@@ -255,11 +271,40 @@ void	Server::removeClient(int fd, std::string reason){
     epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
     close(fd);
     clients_.erase(fd);
+	?????????
 }
 
 /**
- * @brief 
+ * @brief If the client hasn't finished registration process, and execute no-permission-
+ * command, then just return. Otherwise, call Message::execute to execute the command
+ *
  */
-void	executeCommand(Message& msg, Client& cli){
-	
+void	Server::executeCommand(Message& msg, Client& cli){
+	COMMANDTYPE	type = msg.getType();
+	// If the client hasn't finished registration, then the commands are limited
+	if (!cli.isRegistered() && pre_registration_allowed_commands_.find(type)
+		== pre_registration_allowed_commands_.end() ){
+		Logger::log(Logger::INFO, "Unregistered client can't execute the command");
+		return;
+	}
+	msg.execute(cli);
+}
+
+/**
+ * @brief Send response message to client
+ *
+ * @param cli: the response message receiver
+ * @param repsonse: the reponse message
+ *
+ * @return bytes written or throw error(negative value)
+ */
+int	Server::responseToClient(Client& cli, const std::string& response){
+	int	n_bytes = send(cli.getSocketFD(), response.c_str(), response.length(), MSG_DONTWAIT);
+	if (n_bytes < 0){
+		Logger::log(Logger::WARNING, "Failed to send data to user " + cli.getNick() +
+		": " + response);
+	} else {
+		Logger::log(Logger::DEBUG, "Sent successfully "+ cli.getNick() + ": " + response);
+	}
+	return (n_bytes);
 }

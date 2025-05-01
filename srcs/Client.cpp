@@ -6,15 +6,15 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/28 14:40:20 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/01 13:56:01 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : socket_fd_(0){}
+Client::Client() : socket_fd_(0), isRegistered_(0){}
 
-Client::Client(int fd) : socket_fd_(fd){
+Client::Client(int fd) : socket_fd_(fd), isRegistered_(0){
 	// for testing
 	// std::cout << "New client has been create\n";
 }
@@ -27,6 +27,15 @@ Client&	Client::operator=(const Client& other){
 }
 
 Client::~Client(){
+}
+
+
+int	Client::getSocketFD() const{
+	return socket_fd_;
+}
+
+const std::string&	Client::getNick() const{
+	return nick_;
 }
 
 /**
@@ -54,4 +63,8 @@ bool	Client::receiveRawData(){
  */
 bool	Client::getNextMessage(std::string& buffer){
 
+}
+
+bool	Client::isRegistered(){
+	return isRegistered_;
 }

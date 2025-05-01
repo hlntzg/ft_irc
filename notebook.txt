@@ -43,3 +43,10 @@ For testing:
 
 This opens a TCP connection to 127.0.0.1 on port 8080
 The -C flag: Send CRLF (\r\n) as line endings instead of just \n.
+
+
+Sherry:
+    execute function in Message classes
+    removeUser Logic
+    disconnect server??
+    reply messagees edit

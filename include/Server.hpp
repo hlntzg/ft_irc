@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/30 13:47:26 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/01 14:43:33 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,17 +23,32 @@
 #include <signal.h>
 #include <cstring> //for memset
 #include <fcntl.h>  // for fcntl()
+#include <set> // for std::set
 
-// #include <unistd.h> // for sleep() for testing,
-
+class Client;
+class Channel;
+class Message;
 
 
 #define SPECIAL_CHARS "!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`"
 #define PASSWORD_RULE "Allow contain:\n1.Letters\n2.Digits\n3.Characters in\"!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`\""
 
-class Client;
-class Channel;
-class Message;
+enum COMMANDTYPE{
+	PASS,
+	NICK,
+	USER,
+	PRIVMSG,
+	JOIN,
+	PART,
+	OPER,
+	KICK,
+	INVITE,
+	TOPIC,
+	MODE,
+	QUIT,
+	NONE
+};
+
 
 class Server{
 	public:
@@ -41,6 +56,7 @@ class Server{
 		~Server();
 
 		void	startServer();
+		static int		responseToClient(Client& cli, const std::string& response);
 
 	private:
 		// Private attributes
@@ -51,11 +67,20 @@ class Server{
 		int					epoll_fd_;
 		struct sockaddr_in	serv_addr_;
 		static constexpr int	MAX_EVENTS = 1024;
-		std::unordered_map<int, Client> clients_; // the key is client socket (client_fd)
-		// std::unordered_map<int, Channel> channels_;
+
+		// std::shared_ptr<T> is a smart pointer introduced in C++11 that manages the
+		// lifetime of a dynamically allocated object. It does so using reference
+		// counting — multiple shared_ptr instances can share ownership of the same object.
+		// When the last shared_ptr pointing to that object is destroyed or reset,
+		// the object is automatically deleted.
+		std::unordered_map<int, std::shared_ptr<Client>> clients_; // the key is client socket (client_fd)
+		std::unordered_map<std::string, std::shared_ptr<Channel>> channels_; // string is the channel name
 		std::vector<struct epoll_event>	events_; // using for saving the clients' fds
 
 		static volatile sig_atomic_t	keep_running_; // internal flag
+		static const std::set<COMMANDTYPE> pre_registration_allowed_commands_;
+
+
 
 		// private functions
 		Server() = delete;
