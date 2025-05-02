@@ -18,12 +18,12 @@
 
 #include "Client.hpp"
 
-#define MAX_USER 10
+#define USER_MAX 100
 
 class Channel{
 	public:
 		Channel() = delete;
-        Channel(std::string& name);
+        Channel(std::string& name, Client& user);
         Channel(const Channel&) = delete;
 		Channel& operator=(const Channel& other) = delete;
 		~Channel();
@@ -37,7 +37,7 @@ class Channel{
         bool        getLimitMode();
         size_t      channelSize();
 
-        // Channel's mode:
+        // Channel's set mode:
         void        setInviteOnly();
         void        unsetInviteOnly();
         
@@ -46,13 +46,28 @@ class Channel{
 
         void        setPassword();
         void        unsetPassword();
-
-        void        setOperator();
-        void        unsetOperator();
+        void        addNewPassword(const std::string& key);
 
         void        setLimit();
         void        unsetLimit();
+        void        addLimit(int limit);
 
+        // Regular user and Channel Operator:
+        void        addNewUser(Client& user);
+        void        removeUser(Client& user);
+
+        void        addNewOperator(Client& user);
+        void        removeOperator(Client& user);
+        bool        isChannelOperator(Client& user);
+
+        // Channel Operators commands:
+        // void        kickUser(Client& user, Client& target, const std::string& reason);
+        // void        inviteUser(Client& user, Client& target);
+        // newTopic()
+        // changeMode()
+        // handleInviteOnlyMode()
+        // handleTopicRestrictionMode()
+        // handlePasswordMode()
 
     private:
         std::string channel_name_;
