@@ -16,7 +16,9 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "Server.hpp"
 #include "Client.hpp"
+#include "Logger.hpp"
 
 #define USER_MAX 100
 
@@ -43,6 +45,7 @@ class Channel{
         
         void        setTopicRestrictions();
         void        unsetTopicRestrictions();
+        void        addNewTopic(const std::string& topic);
 
         void        setPassword();
         void        unsetPassword();
@@ -58,16 +61,23 @@ class Channel{
 
         void        addNewOperator(Client& user);
         void        removeOperator(Client& user);
+
+        bool        isChannelUser(Client& user);
         bool        isChannelOperator(Client& user);
+        bool        isInvitedUser(Client& user);
+
+        // General:
+        void        notifyChannelUsers(Client& target, std::string& msg);
 
         // Channel Operators commands:
-        // void        kickUser(Client& user, Client& target, const std::string& reason);
-        // void        inviteUser(Client& user, Client& target);
-        // newTopic()
-        // changeMode()
-        // handleInviteOnlyMode()
-        // handleTopicRestrictionMode()
-        // handlePasswordMode()
+        void        kickUser(Client& user, Client& target, const std::string& reason);
+        void        inviteUser(Client& user, Client& target);
+        void        topic(Client& user, const std::string& topic);
+        //void        changeMode();
+        // void        handleInviteOnlyMode()
+        // void        handleTopicRestrictionMode()
+        // void        handlePasswordMode()
+
 
     private:
         std::string channel_name_;
