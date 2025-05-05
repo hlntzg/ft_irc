@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/05 12:53:52 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/05 14:55:18 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ inline std::string errNoSuchNick(const std::string& nick, const std::string& wro
 /**
  * @brief Used to indicate the given channel name is invalid
  */
-inline std::string errNoSuchNick(const std::string& nick, const std::string& wrong_channel){
+inline std::string errNoSuchChannel(const std::string& nick, const std::string& wrong_channel){
 	return (std::string(SERVER) + " 403 " + nick + " " + wrong_channel+" :No such channel\r\n");
 }
 
@@ -76,7 +76,7 @@ inline std::string errNoSuchNick(const std::string& nick, const std::string& wro
  * not a chanop (or mode +v) on a channel which has mode +m set and is trying to send
  * a PRIVMSG message to that channel.
  */
-inline std::string errNoSuchNick(const std::string& nick, const std::string& channel_name){
+inline std::string canNotSendToChan(const std::string& nick, const std::string& channel_name){
 	return (std::string(SERVER) + " 404 " + nick + " " + channel_name+" :Cannot send to channel\r\n");
 }
 
@@ -85,7 +85,7 @@ inline std::string errNoSuchNick(const std::string& nick, const std::string& cha
  * @brief Sent to a user when they have joined the maximum number of allowed channels
  * and they try to join another channel.
  */
-inline std::string errNoSuchNick(const std::string& nick, const std::string& channel_name){
+inline std::string tooManyChannels(const std::string& nick, const std::string& channel_name){
 	return (std::string(SERVER) + " 405 " + nick + " " + channel_name
 			+ " :You have joined too many channels\r\n");
 }
@@ -95,7 +95,7 @@ inline std::string errNoSuchNick(const std::string& nick, const std::string& cha
  * @brief Returned to a registered client to indicate that the command sent is unknown
  * by the server.
  */
-inline std::string errNoSuchNick(const std::string& nick, const std::string& wrong_command){
+inline std::string unknowCommand(const std::string& nick, const std::string& wrong_command){
 	return (std::string(SERVER) + " 421 " + nick + " " + wrong_command
 			+ " :Unknow command\r\n");
 }
@@ -104,28 +104,90 @@ inline std::string errNoSuchNick(const std::string& nick, const std::string& wro
 /**
  * @brief Returned when a nickname parameter expected for a command and isn't found.
  */
-inline std::string errNoSuchNick(const std::string& nick){
+inline std::string nonNickNameGiven(const std::string& nick){
 	return (std::string(SERVER) + " 431 " + nick + " :No nickname given\r\n");
 }
 
+// 432 ERR_ERRONEUSNICKNAME
+/**
+ * @brief Returned after receiving a NICK message which contains characters which do
+ * not fall in the defined set.
+ */
+inline std::string erroneusNickName(const std::string& nick){
+	return (std::string(SERVER) + " 432 " + nick + " :Erroneus nickname\r\n");
+}
+
+// 433 ERR_NICKNAMEINUSE
+/**
+ * @brief Returned when a NICK message is processed that results in an attempt to change
+ * to a currently existing nickname.
+ */
+inline std::string nickNameinuse(const std::string& nick){
+	return (std::string(SERVER) + " 433 " + nick + " :Nickname is already in use\r\n");
+}
+
+// 441 ERR_USERNOTINCHANNEL
+/**
+ * @brief Returned by the server to indicate that the target user of the command is
+ * not on the given channel.
+ */
+inline std::string userNotInChannel(const std::string& nick, const std::string& targets,
+const std::string& channel){
+	return (std::string(SERVER) + " 441 " + nick  + " "  + targets + " "+ channel
+		     + " :They aren't on that channel\r\n");
+}
+
+// 442 ERR_NOTONCHANNEL
+/**
+ * @brief Returned by the server whenever a client tries to perform a channel effecting
+ * command for which the client isn't a member.
+ */
+inline std::string notOnChannel(const std::string& nick, const std::string& channel){
+	return (std::string(SERVER) + " 442 " + nick  + " " + channel
+		     + " :You're not on that channel\r\n");
+}
+
+// 443 ERR_USERONCHANNEL
+/**
+ * @brief Returned when a client tries to invite a user to a channel they are already on.
+ *
+ * @param nick the user who try to operate the command
+ * @param target: the user who is added into a channel
+ * @param channel: the channel which adds a new user in
+ */
+inline std::string userOnChannel(const std::string& nick, const std::string& target,
+const std::string& channel){
+	return (std::string(SERVER) + " 443 " + nick  + " " + target + " " + channel
+		     + " :is already on channel\r\n");
+}
+
+// 451 ERR_NOTREGISTERED
+/**
+ * @brief Returned by the server to indicate that the client must be registered before
+ * the server will allow it to be parsed in detail.
+ */
+inline std::string NotRegistered(const std::string& nick){
+	return (std::string(SERVER) + " 451 " + nick  + " :You have not registered\r\n");
+}
+
+// 461 ERR_NEEDMOREPARAMS
+/**
+ * @brief Returned by the server by numerous commands to indicate to the client that
+ * it didn't supply enough parameters.
+ */
+inline std::string needMoreParams(const std::string& command){
+	return (std::string(SERVER) + " 461 " + command  + " :Not enough parameters\r\n");
+}
 
 
 // PASS and USER
-ERR_NEEDMOREPARAMS
-
 ERR_ALREADYREGISTRED
 
-// NICK
-ERR_NONICKNAMEGIVEN             ERR_ERRONEUSNICKNAME
-ERR_NICKNAMEINUSE               ERR_NICKCOLLISION
 
 // CHANNEL
 ERR_BANNEDFROMCHAN
 ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
 ERR_CHANNELISFULL               ERR_BADCHANMASK
-ERR_TOOMANYCHANNELS
-RPL_TOPIC
-ERR_NOTONCHANNEL
 
 
 RPL_CHANNELMODEIS
