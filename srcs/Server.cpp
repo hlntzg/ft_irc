@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/01 14:09:49 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/05 09:54:59 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,34 @@ const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
 	QUIT
 };
 
+/**
+ * @brief Define the commands that only an operator can execute. Currenctly
+ * set to: OPER, KICK, INVITE, TOPIC and MODE
+ */
+const std::set<COMMANDTYPE> Server::operator_commands_ = {
+	KICK,
+	INVITE,
+	TOPIC,
+	MODE
+};
 
+/**
+ * @brief Setup the map for commands and execute functions
+ */
+const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ = {
+	{PASS, &Server::passCommand},
+	// {NICK, &Server::nickCommand},
+	// {USER, &Server::userCommand},
+	// {PRIVMSG, &Server::privmsgCommand},
+	// {JOIN, &Server::joinCommand},
+	// {PART, &Server::partCommand},
+	// {OPER, &Server::operCommand},
+	// {KICK, &Server::kickCommand},
+	// {INVITE, &Server::inviteCommand},
+	// {TOPIC, &Server::topicCommand},
+	// {MODE, &Server::modeCommand},
+	{QUIT, &Server::quitCommand}
+};
 
 
 Server::~Server(){
@@ -231,7 +258,10 @@ void	Server::acceptNewClient(){
             close(client_fd);
             throw std::runtime_error("epoll_ctl ADD client failed");
         }
-        clients_[client_fd] = Client(client_fd);
+		// Because the Client(client_fd) will return client&, but in Clients_
+		// the key value is std::shared_ptr type. So need use "std::make_shared"
+		// to match the return value
+        clients_[client_fd] = std::make_shared<Client>(client_fd);
         Logger::log(Logger::INFO, "New client " + std::to_string(client_fd));
     }
 }
@@ -245,7 +275,8 @@ void	Server::acceptNewClient(){
  */
 void	Server::processDataFromClient(int idx){
 	int	client_fd = events_[idx].data.fd;
-	Client* client = &(clients_[client_fd]);
+	// Client* client = &(clients_[client_fd]);
+	std::shared_ptr<Client> client = clients_[client_fd];
 	if (!client->receiveRawData()){
 		Logger::log(Logger::INFO, "Client '" + std::to_string(client_fd) + "' disconnected");
 		removeClient(client_fd, "Client disconnect");
@@ -290,6 +321,26 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	msg.execute(cli);
 }
 
+// void	Message::execute(Client& cli){
+// 	// If an not-operator client try to execute operator commands, then reject.
+// 	if (operator_commands_.find(msg_type_) != operator_commands_.end()){
+// 		std::unordered_set<std::shared_ptr<Channel>>::iterator it = msg_channels_.begin();
+// 		for (; it != msg_channels_.end(); it++){
+// 			// need add a checking user's permisson in channle class
+// 			if (!it->isClientOperator(cli)){
+// 				Server::responseToClient(// need add response message here);
+// 			}
+// 		}
+// 	}
+// // How should I know if the client has permission on all the channels???
+
+// 	auto it = execute_map_.find(msg_type_);
+// 	if (it != execute_map_.end()){
+// 		(this->*it->second)(cli);
+// 	}
+// }
+
+
 /**
  * @brief Send response message to client
  *
@@ -307,4 +358,12 @@ int	Server::responseToClient(Client& cli, const std::string& response){
 		Logger::log(Logger::DEBUG, "Sent successfully "+ cli.getNick() + ": " + response);
 	}
 	return (n_bytes);
+}
+
+void	passCommand(Message& msg, Client& cli){
+	msg.pass(cli);
+}
+
+void	quitCommand(Message& msg, Client& cli){
+	msg.quit(cli);
 }

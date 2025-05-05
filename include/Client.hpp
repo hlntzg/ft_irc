@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/01 13:55:24 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/05 09:46:37 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,4 @@ class Client{
 		bool	isRegistered_;
 
 		Client(const Client&) = delete;
-
-
 };

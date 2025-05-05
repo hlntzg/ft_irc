@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/01 14:43:33 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/05 10:39:26 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class Server{
 		~Server();
 
 		void	startServer();
-		static int		responseToClient(Client& cli, const std::string& response);
+		static int	responseToClient(Client& cli, const std::string& response);
 
 	private:
 		// Private attributes
@@ -78,8 +78,14 @@ class Server{
 		std::vector<struct epoll_event>	events_; // using for saving the clients' fds
 
 		static volatile sig_atomic_t	keep_running_; // internal flag
-		static const std::set<COMMANDTYPE> pre_registration_allowed_commands_;
 
+		static const std::set<COMMANDTYPE> pre_registration_allowed_commands_;
+		static const std::set<COMMANDTYPE> operator_commands_;
+		// this defines executeFunc is a pointer to a function inside the Message class
+		// that takes two reference arguments and returns void.
+		// Using in the server class
+		using executeFunc = void (Server::*)(Client& cli);
+		static const std::unordered_map<COMMANDTYPE, Server::executeFunc> execute_map_;
 
 
 		// private functions
@@ -94,9 +100,44 @@ class Server{
 		void	processDataFromClient(int idx);
 		void	removeClient(int fd, std::string reason);
 		void	executeCommand(Message& msg, Client& cli);
+		void	passCommand(Message& msg, Client& cli);
+		void	quitCommand(Message& msg, Client& cli);
 };
 
 #include "Logger.hpp"
 #include "Client.hpp"
 #include "Message.hpp"
-// #include "Channel.hpp"
+#include "Channel.hpp"
+
+
+/**
+ * Compare std::shared_ptr and Raw pointer(Client*)
+ *  1. Ownership
+ *  std::shared_ptr: Shared ownership — multiple shared_ptrs can point to the same object.
+ *                    Object is destroyed when the last shared_ptr is destroyed.
+ *  Raw Pointer: No ownership semantics — you manually manage the memory.
+ *
+ * 2. Memory Management
+ *	 std::shared_ptr: Automatically deletes the object when the reference count reaches
+                      zero.
+     Raw Pointer: Must manually call delete. Easy to forget, leading to memory leaks.
+ *
+ * 3. Safety
+ *  std::shared_ptr: Safer. Prevents double delete and dangling pointers if used correctly.
+ *  Raw Pointer: Dangerous. Easy to cause memory leaks, dangling pointers, and undefined
+ *               behavior.
+ *
+ * 4. Copyable
+ *  std::shared_ptr: Can be copied and passed around safely; internally manages reference count.
+ *  Raw Pointer: Can be copied, but no automatic tracking of who owns the memory.
+ *
+ *  5. Overhead
+ *  std::shared_ptr: Slightly more overhead due to reference counting mechanism.
+ *  Raw Pointer: No overhead, but higher risk of bugs.
+ *
+ * 6. Usage Scenario
+ *  std::shared_ptr: Recommended when multiple parts of code share ownership of a
+ *                   dynamically allocated object.
+ *  Raw Pointer: Use when performance is critical and ownership is clear.
+ *               Often used for low-level or temporary purposes.
+ */

@@ -47,7 +47,9 @@ class Message{
 		void	parseMessage();
 
 		COMMANDTYPE	getType();
-		void	execute(Client& cli);
+		// void	execute(Client& cli);
+		void	pass(Client& cli);
+		void	quit(Client& cli);
 
 	private:
 		std::string	whole_msg_;
@@ -60,15 +62,6 @@ class Message{
 		std::vector<std::string>	msg_params_;
 		std::string	msg_trailing_;
 
-		static const std::set<COMMANDTYPE> operator_commands_;
-		// this defines executeFunc is a pointer to a function inside the Message class
-		// that takes two reference arguments and returns void.
-		// Using in the server class
-		using executeFunc = void (Message::*)(Client& cli);
-		static const std::unordered_map<COMMANDTYPE, Message::executeFunc> execute_map_;
-
-		void	passCommand(Client& cli);
-		void	quitCommand(Client& cli);
 
 };
 
