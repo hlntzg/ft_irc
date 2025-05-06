@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/05 14:55:18 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/06 08:44:38 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ This is like a copy-paste optimization at compile time to avoid function call
 overhead for small functions.
  */
 
-/*.............................Registeration Replies.........................*/
+/*...................................Commands Replies..............................*/
 
 // 001 RPL_WELCOME
 inline std::string rplWelcome(const std::string& nick){
@@ -49,6 +49,34 @@ inline std::string rplMyInfo(const std::string& nick){
 	return (std::string(SERVER) + " 004 " + nick + " " + std::string(SERVER) +
 	        + " 1.0 " + std::string(SUPPORTUSERMODE) + " "
 			+ std::string(SUPPORTCHANNELMODE) +"\r\n");
+}
+
+// 324 RPL_CHANNELMODEIS
+inline std::string ChannelModeIs(const std::string& nick, const std::string& channel,
+const std::string& mode_params){
+	return (std::string(SERVER) + " 324 " + nick + " " + channel +
+	        + " mode " + mode_params + " \r\n");
+}
+
+// 331 RPL_NOTOPIC
+inline std::string NoTopic(const std::string& nick, const std::string& channel){
+	return (std::string(SERVER) + " 331 " + nick + " " + channel +": No topic is set \r\n");
+}
+
+// 332 RPL_TOPIC
+inline std::string Topic(const std::string& nick, const std::string& channel,
+const std::string& topic){
+	return (std::string(SERVER) + " 332 " + nick + " " + channel + " " + topic +"\r\n");
+}
+
+// 341 RPL_INVITING
+/**
+ * @brief Returned by the server to indicate that the attempted INVITE message was
+ * successful and is being passed onto the end client.
+ */
+inline std::string Inviting(const std::string& nick, const std::string& channel,
+const std::string& invitee_nick){
+	return (std::string(SERVER) + " 341 " + nick + " " + channel + " " + invitee_nick +"\r\n");
 }
 
 
@@ -179,25 +207,54 @@ inline std::string needMoreParams(const std::string& command){
 	return (std::string(SERVER) + " 461 " + command  + " :Not enough parameters\r\n");
 }
 
+// 462 ERR_ALREADYREGISTRED
+/**
+ * @brief Returned by the server to any link which tries to change part of the
+ * registered details (such as password or user details from second USER message).
+ */
+inline std::string alreadyRegistred(const std::string& nick){
+	return (std::string(SERVER) + " 462 " + nick  + " :You may not reregister\r\n");
+}
 
-// PASS and USER
-ERR_ALREADYREGISTRED
+// 464 ERR_PASSWDMISMATCH
+/**
+ * @brief Returned to indicate a failed attempt at registering a connection for
+ * which a password was required and was either not given or incorrect.
+ */
+inline std::string passwdMismatch(const std::string& nick){
+	return (std::string(SERVER) + " 464 " + nick  + " :Password incorrect\r\n");
+}
 
+// 467 ERR_KEYSET
+inline std::string keySet(const std::string& nick, const std::string& channel){
+	return (std::string(SERVER) + " 467 " + nick + " " + channel + " :Channel key already set\r\n");
+}
 
-// CHANNEL
-ERR_BANNEDFROMCHAN
-ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
-ERR_CHANNELISFULL               ERR_BADCHANMASK
+// 471 ERR_CHANNELISFULL
+inline std::string channelIsFull(const std::string& nick, const std::string& channel){
+	return (std::string(SERVER) + " 471 " + nick + " " + channel + " :Cannot join channel (+l)\r\n");
+}
 
+// 472 ERR_UNKNOWNMODE
+inline std::string unknownMode(const std::string& nick, const std::string& unknown_mode){
+	return (std::string(SERVER) + " 472 " + nick + " " + unknown_mode + " :is unknown mode char to me\r\n");
+}
 
-RPL_CHANNELMODEIS
-           ERR_CHANOPRIVSNEEDED
-             ERR_KEYSET
-           RPL_BANLIST                     RPL_ENDOFBANLIST
-           ERR_UNKNOWNMODE
+// 473 ERR_INVITEONLYCHAN
+inline std::string inviteOnlyChan(const std::string& nick, const std::string& channel){
+	return (std::string(SERVER) + " 473 " + nick + " " + channel + " :Cannot join channel (+i)\r\n");
+}
 
-           ERR_USERSDONTMATCH              RPL_UMODEIS
-           ERR_UMODEUNKNOWNFLAG
-		   RPL_NOTOPIC
-		   RPL_INVITING    ERR_USERONCHANNEL
-		   ERR_BADCHANMASK
+// 474 ERR_BADCHANNELKEY
+inline std::string badChannelKey(const std::string& nick, const std::string& channel){
+	return (std::string(SERVER) + " 474 " + nick + " " + channel + " :Cannot join channel (+k)\r\n");
+}
+
+// 482 ERR_CHANOPRIVSNEEDED
+/**
+ * @brief Any command requiring 'chanop' privileges (such as MODE messages) must return this
+ * error if the client making the attempt is not a chanop on the specified channel
+ */
+inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& channel){
+	return (std::string(SERVER) + " 482 " + nick + " " + channel + " :You're not channel operator\r\n");
+}
