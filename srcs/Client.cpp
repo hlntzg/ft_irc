@@ -6,22 +6,22 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/01 13:56:01 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/06 14:49:51 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : socket_fd_(0), isRegistered_(0){}
+Client::Client() : socket_fd_(0), host_("localhost"), isRegistered_(0){}
 
-Client::Client(int fd) : socket_fd_(fd), isRegistered_(0){
+Client::Client(int fd, std::string host) : socket_fd_(fd), host_(host), isRegistered_(0){
 	// for testing
 	// std::cout << "New client has been create\n";
 }
 
 Client&	Client::operator=(const Client& other){
 	if (this != & other){
-		Client(other.socket_fd_);
+		Client(other.socket_fd_, other.host_);
 	}
 	return *this;
 }
@@ -67,4 +67,21 @@ bool	Client::getNextMessage(std::string& buffer){
 
 bool	Client::isRegistered(){
 	return isRegistered_;
+}
+
+/**
+ * @brief Used when the server responding to a command issued by client.
+ * For example:
+ *    PRIVMSG bob :Hello, Bob!
+ *
+ * Server responds with:
+ *    :alice!alice@hostname PRIVMSG bob :Hello, Bob!
+ */
+const std::string&	Client::getPrefix() const{
+	return (":" + nick_ + "!" + name_ + "@" + host_);
+}
+
+
+void	Client::setPassword(const std::string& passwd){
+	password_ = passwd;
 }

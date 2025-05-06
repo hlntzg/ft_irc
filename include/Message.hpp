@@ -46,16 +46,21 @@ class Message{
 
 		void	parseMessage();
 
-		COMMANDTYPE	getType();
-		// void	execute(Client& cli);
-		void	pass(Client& cli);
-		void	quit(Client& cli);
+		COMMANDTYPE						getCmdType() const;
+		const std::string&				getCmdStrType() const;
+		const std::vector<std::string>&	getMsgParams() const;
+
+		std::shared_ptr<Channel>	getTheChannel(std::string& channel_name);
 
 	private:
 		std::string	whole_msg_;
 		// Elements contain in a message
-		COMMANDTYPE	msg_type_;
-		std::unordered_set<std::shared_ptr<Channel>>	msg_channels_;
+		COMMANDTYPE	cmd_type_;
+		std::string	cmd_str_type_;
+
+		// std::string stores channel name;
+		// std::shared_ptr<Channel> stores Channel objects;
+		std::unordered_map<std::string, std::shared_ptr<Channel>>	msg_channels_;
 
 		// msg_params used to store the content other than command, channels
 		// and trailing in a message, like "user1", "user2", "alice"

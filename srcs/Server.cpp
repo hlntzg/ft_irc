@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/05 09:54:59 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/06 14:49:34 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,6 @@ const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
 const std::set<COMMANDTYPE> Server::operator_commands_ = {
 	KICK,
 	INVITE,
-	TOPIC,
 	MODE
 };
 
@@ -159,8 +158,9 @@ void	Server::setupServSocket(){
 	}
 
 	// 5. register listeing socket for read(EPOLLIN)
-	int flags = fcntl(serv_fd_, F_GETFL, 0);
-	fcntl(serv_fd_, F_SETFL, flags | O_NONBLOCK);
+	// only need for MacOS
+	// int flags = fcntl(serv_fd_, F_GETFL, 0);
+	// fcntl(serv_fd_, F_SETFL, flags | O_NONBLOCK);
 
 	struct epoll_event ev{};
 	// EPOLLIN for read events + EPOLLET for edge-triggered
@@ -181,6 +181,10 @@ void	Server::startServer(){
 	setupServSocket();
 	while (keep_running_){
 		// Wait indefinitely for events
+		// the return value of epoll_wait():
+		// > 0  Number of file descriptors that are ready for the requested I/O.
+		// =0   Timeout occurred — no file descriptors were ready
+		// < 0  Error occurred — check errno for the specific error cause.
 		int nready = epoll_wait(epoll_fd_, events_.data(), events_.size(), -1);
 		if (nready < 0){
 			if (errno == EINTR){
@@ -200,7 +204,7 @@ void	Server::startServer(){
 			}
 			// 2) check for error or hang-up
 			else if (evs & (EPOLLERR | EPOLLHUP)){
-				removeClient(fd, "disconnected");
+				removeClient(*(clients_.find(fd)->second), "disconnected");
 				continue;
 			}
 			// 3) date to read
@@ -246,9 +250,14 @@ void	Server::acceptNewClient(){
             throw std::runtime_error("accept failed: " + std::string(strerror(errno)));
         }
 
+		// get the host information
+		char host[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &client_addr.sin_addr, host, INET_ADDRSTRLEN);
+
         // setting non-blockning mode
-        int flags = fcntl(client_fd, F_GETFL, 0);
-        fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+		// Only need for MacOs
+        // int flags = fcntl(client_fd, F_GETFL, 0);
+        // fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
 
         // Register new client into epoll
         epoll_event ev{};
@@ -261,7 +270,7 @@ void	Server::acceptNewClient(){
 		// Because the Client(client_fd) will return client&, but in Clients_
 		// the key value is std::shared_ptr type. So need use "std::make_shared"
 		// to match the return value
-        clients_[client_fd] = std::make_shared<Client>(client_fd);
+        clients_[client_fd] = std::make_shared<Client>(client_fd, host);
         Logger::log(Logger::INFO, "New client " + std::to_string(client_fd));
     }
 }
@@ -275,11 +284,10 @@ void	Server::acceptNewClient(){
  */
 void	Server::processDataFromClient(int idx){
 	int	client_fd = events_[idx].data.fd;
-	// Client* client = &(clients_[client_fd]);
 	std::shared_ptr<Client> client = clients_[client_fd];
 	if (!client->receiveRawData()){
 		Logger::log(Logger::INFO, "Client '" + std::to_string(client_fd) + "' disconnected");
-		removeClient(client_fd, "Client disconnect");
+		removeClient(*client, "Client disconnect");
 		return;
 	}
 	std::string	buffer;
@@ -295,14 +303,49 @@ void	Server::processDataFromClient(int idx){
 	}
 }
 
-// Not finish yet
-void	Server::removeClient(int fd, std::string reason){
-	// for testing only now, latter will implement
-	Logger::log(Logger::INFO, "Removing client " + std::to_string(fd) + ": " + reason);
-    epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
-    close(fd);
-    clients_.erase(fd);
-	?????????
+/**
+ * @brief When a user quit or disconnect because some reason, the server need to remove
+ * the user from all the channels, from user list, close the user's fd.
+ *
+ * @param usr: the user is needed to be removed;
+ * @param reason: the reason that why remove the user;
+ */
+void	Server::removeClient(Client& usr, std::string reason){
+	int	usr_fd = usr.getSocketFD();
+
+	// 1.Remove the user from joined channels
+	for (const auto& [name, channelPtr] : channels_){
+		if (channelPtr->isChannelUser(usr)){
+			channelPtr->removeUser(usr);
+			// After remove the user, if the channel become an empty channel, then
+			// remove it from channels map
+			if (channelPtr->isEmptyChannel()){
+				channels_.erase(name);
+			} else { // if the channel is not empty, then send info to all other users
+				// here I need loop this channel's all the user, then send
+				// a message to them
+				for (loop the user list, we should put this in remove user function or here?){
+					responseToClient(<a user in the list>, usr.getPrefix() + " QUIT : " + reason);
+				}
+			}
+		}
+	}
+
+	// 2.Remove from epoll container
+	auto it = std::remove_if(events_.begin(), events_.end(),[usr_fd](const epoll_event& ev){
+		return ev.data.fd == usr_fd;
+	});
+	if (it != events_.end()){
+		events_.erase(it, events_.end());
+	}
+
+	// 3.Inform the kernel to remove the file descriptor from the actual epoll monitoring set
+	epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, usr_fd, nullptr);
+
+	// 4. Remove from Clients map
+    close(usr_fd);
+	clients_.erase(usr_fd);
+	Logger::log(Logger::INFO, "Removing client " + std::to_string(usr_fd) + ": " + reason);
 }
 
 /**
@@ -311,35 +354,41 @@ void	Server::removeClient(int fd, std::string reason){
  *
  */
 void	Server::executeCommand(Message& msg, Client& cli){
-	COMMANDTYPE	type = msg.getType();
-	// If the client hasn't finished registration, then the commands are limited
-	if (!cli.isRegistered() && pre_registration_allowed_commands_.find(type)
+	COMMANDTYPE	cmd_type = msg.getCmdType();
+	std::string cmd_str_type = msg.getCmdStrType();
+
+	// 1.If the client hasn't finished registration, then the user can not operate
+	// the commands except PASS, NICK, USER and QUIT
+	if (!cli.isRegistered() && pre_registration_allowed_commands_.find(cmd_type)
 		== pre_registration_allowed_commands_.end() ){
 		Logger::log(Logger::INFO, "Unregistered client can't execute the command");
+		responseToClient(cli, NotRegistered(cmd_str_type));
 		return;
 	}
-	msg.execute(cli);
+	// 2.If an non-operator user try to execute operator commands, then reject.
+	// currently dicide to put this logic into commands functions.
+	// if (operator_commands_.find(cmd_type) != operator_commands_.end()){
+	// 	// std::unordered_set<std::shared_ptr<Channel>>::iterator it = msg_channels_.begin();
+	// 	1) checking if the user is in the operated channel
+	// 	2) checking if the user is the operator of the channel
+	// 	for (; it != msg_channels_.end(); it++){
+	// 		// need add a checking user's permisson in channle class
+	// 		if (!it->isClientOperator(cli)){
+	// 			Server::responseToClient(// need add response message here);
+	// 		}
+	// 	}
+	// }
+
+	// 2. Find the matched command, then call that command; otherwise, response
+	// unknowncommand error
+	std::unordered_map<COMMANDTYPE, executeFunc>::const_iterator it =
+		execute_map_.find(cmd_type);
+	if (it != execute_map_.end()){
+		(this->*it->second)(msg, cli);
+	} else {
+		responseToClient(cli, unknowCommand(cli.getNick(), cmd_str_type));
+	}
 }
-
-// void	Message::execute(Client& cli){
-// 	// If an not-operator client try to execute operator commands, then reject.
-// 	if (operator_commands_.find(msg_type_) != operator_commands_.end()){
-// 		std::unordered_set<std::shared_ptr<Channel>>::iterator it = msg_channels_.begin();
-// 		for (; it != msg_channels_.end(); it++){
-// 			// need add a checking user's permisson in channle class
-// 			if (!it->isClientOperator(cli)){
-// 				Server::responseToClient(// need add response message here);
-// 			}
-// 		}
-// 	}
-// // How should I know if the client has permission on all the channels???
-
-// 	auto it = execute_map_.find(msg_type_);
-// 	if (it != execute_map_.end()){
-// 		(this->*it->second)(cli);
-// 	}
-// }
-
 
 /**
  * @brief Send response message to client
@@ -358,12 +407,4 @@ int	Server::responseToClient(Client& cli, const std::string& response){
 		Logger::log(Logger::DEBUG, "Sent successfully "+ cli.getNick() + ": " + response);
 	}
 	return (n_bytes);
-}
-
-void	passCommand(Message& msg, Client& cli){
-	msg.pass(cli);
-}
-
-void	quitCommand(Message& msg, Client& cli){
-	msg.quit(cli);
 }

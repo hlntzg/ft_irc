@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hutzig <hutzig@student.hive.fi>            +#+  +:+       +#+        */
+/*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/04/30 14:42:07 by hutzig           ###   ########.fr       */
+/*   Updated: 2025/05/06 09:47:15 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,8 +168,22 @@ void    Channel::notifyChannelUsers(Client& target, std::string& msg){
 // Channel Operators commands:
 
 /**
- * KICK <channel> <nick> [<reason>]
+ * Added by Sherry
+ * More explaination about KICK command:
+ * Exmaple 1: KICK #chann1,#chann2 user1,user2
+ *          It means: - Kick user1 from #chann1
+ *                    - Kick user2 from #chann2
+ *
+ * Example 2: KICK #chann1,#chann2 user1
+ *          It means: Kick user1 from #chann1 and #chann2
  * 
+ * Example 3: KICK #chann1 user1,user2
+ *          It means: kick user1 and user2 from chann1
+ */
+
+/**
+ * KICK <channel> <nick> [<reason>]
+ *
  * Verifies that:
  * - The source user is in the channel.
  * - The source user is a channel operator.
@@ -181,7 +195,7 @@ void    Channel::notifyChannelUsers(Client& target, std::string& msg){
  * */
 void    Channel::kickUser(Client& user, Client& target, const std::string& reason){
     if (channel_name_.empty() || channel_name_[0] != '#'){
-        Server::responseToClient(user, "ERR_BADCHANMASK (476) or ERR_NOSUCHCHANNEL (403)"); 
+        Server::responseToClient(user, "ERR_BADCHANMASK (476) or ERR_NOSUCHCHANNEL (403)");
         return ;
     }
     if (!isChannelUser(user)){
@@ -205,7 +219,7 @@ void    Channel::kickUser(Client& user, Client& target, const std::string& reaso
 
     std::string message = "message from kickUser()"; // get this message from replyKick() with specific arguments
     // Notify all users in the channel except the target
-    notifyChannelUsers(target, message); 
+    notifyChannelUsers(target, message);
     // Notify the target separately (optional)
     Server::responseToClient(target, message);
 

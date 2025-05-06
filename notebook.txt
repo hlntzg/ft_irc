@@ -49,4 +49,9 @@ Sherry:
     execute function in Message classes
     removeUser Logic
     disconnect server??
-    reply messagees edit
+
+
+
+Need below functions:
+    removeClient() function, send notification to all others users left in the channels
+    has not finished.

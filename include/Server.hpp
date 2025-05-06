@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/05 10:39:26 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/06 14:20:05 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,9 @@
 #include <sys/epoll.h>
 #include <signal.h>
 #include <cstring> //for memset
-#include <fcntl.h>  // for fcntl()
+// #include <fcntl.h>  // for fcntl()
 #include <set> // for std::set
+#include <arpa/inet.h> // for inet_ntop
 
 class Client;
 class Channel;
@@ -59,55 +60,58 @@ class Server{
 		static int	responseToClient(Client& cli, const std::string& response);
 
 	private:
-		// Private attributes
 		int					serv_port_;
 		std::string			serv_passwd_;
 		static Server*		server_;
 		int					serv_fd_;
 		int					epoll_fd_;
 		struct sockaddr_in	serv_addr_;
-		static constexpr int	MAX_EVENTS = 1024;
+
+		static constexpr int			MAX_EVENTS = 1024;
+		static volatile sig_atomic_t	keep_running_; // internal flag
 
 		// std::shared_ptr<T> is a smart pointer introduced in C++11 that manages the
 		// lifetime of a dynamically allocated object. It does so using reference
 		// counting — multiple shared_ptr instances can share ownership of the same object.
 		// When the last shared_ptr pointing to that object is destroyed or reset,
 		// the object is automatically deleted.
-		std::unordered_map<int, std::shared_ptr<Client>> clients_; // the key is client socket (client_fd)
-		std::unordered_map<std::string, std::shared_ptr<Channel>> channels_; // string is the channel name
-		std::vector<struct epoll_event>	events_; // using for saving the clients' fds
+		std::unordered_map<int, std::shared_ptr<Client>>			clients_; // the key is client socket (client_fd)
+		std::unordered_map<std::string, std::shared_ptr<Channel>>	channels_; // string is the channel name
+		std::vector<struct epoll_event>								events_; // using for saving the clients' fds
+		static const std::set<COMMANDTYPE>							pre_registration_allowed_commands_;
+		static const std::set<COMMANDTYPE>							operator_commands_;
 
-		static volatile sig_atomic_t	keep_running_; // internal flag
-
-		static const std::set<COMMANDTYPE> pre_registration_allowed_commands_;
-		static const std::set<COMMANDTYPE> operator_commands_;
 		// this defines executeFunc is a pointer to a function inside the Message class
 		// that takes two reference arguments and returns void.
 		// Using in the server class
-		using executeFunc = void (Server::*)(Client& cli);
+		using executeFunc = void (Server::*)(Message& msg, Client& cli);
 		static const std::unordered_map<COMMANDTYPE, Server::executeFunc> execute_map_;
 
 
-		// private functions
 		Server() = delete;
 		Server(const Server&) = delete;
 		Server& operator=(const Server&) = delete;
 
-		void	setupSignalHandlers();
+		void		setupSignalHandlers();
 		static void	signalHandler(int signum);
-		void	setupServSocket();
-		void	acceptNewClient();
-		void	processDataFromClient(int idx);
-		void	removeClient(int fd, std::string reason);
-		void	executeCommand(Message& msg, Client& cli);
-		void	passCommand(Message& msg, Client& cli);
-		void	quitCommand(Message& msg, Client& cli);
+		void		setupServSocket();
+		void		acceptNewClient();
+		void		processDataFromClient(int idx);
+		void		removeClient(Client& usr, std::string reason);
+		void		executeCommand(Message& msg, Client& cli);
+
+		// commands
+		void		passCommand(Message& msg, Client& cli);
+		bool		isPasswordMatch(const std::string& password);
+		void		attempRegisterClient(Client& cli);
+		void		quitCommand(Message& msg, Client& cli);
 };
 
 #include "Logger.hpp"
 #include "Client.hpp"
 #include "Message.hpp"
 #include "Channel.hpp"
+#include "Replies.hpp"
 
 
 /**

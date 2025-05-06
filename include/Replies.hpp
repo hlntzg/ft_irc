@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/06 08:44:38 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/06 09:08:59 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,12 @@
 #define SUPPORTCHANNELMODE "itkol"
 
 /**
+ * What is "inline" for?
  * The keyword inline suggests to the compiler:
-"Instead of calling this function normally, try inserting its code directly
-where it's used."
-This is like a copy-paste optimization at compile time to avoid function call
-overhead for small functions.
+ * "Instead of calling this function normally, try inserting its code directly
+ * where it's used."
+ * This is like a copy-paste optimization at compile time to avoid function call
+ * overhead for small functions.
  */
 
 /*...................................Commands Replies..............................*/
@@ -194,8 +195,8 @@ const std::string& channel){
  * @brief Returned by the server to indicate that the client must be registered before
  * the server will allow it to be parsed in detail.
  */
-inline std::string NotRegistered(const std::string& nick){
-	return (std::string(SERVER) + " 451 " + nick  + " :You have not registered\r\n");
+inline std::string NotRegistered(const std::string& command){
+	return (std::string(SERVER) + " 451 " + command  + " :You have not registered\r\n");
 }
 
 // 461 ERR_NEEDMOREPARAMS

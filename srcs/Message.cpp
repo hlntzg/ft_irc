@@ -11,20 +11,21 @@ Message::~Message(){
 void	Message::parseMessage(){
  // need implement the function
  // for testing
-	msg_type_ = COMMANDTYPE::JOIN;
+	cmd_type_ = COMMANDTYPE::JOIN;
+	cmd_str_type_ = "JOIN";
 }
 
 
 
-void	Message::pass(Client& cli){
- // need implement the function
+COMMANDTYPE	Message::getCmdType() const{
+	return cmd_type_;
 }
 
-void	Message::quit(Client& cli){
-	// need implement the function
-   }
+const std::string&	Message::getCmdStrType() const{
+	return cmd_str_type_;
+}
 
 
-COMMANDTYPE	Message::getType(){
-	return msg_type_;
+const std::vector<std::string>&	Message::getMsgParams() const{
+	return msg_params_;
 }
