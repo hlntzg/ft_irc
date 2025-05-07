@@ -20,8 +20,6 @@
 #include "Client.hpp"
 #include "Logger.hpp"
 
-#define USER_MAX 100
-
 class Channel{
 	public:
 		Channel() = delete;
@@ -68,16 +66,13 @@ class Channel{
 
         // General:
         void        notifyChannelUsers(Client& target, std::string& msg);
+        bool        isEmptyChannel();
 
         // Channel Operators commands:
         void        kickUser(Client& user, Client& target, const std::string& reason);
         void        inviteUser(Client& user, Client& target);
         void        topic(Client& user, const std::string& topic);
-        //void        changeMode();
-        // void        handleInviteOnlyMode()
-        // void        handleTopicRestrictionMode()
-        // void        handlePasswordMode()
-
+        void        mode(Server& server, Client& user, const std::string& mode_flags, std::vector<std::string> args);
 
     private:
         std::string channel_name_;
