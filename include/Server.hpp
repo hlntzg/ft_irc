@@ -58,7 +58,9 @@ class Server{
 
 		void	startServer();
 		static int	responseToClient(Client& cli, const std::string& response);
-
+		// Added by Helena 07-05-24
+		Client* getClientByNick(const std::string& nick);
+		
 	private:
 		int					serv_port_;
 		std::string			serv_passwd_;

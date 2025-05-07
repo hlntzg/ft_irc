@@ -408,3 +408,20 @@ int	Server::responseToClient(Client& cli, const std::string& response){
 	}
 	return (n_bytes);
 }
+
+/** 
+ * Added by Helena 07-05-24
+ * 
+ * @brief Finds a client by their nickname.
+ *
+ * @param nick: The nickname of the client to search for.
+ * @return Pointer to the Client if found, nullptr otherwise.
+ */
+Client* Server::getClientByNick(const std::string& nick){
+	for (std::unordered_map<int, std::shared_ptr<Client>>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
+        if (it->second && it->second->getNick() == nick) {
+            return it->second.get(); // Return raw pointer from shared_ptr
+        }
+    }
+    return nullptr;
+}
