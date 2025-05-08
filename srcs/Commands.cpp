@@ -47,28 +47,33 @@ void	quitCommand(Message& msg, Client& cli){
 
 // From Channel
 
-
-void    Server::inviteUser(Message& msg, Client& user)
 //Client& user, Client& target)
- {
-	std::unordered_map<std::string, std::shared_ptr<Channel>> channels = msg.getChannelList();
-	for (const auto& [name, channelPtr] : channels_ ){
-		if (!channelPtr->isChannelUser(user)){
+void    Server::inviteUser(Message& msg, Client& user){
+	std::unordered_set<std::string> channel_list = msg.getChannelList();
+	for (const auto& channel_name : channel_list ){
+		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+		if (!channel_ptr->isChannelUser(user)){
         // ERR_NOTONCHANNEL (442)
-			Server::responseToClient(user, notOnChannel(user.getNick(), name));
-			return ;
+			Server::responseToClient(user, notOnChannel(user.getNick(), channel_name));
+			// return ;
+			continue;
 		}
-		if (channelPtr->getInviteMode() && !channelPtr->isChannelOperator(user)){
+		if (channel_ptr->getInviteMode() && !channel_ptr->isChannelOperator(user)){
 			// ERR_CHANOPRIVSNEEDED (482)
-			Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), name));
+			Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name));
 			return ;
 		}
-
-		if (channelPtr->isChannelUser(target)){
+		const std::vector<std::string> target_list = msg.getParamsList();
+		for(const auto& target_nick : target_list){
+			std::shared_ptr<Client> usr_ptr = getUserByNick(target_nick);
+			if (channel_ptr->isChannelUser(*usr_ptr)){
 			// ERR_USERONCHANNEL (443)
-			Server::responseToClient(user, userOnChannel(user.getNick(), target.getNick(), name));
+			Server::responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_name));
 			return ;
 		}
+		}
+		
+		
 		invited_users_.insert(&target);
 	}
 
