@@ -107,6 +107,7 @@ class Server{
 		bool		isPasswordMatch(const std::string& password);
 		void		attempRegisterClient(Client& cli);
 		void		quitCommand(Message& msg, Client& cli);
+		void		inviteUser(Message& msg, Client& cli);
 };
 
 #include "Logger.hpp"

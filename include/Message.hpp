@@ -28,15 +28,26 @@ class Server;
  *    PART #team2 :See you later!
  *    KICK #42Helsinki user123 :Spamming is not allowed
  *    KICK #channel user1,user2 :Clean up!
- *    INVITE alice #42Helsinki
+ *    INVITE alice #42Helsinki 
  *    TOPIC #42Helsinki // get current topic
  *    TOPIC #42Helsinki :Welcome to 42 Helsinki IRC!   // set a new topic
  *    MODE sherry     // query user mode
- *    MODE #42Helsinki +i  // Set channel to invite-only
- *    MODE #42Helsinki +o alice  // give operator status
+ *    MODE #42Helsinki +it  // Set channel to invite-only
+ *    MODE #42Helsinki +ioltk alice 10 passwd // give operator status
  *    QUIT :Goodbye, folks!
  *    QUIT
  *
+ *        channel	flags   args
+ * 	 MODE ahhaha   jojojo   aline
+ * 
+ *          user   chanell
+ *  INVITE  snake  aline
+ * 
+ * 
+ *  KICK #abc #hoho  
+ * 
+ * In the parsing, we need to check the order of the parameters, and if the channel and
+ * user is valid.
  */
 
 class Message{
@@ -50,7 +61,10 @@ class Message{
 		const std::string&				getCmdStrType() const;
 		const std::vector<std::string>&	getMsgParams() const;
 
-		std::shared_ptr<Channel>	getTheChannel(std::string& channel_name);
+		const std::shared_ptr<Channel>		getChannelByName(std::string& channel_name) const;
+		const std::unordered_set<std::string> getChannelList() const;
+		const std::vector<std::string>		getParamsList() const;
+		const std::string 					getTrailing() const;
 
 	private:
 		std::string	whole_msg_;
@@ -60,13 +74,13 @@ class Message{
 
 		// std::string stores channel name;
 		// std::shared_ptr<Channel> stores Channel objects;
-		std::unordered_map<std::string, std::shared_ptr<Channel>>	msg_channels_;
+		// std::unordered_map<std::string, std::shared_ptr<Channel>>	msg_channel_;
+		std::unordered_set<std::string> msg_channels_;
 
 		// msg_params used to store the content other than command, channels
 		// and trailing in a message, like "user1", "user2", "alice"
 		std::vector<std::string>	msg_params_;
 		std::string	msg_trailing_;
-
 
 };
 
