@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/06 14:49:34 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/08 08:41:49 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -321,11 +321,10 @@ void	Server::removeClient(Client& usr, std::string reason){
 			// remove it from channels map
 			if (channelPtr->isEmptyChannel()){
 				channels_.erase(name);
-			} else { // if the channel is not empty, then send info to all other users
-				// here I need loop this channel's all the user, then send
-				// a message to them
-				for (loop the user list, we should put this in remove user function or here?){
-					responseToClient(<a user in the list>, usr.getPrefix() + " QUIT : " + reason);
+			} else { // if the channel is not empty, then send QUIT information to all other users
+				std::unordered_set<Client*> channel_users = channelPtr->getChannelUsers(); // need add getChannelUsers into Channel class
+				for (Client* the_user : channel_users){
+					responseToClient(*the_user, usr.getPrefix() + " QUIT : "+ reason);
 				}
 			}
 		}
@@ -409,9 +408,7 @@ int	Server::responseToClient(Client& cli, const std::string& response){
 	return (n_bytes);
 }
 
-/** 
- * Added by Helena 07-05-24
- * 
+/**
  * @brief Finds a client by their nickname.
  *
  * @param nick: The nickname of the client to search for.

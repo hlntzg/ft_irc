@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hutzig <hutzig@student.hive.fi>            +#+  +:+       +#+        */
+/*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:41:40 by hutzig            #+#    #+#             */
-/*   Updated: 2025/04/30 14:41:41 by hutzig           ###   ########.fr       */
+/*   Updated: 2025/05/08 08:51:16 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,12 @@ class Channel{
         bool        getPasswdMode();
         bool        getLimitMode();
         size_t      channelSize();
+        const std::unordered_set<Client*>&  getChannelUsers() const;
 
         // Channel's set mode:
         void        setInviteOnly();
         void        unsetInviteOnly();
-        
+
         void        setTopicRestrictions();
         void        unsetTopicRestrictions();
         void        addNewTopic(const std::string& topic);

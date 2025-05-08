@@ -53,5 +53,6 @@ Sherry:
 
 
 Need below functions:
-    removeClient() function, send notification to all others users left in the channels
-    has not finished.
+
+
+   std::unordered_set<Client*>  getChannelUsers();

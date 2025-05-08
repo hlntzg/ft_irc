@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/06 09:47:15 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/08 08:51:24 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,11 @@ size_t  Channel::channelSize(){
     return users_.size();
 }
 
+const std::unordered_set<Client*>&  Channel::getChannelUsers() const{
+    return users_;
+}
+
+
 // Channel's mode:
 void    Channel::setInviteOnly(){
     channel_invite_only_ = true;
@@ -112,7 +117,7 @@ void    Channel::addLimit(int limit){
 /**
  * @brief Adds a user to the channel, handling mode restrictions.
  *
- * This function attempts to add the given user to the channel. 
+ * This function attempts to add the given user to the channel.
  * It enforces the following channel modes:
  * - `+i` (invite-only): The user must be in the invited users list. Once joined, the user is removed from that list.
  * - `+l` (user limit): The number of users in the channel must not exceed the set limit.
@@ -136,7 +141,7 @@ void    Channel::addNewUser(Client& user){
     if (channel_user_limit_ && channelSize() >= user_limit_) {
         Logger::log(Logger::WARNING, "User " + std::to_string(fd) + " cannot join " + channel_name_ + ": channel is full");
         // 471 ERR_CHANNELISFULL
-        Server::responseToClient(user, channelIsFull(user.getNick(), channel_name_));            
+        Server::responseToClient(user, channelIsFull(user.getNick(), channel_name_));
         return;
     }
 	if (users_.find(&user) == users_.end()){
@@ -217,7 +222,7 @@ bool    Channel::isEmptyChannel(){
  *
  * Example 2: KICK #chann1,#chann2 user1
  *          It means: Kick user1 from #chann1 and #chann2
- * 
+ *
  * Example 3: KICK #chann1 user1,user2
  *          It means: kick user1 and user2 from chann1
  */
@@ -275,9 +280,9 @@ void    Channel::kickUser(Client& user, Client& target, const std::string& reaso
 
 /**
  * INVITE <nickname> <channel>
- * 
+ *
  * @brief Implements the IRC INVITE command: Invites a user to join an invite-only channel.
- * 
+ *
  * Grants one-time access to the channel by adding the target user to the invited users list.
  * This access is cleared once the target successfully joins the channel.
  *
@@ -288,9 +293,9 @@ void    Channel::kickUser(Client& user, Client& target, const std::string& reaso
  *
  * If all conditions are met, the target user is added to the invited list, and
  * an INVITE message is sent to them.
- * 
+ *
  * @param user The client sending the invite (the inviter).
- * @param target The client being invited to the channel. 
+ * @param target The client being invited to the channel.
  */
 void    Channel::inviteUser(Client& user, Client& target) {
     if (!isChannelUser(user)){
@@ -312,7 +317,7 @@ void    Channel::inviteUser(Client& user, Client& target) {
     invited_users_.insert(&target);
 
     // RPL_INVITING (341)
-    Server::responseToClient(user, Inviting(user.getNick(), channel_name_, target.getNick())); 
+    Server::responseToClient(user, Inviting(user.getNick(), channel_name_, target.getNick()));
     // Send the actual INVITE message to target
     std::string inviteMessage = ":" + user.getNick() + " INVITE " + target.getNick() + " " + channel_name_ + "\r\n";
     Server::responseToClient(target, inviteMessage);
@@ -327,7 +332,7 @@ void    Channel::inviteUser(Client& user, Client& target) {
 
 /**
  * TOPIC <channel> [:topic]
- * 
+ *
  * @brief Implements the IRC TOPIC command: Handles viewing or setting the topic of the channel.
  *
  * Validates that the user is a member of the channel.
@@ -336,7 +341,7 @@ void    Channel::inviteUser(Client& user, Client& target) {
  * - If the channel is in topic-protected mode (+t), only operators can set the topic.
  * - If the topic parameter is ":", the current topic is cleared.
  * - Otherwise, sets the new topic and notifies all channel users.
- * 
+ *
  * @param user The client requesting or changing the topic.
  * @param topic The new topic to be set, or empty to query the current topic.
  */
@@ -380,8 +385,8 @@ void    Channel::topic(Client& user, const std::string& topic){
 
 /**
  * MODE <channel> [modes-flags [mode-params]]
- * 
- * 
+ *
+ *
 | Mode | Name             | Description                                                       |
 | ---- | ---------------- | ----------------------------------------------------------------- |
 | `+i` | Invite-only      | Only invited users may join the channel.                          |
@@ -393,13 +398,13 @@ void    Channel::topic(Client& user, const std::string& topic){
  * Only channel operators can set/unset mode
  * +k and +l require arguments when setting, not when unsetting.
  * +o always requires a nickname argument (set and unset)
- * 
+ *
  * When using multiple mode flags in a single MODE command, the parameters must be given
- * in the order that the flags require them, and only flags that need arguments will 
+ * in the order that the flags require them, and only flags that need arguments will
  * consume arguments from the list.
- * In IRC, mode strings must be part of a single flag sequence, and you cannot have + and - 
- * for the same flag type mixed with others in a single string. 
- * 
+ * In IRC, mode strings must be part of a single flag sequence, and you cannot have + and -
+ * for the same flag type mixed with others in a single string.
+ *
  * ERR_NEEDMOREPARAMS (461) if argument is missing
  * ERR_CHANOPRIVSNEEDED (482) if user isn’t a channel operator
  * ERR_UNKNOWNMODE (472) for unsupported mode
@@ -440,14 +445,14 @@ void    Channel::mode(Server& server, Client& user, const std::string& mode_flag
 
         if (c == '+') {
             adding = true;
-        } 
+        }
         else if (c == '-') {
             adding = false;
-        } 
+        }
         else if (c == 'i') {
             adding ? setInviteOnly() : unsetInviteOnly();
             update_modes += (adding ? "+i" : "-i");
-        } 
+        }
         else if (c == 't') {
             adding ? setTopicRestrictions() : unsetTopicRestrictions();
             update_modes += (adding ? "+t" : "-t");
@@ -516,4 +521,4 @@ void    Channel::mode(Server& server, Client& user, const std::string& mode_flag
 
     notifyChannelUsers(user, message);
     Server::responseToClient(user, message);
-} 
+}

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/06 14:49:51 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/08 08:29:20 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,10 @@ Client::~Client(){
 
 int	Client::getSocketFD() const{
 	return socket_fd_;
+}
+
+const std::string&	Client::getUsername() const{
+	return username_;
 }
 
 const std::string&	Client::getNick() const{
@@ -65,6 +69,9 @@ bool	Client::getNextMessage(std::string& buffer){
 
 }
 
+
+
+
 bool	Client::isRegistered(){
 	return isRegistered_;
 }
@@ -78,7 +85,7 @@ bool	Client::isRegistered(){
  *    :alice!alice@hostname PRIVMSG bob :Hello, Bob!
  */
 const std::string&	Client::getPrefix() const{
-	return (":" + nick_ + "!" + name_ + "@" + host_);
+	return (":" + nick_ + "!" + username_ + "@" + host_);
 }
 
 
