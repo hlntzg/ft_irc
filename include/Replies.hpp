@@ -80,6 +80,20 @@ const std::string& invitee_nick){
 	return (std::string(SERVER) + " 341 " + nick + " " + channel + " " + invitee_nick +"\r\n");
 }
 
+/**
+ * @brief Constructs a KICK message indicating that a user has been removed from a channel.
+ *
+ * This message is sent to all users in the channel (except the target) and directly to the kicked user.
+ * It follows the IRC format: ":<kicker> KICK <channel> <target> [:reason]"
+ */
+inline std::string rplKick(const std::string& nick, const std::string& target,
+const std::string& channel, const std::string& reason) {
+	std::string msg = ":" + nick + " KICK " + channel + " " + target;
+	if (!reason.empty()) {
+		msg += " :" + reason;
+	}
+	return msg + "\r\n";
+}
 
 /*...................................Error Replies.................................*/
 
@@ -251,6 +265,15 @@ inline std::string badChannelKey(const std::string& nick, const std::string& cha
 	return (std::string(SERVER) + " 474 " + nick + " " + channel + " :Cannot join channel (+k)\r\n");
 }
 
+// 478 ERR_INVITE_SYNTAX
+/**
+ * @brief Any command requiring 'chanop' privileges (such as MODE messages) must return this
+ * error if the client making the attempt is not a chanop on the specified channel
+ */
+inline std::string InviteSyntaxErr(const std::string& nick){
+	return (std::string(SERVER) + " 478 " + nick + ":Invalid Invite command\r\n");
+}
+
 // 482 ERR_CHANOPRIVSNEEDED
 /**
  * @brief Any command requiring 'chanop' privileges (such as MODE messages) must return this
@@ -259,3 +282,4 @@ inline std::string badChannelKey(const std::string& nick, const std::string& cha
 inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& channel){
 	return (std::string(SERVER) + " 482 " + nick + " " + channel + " :You're not channel operator\r\n");
 }
+

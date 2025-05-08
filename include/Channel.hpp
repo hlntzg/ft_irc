@@ -20,6 +20,12 @@
 #include "Client.hpp"
 #include "Logger.hpp"
 
+enum USERTYPE {
+    REGULAR,
+    OPERATOR,
+    INVITE
+};
+
 class Channel{
 	public:
 		Channel() = delete;
@@ -41,6 +47,7 @@ class Channel{
         // Channel's set mode:
         void        setInviteOnly();
         void        unsetInviteOnly();
+        void        addNewInviteUser(Client& user);
 
         void        setTopicRestrictions();
         void        unsetTopicRestrictions();
@@ -68,6 +75,7 @@ class Channel{
         // General:
         void        notifyChannelUsers(Client& target, std::string& msg);
         bool        isEmptyChannel();
+        void        insertUser(std::shared_ptr<Client>user, USERTYPE type);
 
         // Channel Operators commands:
         void        kickUser(Client& user, Client& target, const std::string& reason);

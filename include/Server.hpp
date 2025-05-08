@@ -58,9 +58,7 @@ class Server{
 
 		void	startServer();
 		static int	responseToClient(Client& cli, const std::string& response);
-		// Added by Helena 07-05-24
 	
-		
 	private:
 		int					serv_port_;
 		std::string			serv_passwd_;
@@ -110,7 +108,11 @@ class Server{
 		bool		isPasswordMatch(const std::string& password);
 		void		attempRegisterClient(Client& cli);
 		void		quitCommand(Message& msg, Client& cli);
+		
+		// Commands specific to channel operators:
+		void		kickUser(Message& msg, Client& cli);
 		void		inviteUser(Message& msg, Client& cli);
+		void		topic(Message& msg, Client& cli);
 };
 
 #include "Logger.hpp"

@@ -90,7 +90,7 @@ class Message{
 		COMMANDTYPE						getCmdType() const;
 		const std::string&				getCmdStrType() const;
 		const std::vector<std::string>&	getMsgParams() const;
-		const std::unordered_set<std::string> getChannelList() const;
+		const std::vector<std::string> getChannelList() const;
 		const std::vector<std::string>		getParamsList() const;
 		const std::string 					getTrailing() const;
 
@@ -103,7 +103,7 @@ class Message{
 		// std::string stores channel name;
 		// std::shared_ptr<Channel> stores Channel objects;
 		// std::unordered_map<std::string, std::shared_ptr<Channel>>	msg_channel_;
-		std::unordered_set<std::string> msg_channels_;
+		std::vector<std::string> msg_channels_;
 
 		// msg_params used to store the content other than command, channels
 		// and trailing in a message, like "user1", "user2", "alice"

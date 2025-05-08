@@ -76,6 +76,10 @@ void    Channel::unsetInviteOnly(){
     channel_invite_only_ = false;
 }
 
+void    Channel::addNewInviteUser(Client& user){
+    invited_users_.insert(&user);
+}
+
 void    Channel::setTopicRestrictions(){
     channel_restric_topic_ = true;
 }
@@ -211,6 +215,18 @@ bool    Channel::isEmptyChannel(){
     return users_.empty();
 }
 
+void    Channel::insertUser(std::shared_ptr<Client> user, USERTYPE type){
+    if (type == REGULAR){
+        addNewUser(*user);
+    }
+    if (type == OPERATOR){
+        addNewOperator(*user);
+    }
+    if (type == INVITE){
+        addNewInviteUser(*user);
+    }
+}
+
 // Channel Operators commands:
 
 /**
@@ -261,7 +277,7 @@ void    Channel::kickUser(Client& user, Client& target, const std::string& reaso
         return ;
     }
     // // Optional: Protect IRC operators
-    // if (isChannelOperator(target)){
+    // if (isChannelOperator(target)){operators_
     //     std::string errCannotKickOperator = ":" + SERVER + " " + channel_name_ + " :Cannot kick an IRC operator\r\n";
     //     Server::responseToClient(user, errCannotKickOperator);
     //     return ;
