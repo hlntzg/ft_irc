@@ -6,23 +6,29 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/08 08:29:20 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 13:37:13 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : socket_fd_(0), host_("localhost"), isRegistered_(0){}
+Client::Client() : socket_fd_(0), isRegistered_(0){}
 
-Client::Client(int fd, std::string host) : socket_fd_(fd), host_(host), isRegistered_(0){
-	// for testing
-	// std::cout << "New client has been create\n";
+Client::Client(int fd, std::string host) : socket_fd_(fd), hostname_(host),
+isRegistered_(0){
 }
 
 Client&	Client::operator=(const Client& other){
 	if (this != & other){
-		this->socket_fd_ = other.socket_fd_;
-		this->raw_data_ = other.raw_data_;
+		socket_fd_ = other.socket_fd_;
+        nick_ = other.nick_;
+        username_ = other.username_;
+        realname_ = other.realname_;
+        hostname_ = other.hostname_;
+        servername_ = other.servername_;
+        password_ = other.password_;
+        raw_data_ = other.raw_data_;
+        isRegistered_ = other.isRegistered_;
 	}
 	return *this;
 }
@@ -30,8 +36,7 @@ Client&	Client::operator=(const Client& other){
 Client::~Client(){
 }
 
-
-int	Client::getSocketFD() const{
+int Client::getSocketFd() const{
 	return socket_fd_;
 }
 
@@ -42,6 +47,35 @@ const std::string&	Client::getUsername() const{
 const std::string&	Client::getNick() const{
 	return nick_;
 }
+
+void	Client::setNick(const std::string& nick){
+    nick_ = nick;
+}
+
+void	Client::setUsername(const std::string& username){
+    username_ = username;
+}
+
+void	Client::setRealname(const std::string& realname){
+    realname_ = realname;
+}
+
+void	Client::setHostname(const std::string& hostname){
+    hostname_ = hostname;
+}
+
+void	Client::setServername(const std::string& servername){
+    servername_ = servername;
+}
+
+void	Client::setPassword(const std::string& passwd){
+    password_ = passwd;
+}
+
+void	Client::setRegistrationStatus(bool	status){
+    isRegistered_ = status;
+}
+
 
 /**
  * @brief Receive the raw data from socket, filling/saving into receive buffer.
@@ -57,7 +91,7 @@ bool	Client::receiveRawData(){
 
     while (true) {
         bytes_read = recv(socket_fd_, buffer, BUFFER_SIZE, 0);
-        
+
         if (bytes_read > 0) {
             raw_data_.append(buffer, bytes_read);
         } else if (bytes_read == 0) {
@@ -91,18 +125,18 @@ bool	Client::receiveRawData(){
 bool	Client::getNextMessage(std::string& buffer){
 	// Find the position of CRLF ("\r\n") in raw_data_
     size_t crlf_pos = raw_data_.find("\r\n");
-    
+
     if (crlf_pos == std::string::npos) {
         // No complete message yet
         return false;
     }
-    
+
     // Extract the message (including CRLF)
     buffer = raw_data_.substr(0, crlf_pos + 2);
-    
+
     // Remove the processed message from raw_data_
     raw_data_.erase(0, crlf_pos + 2);
-    
+
     return true;
 }
 
@@ -122,7 +156,7 @@ bool	Client::isRegistered(){
  *    :alice!alice@hostname PRIVMSG bob :Hello, Bob!
  */
 const std::string&	Client::getPrefix() const{
-	return (":" + nick_ + "!" + username_ + "@" + host_);
+	return (":" + nick_ + "!" + username_ + "@" + hostname_);
 }
 
 
@@ -130,6 +164,5 @@ void	Client::setPassword(const std::string& passwd){
 	password_ = passwd;
 }
 
-int Client::getSocketFd() const{
-	return socket_fd_;
-}
+
+

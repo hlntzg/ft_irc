@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 08:53:31 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 13:40:18 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 
 #include <string>
 #include <iostream>
+#include <sys/socket.h> // for recv()
+
+#define BUFFER_SIZE (5000)
 
 class Client{
 	public:
@@ -23,30 +26,32 @@ class Client{
 		~Client();
 
 		// getters
-		int					getSocketFD() const;
+		int					getSocketFd() const;
 		const std::string&	getNick() const;
 		const std::string&	getUsername() const;
 		const std::string&	getPassword() const;
 		bool				getNextMessage(std::string& buffer);
 		const std::string&	getPrefix() const;
-		int getSocketFd() const;
-
 
 		// setters
+		void	setNick(const std::string& nick);
+		void	setUsername(const std::string& username);
+		void	setRealname(const std::string& realname);
+		void	setHostname(const std::string& hostname);
+		void	setServername(const std::string& servername);
 		void	setPassword(const std::string& passwd);
-
+		void	setRegistrationStatus(bool	status);
 
 		bool	receiveRawData();
-
 		bool	isRegistered();
-
 
 	private:
 		int	socket_fd_;
 		std::string	nick_;
 		std::string	username_;
-		std::string	fullname_;
-		std::string	host_;
+		std::string	realname_;
+		std::string	hostname_;
+		std::string	servername_;
 		std::string password_;
 		std::string	raw_data_;
 		bool	isRegistered_;
