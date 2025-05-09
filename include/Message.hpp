@@ -85,17 +85,25 @@ class Message{
 		Message(std::string& message);
 		~Message();
 
-		void	parseMessage();
+		bool	parseMessage();
+		const std::string& getRawMessage() const;
+		const std::vector<std::string>& getParameters() const;
 
+		/*
 		COMMANDTYPE						getCmdType() const;
 		const std::string&				getCmdStrType() const;
 		const std::vector<std::string>&	getMsgParams() const;
 		const std::vector<std::string> getChannelList() const;
 		const std::vector<std::string>		getParamsList() const;
 		const std::string 					getTrailing() const;
-
+		*/
 	private:
 		std::string	whole_msg_;
+		int							number_of_parameters_;
+		std::string					msg_trailing_;
+		std::vector<std::string>	parameters_;
+
+		/*
 		// Elements contain in a message
 		COMMANDTYPE	cmd_type_;
 		std::string	cmd_str_type_;
@@ -108,8 +116,7 @@ class Message{
 		// msg_params used to store the content other than command, channels
 		// and trailing in a message, like "user1", "user2", "alice"
 		std::vector<std::string>	msg_params_;
-		std::string	msg_trailing_;
-
+		*/
 };
 
 #include "Client.hpp"
