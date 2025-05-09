@@ -96,29 +96,17 @@ class Message{
 		const std::vector<std::string>&	getFlags() const;
 		COMMANDTYPE 			getCommandType() const;
 
-		/*
-		COMMANDTYPE						getCmdType() const;
-		*/
 	private:
 		bool 				validateParameters(const std::string& command);
 		std::string			whole_msg_;
 		int				number_of_parameters_;
 		std::string			msg_trailing_;//everything found after :
-		std::vector<std::string>	parameters_;//all the parameters in a vector
+		std::vector<std::string>	parameters_;//All the parameters, except commandtype or trailing message
 		std::vector<std::string>	msg_users_;//parameters that should be users in the message
 		std::vector<std::string>	msg_channels_;//parameters that should be channels in the message
 		std::vector<std::string>	flags_;//flags from mode
 		COMMANDTYPE			cmd_type_;
-		/*
-		// std::string stores channel name;
-		// std::shared_ptr<Channel> stores Channel objects;
-		// std::unordered_map<std::string, std::shared_ptr<Channel>>	msg_channel_;
-		std::vector<std::string> msg_channels_;
-
-		// msg_params used to store the content other than command, channels
-		// and trailing in a message, like "user1", "user2", "alice"
-		std::vector<std::string>	msg_params_;
-		*/
+		std::string			cmd_string_;
 };
 
 #include "Client.hpp"
