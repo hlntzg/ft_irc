@@ -23,24 +23,28 @@ Message::~Message(){
 
 bool Message::validateParameters(const std::string& command) {
     if (command == "PASS") {
+	cmd_type_ = PASS;
         if (parameters_.size() != 1) {
             std::cout << "PASS requires exactly one parameter." << std::endl;
             return false;
         }
     }
     else if (command == "NICK") {
+	cmd_type_ = NICK;
         if (parameters_.size() != 1) {
             std::cout << "NICK requires exactly one parameter." << std::endl;
             return false;
         }
     }
     else if (command == "TOPIC") {
+	cmd_type_ = TOPIC;
         if (parameters_.size() > 1) {
             std::cout << "TOPIC requires exactly one parameter or none." << std::endl;
             return false;
         }
     }
     else if (command == "PRIVMSG") {
+	cmd_type_ = PRIVMSG;
         if (parameters_.size() != 1) {
             std::cout << "PRIVMSG requires exactly one parameter." << std::endl;
             return false;
@@ -52,6 +56,7 @@ bool Message::validateParameters(const std::string& command) {
         }
     }
     else if (command == "PART") {
+	cmd_type_ = PART;
         if (parameters_.size() != 1) {
             std::cout << "PART requires exactly one channel parameter." << std::endl;
             return false;
@@ -64,6 +69,7 @@ bool Message::validateParameters(const std::string& command) {
         parameters_[0] = parameters_[0].substr(1);
     }
     else if (command == "JOIN") {
+	cmd_type_ = JOIN;
         if (parameters_.empty()) {
             std::cout << "JOIN requires at least one parameter." << std::endl;
             return false;
@@ -86,12 +92,14 @@ bool Message::validateParameters(const std::string& command) {
         }
     }
     else if (command == "QUIT") {
+	cmd_type_ = QUIT;
         if (!parameters_.empty()) {
             std::cout << "QUIT must not have parameters before trailing message." << std::endl;
             return false;
         }
     }
     else if (command == "INVITE") {
+	cmd_type_ = INVITE;
         if (parameters_.size() < 2) {
             std::cout << "INVITE requires at least one user and one channel." << std::endl;
             return false;
@@ -121,6 +129,7 @@ bool Message::validateParameters(const std::string& command) {
         msg_users_ = users;
     }
     else if (command == "MODE") {
+	cmd_type_ = MODE;
         if (parameters_.size() < 2) {
             std::cout << "MODE should contain more than one parameter" << std::endl;
             return false;
@@ -140,6 +149,7 @@ bool Message::validateParameters(const std::string& command) {
         }
     }
     else if (command == "KICK") {
+	cmd_type_ = KICK;
         if (parameters_.size() < 2) {
             std::cout << "KICK requires at least one channel and one user." << std::endl;
             return false;
@@ -227,4 +237,8 @@ const std::vector<std::string>& Message::getChannels() const {
 
 const std::vector<std::string>& Message::getFlags() const {
 	return flags_;
+}
+
+COMMANDTYPE Message::getCommandType() const {
+    return cmd_type_;
 }
