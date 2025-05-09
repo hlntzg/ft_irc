@@ -254,3 +254,7 @@ const std::vector<std::string>& Message::getFlags() const {
 COMMANDTYPE Message::getCommandType() const {
     return cmd_type_;
 }
+
+const std::string& Message::getCommandString() const {
+	return cmd_string_;
+}
