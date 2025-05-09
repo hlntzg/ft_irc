@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/08 08:51:24 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 09:08:26 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,44 +255,44 @@ void    Channel::insertUser(std::shared_ptr<Client> user, USERTYPE type){
  * Broadcasts a kick message to the channel.
  * Logs the kick action.
  * */
-void    Channel::kickUser(Client& user, Client& target, const std::string& reason){
-    if (channel_name_.empty() || channel_name_[0] != '#'){
-        //"ERR_BADCHANMASK (476) or ERR_NOSUCHCHANNEL (403)"
-        Server::responseToClient(user, errNoSuchChannel(user.getNick(), channel_name_));
-        return ;
-    }
-    if (!isChannelUser(user)){
-        //"ERR_NOTONCHANNEL (442)"
-        Server::responseToClient(user, notOnChannel(user.getNick(), channel_name_));
-        return ;
-    }
-    if (!isChannelOperator(user)){
-        //"ERR_CHANOPRIVSNEEDED (482)"
-        Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name_));
-        return ;
-    }
-    if (!isChannelUser(target)){
-        //"ERR_USERNOTINCHANNEL (441)"
-        Server::responseToClient(user, userNotInChannel(user.getNick(), target.getNick(), channel_name_));
-        return ;
-    }
-    // // Optional: Protect IRC operators
-    // if (isChannelOperator(target)){operators_
-    //     std::string errCannotKickOperator = ":" + SERVER + " " + channel_name_ + " :Cannot kick an IRC operator\r\n";
-    //     Server::responseToClient(user, errCannotKickOperator);
-    //     return ;
-    // }
+// void    Channel::kickUser(Client& user, Client& target, const std::string& reason){
+//     if (channel_name_.empty() || channel_name_[0] != '#'){
+//         //"ERR_BADCHANMASK (476) or ERR_NOSUCHCHANNEL (403)"
+//         Server::responseToClient(user, errNoSuchChannel(user.getNick(), channel_name_));
+//         return ;
+//     }
+//     if (!isChannelUser(user)){
+//         //"ERR_NOTONCHANNEL (442)"
+//         Server::responseToClient(user, notOnChannel(user.getNick(), channel_name_));
+//         return ;
+//     }
+//     if (!isChannelOperator(user)){
+//         //"ERR_CHANOPRIVSNEEDED (482)"
+//         Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name_));
+//         return ;
+//     }
+//     if (!isChannelUser(target)){
+//         //"ERR_USERNOTINCHANNEL (441)"
+//         Server::responseToClient(user, userNotInChannel(user.getNick(), target.getNick(), channel_name_));
+//         return ;
+//     }
+//     // // Optional: Protect IRC operators
+//     // if (isChannelOperator(target)){operators_
+//     //     std::string errCannotKickOperator = ":" + SERVER + " " + channel_name_ + " :Cannot kick an IRC operator\r\n";
+//     //     Server::responseToClient(user, errCannotKickOperator);
+//     //     return ;
+//     // }
 
-    std::string message = "message from kickUser()"; // get this message from replyKick() with specific arguments
-    // Notify all users in the channel except the target
-    notifyChannelUsers(target, message);
-    // Notify the target separately (optional)
-    Server::responseToClient(target, message);
+//     std::string message = "message from kickUser()"; // get this message from replyKick() with specific arguments
+//     // Notify all users in the channel except the target
+//     notifyChannelUsers(target, message);
+//     // Notify the target separately (optional)
+//     Server::responseToClient(target, message);
 
-    Logger::log(Logger::INFO, "User " + target.getNick() + " was kicked from channel " + channel_name_ + " by " + user.getNick());
+//     Logger::log(Logger::INFO, "User " + target.getNick() + " was kicked from channel " + channel_name_ + " by " + user.getNick());
 
-    removeUser(target);
-}
+//     removeUser(target);
+// }
 
 /**
  * INVITE <nickname> <channel>
@@ -313,38 +313,38 @@ void    Channel::kickUser(Client& user, Client& target, const std::string& reaso
  * @param user The client sending the invite (the inviter).
  * @param target The client being invited to the channel.
  */
-void    Channel::inviteUser(Client& user, Client& target) {
-    if (!isChannelUser(user)){
-        // ERR_NOTONCHANNEL (442)
-        Server::responseToClient(user, notOnChannel(user.getNick(), channel_name_));
-        return ;
-    }
-    if (getInviteMode() && !isChannelOperator(user)){
-        // ERR_CHANOPRIVSNEEDED (482)
-        Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name_));
-        return ;
-    }
-    if (isChannelUser(target)){
-        // ERR_USERONCHANNEL (443)
-        Server::responseToClient(user, userOnChannel(user.getNick(), target.getNick(), channel_name_));
-        return ;
-    }
+// void    Channel::inviteUser(Client& user, Client& target) {
+//     if (!isChannelUser(user)){
+//         // ERR_NOTONCHANNEL (442)
+//         Server::responseToClient(user, notOnChannel(user.getNick(), channel_name_));
+//         return ;
+//     }
+//     if (getInviteMode() && !isChannelOperator(user)){
+//         // ERR_CHANOPRIVSNEEDED (482)
+//         Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name_));
+//         return ;
+//     }
+//     if (isChannelUser(target)){
+//         // ERR_USERONCHANNEL (443)
+//         Server::responseToClient(user, userOnChannel(user.getNick(), target.getNick(), channel_name_));
+//         return ;
+//     }
 
-    invited_users_.insert(&target);
+//     invited_users_.insert(&target);
 
-    // RPL_INVITING (341)
-    Server::responseToClient(user, Inviting(user.getNick(), channel_name_, target.getNick()));
-    // Send the actual INVITE message to target
-    std::string inviteMessage = ":" + user.getNick() + " INVITE " + target.getNick() + " " + channel_name_ + "\r\n";
-    Server::responseToClient(target, inviteMessage);
+//     // RPL_INVITING (341)
+//     Server::responseToClient(user, Inviting(user.getNick(), channel_name_, target.getNick()));
+//     // Send the actual INVITE message to target
+//     std::string inviteMessage = ":" + user.getNick() + " INVITE " + target.getNick() + " " + channel_name_ + "\r\n";
+//     Server::responseToClient(target, inviteMessage);
 
-    // Not sure if we will implement that:
-    // RPL_AWAY (301) — if the target is away, notify the inviter
-    // std::string targetAwayMessage = "rplAway(SERVER_NAME, inviter.getNick(), target.getNick(), target.getAwayMsg())";
-    // if (!target.getAwayMsg().empty()) {
-    //     Server::responseToClient(user, targetAwayMessage);
-    // }
-}
+//     // Not sure if we will implement that:
+//     // RPL_AWAY (301) — if the target is away, notify the inviter
+//     // std::string targetAwayMessage = "rplAway(SERVER_NAME, inviter.getNick(), target.getNick(), target.getAwayMsg())";
+//     // if (!target.getAwayMsg().empty()) {
+//     //     Server::responseToClient(user, targetAwayMessage);
+//     // }
+// }
 
 /**
  * TOPIC <channel> [:topic]
@@ -361,43 +361,43 @@ void    Channel::inviteUser(Client& user, Client& target) {
  * @param user The client requesting or changing the topic.
  * @param topic The new topic to be set, or empty to query the current topic.
  */
-void    Channel::topic(Client& user, const std::string& topic){
-    if (!isChannelUser(user)){
-        //"ERR_NOTONCHANNEL (442)"
-        Server::responseToClient(user, notOnChannel(user.getNick(), channel_name_));
-        return ;
-    }
-    if (topic.empty()) {
-        if (channel_topic_.empty())
-            //"RPL_NOTOPIC (331)"
-            Server::responseToClient(user, NoTopic(user.getNick(), channel_name_));
-        else
-            //"RPL_TOPIC (332)"
-            Server::responseToClient(user, Topic(user.getNick(), channel_name_, topic));
-        return ;
-    }
-    if (getTopicMode() && !isChannelOperator(user)) {
-        //"ERR_CHANOPRIVSNEEDED (482)"
-        Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name_));
-        return ;
-    }
+// void    Channel::topic(Client& user, const std::string& topic){
+//     if (!isChannelUser(user)){
+//         //"ERR_NOTONCHANNEL (442)"
+//         Server::responseToClient(user, notOnChannel(user.getNick(), channel_name_));
+//         return ;
+//     }
+//     if (topic.empty()) {
+//         if (channel_topic_.empty())
+//             //"RPL_NOTOPIC (331)"
+//             Server::responseToClient(user, NoTopic(user.getNick(), channel_name_));
+//         else
+//             //"RPL_TOPIC (332)"
+//             Server::responseToClient(user, Topic(user.getNick(), channel_name_, topic));
+//         return ;
+//     }
+//     if (getTopicMode() && !isChannelOperator(user)) {
+//         //"ERR_CHANOPRIVSNEEDED (482)"
+//         Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name_));
+//         return ;
+//     }
 
-    // Unset topic
-    if (topic == ":") {
-        addNewTopic("");  // or channel_topic_.clear();
-        Logger::log(Logger::INFO, "User " + user.getNick() + " cleared topic in channel " + channel_name_);
-        return;
-    }
+//     // Unset topic
+//     if (topic == ":") {
+//         addNewTopic("");  // or channel_topic_.clear();
+//         Logger::log(Logger::INFO, "User " + user.getNick() + " cleared topic in channel " + channel_name_);
+//         return;
+//     }
 
-    addNewTopic(topic);
+//     addNewTopic(topic);
 
-    //332 RPL_TOPIC
-    std::string message = Topic(user.getNick(), channel_name_, topic);
-    notifyChannelUsers(user, message);
-    Server::responseToClient(user, message);
+//     //332 RPL_TOPIC
+//     std::string message = Topic(user.getNick(), channel_name_, topic);
+//     notifyChannelUsers(user, message);
+//     Server::responseToClient(user, message);
 
-    Logger::log(Logger::INFO, "User " + user.getNick() + " set new topic in channel " + channel_name_ + ": " + topic);
-}
+//     Logger::log(Logger::INFO, "User " + user.getNick() + " set new topic in channel " + channel_name_ + ": " + topic);
+// }
 
 /**
  * MODE <channel> [modes-flags [mode-params]]
@@ -509,7 +509,7 @@ void    Channel::mode(Server& server, Client& user, const std::string& mode_flag
                 return;
             }
             std::string nick = args[arg_index++];
-            Client* target = server.getClientByNick(nick);
+            Client* target = Server::getClientByNick(nick);
             if (!target || !isChannelUser(*target)) {
                 Server::responseToClient(user, userNotInChannel(user.getNick(), nick, channel_name_));
                 continue;

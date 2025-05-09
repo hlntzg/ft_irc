@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:41:40 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/08 08:51:16 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 09:06:51 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,9 @@ class Channel{
         void        insertUser(std::shared_ptr<Client>user, USERTYPE type);
 
         // Channel Operators commands:
-        void        kickUser(Client& user, Client& target, const std::string& reason);
-        void        inviteUser(Client& user, Client& target);
-        void        topic(Client& user, const std::string& topic);
+        // void        kickUser(Client& user, Client& target, const std::string& reason);
+        // void        inviteUser(Client& user, Client& target);
+        // void        topic(Client& user, const std::string& topic);
         void        mode(Server& server, Client& user, const std::string& mode_flags, std::vector<std::string> args);
 
     private:

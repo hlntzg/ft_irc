@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/08 08:41:49 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 08:48:08 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,9 +89,9 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	// {JOIN, &Server::joinCommand},
 	// {PART, &Server::partCommand},
 	// {OPER, &Server::operCommand},
-	// {KICK, &Server::kickCommand},
-	// {INVITE, &Server::inviteCommand},
-	// {TOPIC, &Server::topicCommand},
+	{KICK, &Server::kickUser},
+	{INVITE, &Server::inviteUser},
+	{TOPIC, &Server::topic},
 	// {MODE, &Server::modeCommand},
 	{QUIT, &Server::quitCommand}
 };
@@ -414,11 +414,17 @@ int	Server::responseToClient(Client& cli, const std::string& response){
  * @param nick: The nickname of the client to search for.
  * @return Pointer to the Client if found, nullptr otherwise.
  */
-Client* Server::getClientByNick(const std::string& nick){
-	for (std::unordered_map<int, std::shared_ptr<Client>>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
-        if (it->second && it->second->getNick() == nick) {
-            return it->second.get(); // Return raw pointer from shared_ptr
-        }
-    }
-    return nullptr;
+ const std::shared_ptr<Client>	Server::getUserByNick(const std::string& user_nick) const{
+	for (auto& [fd, user] : clients_){
+		if (user && user->getNick() == user_nick){
+			return user;
+		}
+	}
+	return nullptr;
+	// for (std::unordered_map<int, std::shared_ptr<Client>>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
+    //     if (it->second && it->second->getNick() == user_nick) {
+    //         return it->second.get(); // Return raw pointer from shared_ptr
+    //     }
+    // }
+    // return nullptr;
 }

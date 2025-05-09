@@ -37,11 +37,31 @@ bool	Server::isPasswordMatch(const std::string& password){
 }
 
 void	Server::attempRegisterClient(Client& cli){
+	if (cli.getPassword().size() == 0 || cli.getNick().size() == 0 ||
+		cli.getUsername().size() == 0){
+		return;
+	}
+	const std::string& nick = cli.getNick();
+	if (isNickInUse(nick)){
+		responseToClient(cli, nickNameinuse(nick));
+		return;
+	}
+	if (cli.getPassword() != serv_passwd_){
+		responseToClient(cli, passwdMismatch(nick));
+		return;
+	}
+	cli.setRegisterStatus(); // set it to true
+	responseToClient(cli, rplWelcome(nick));
+	responseToClient(cli,rplYourHost(nick));
+	responseToClient(cli,rplCreated(nick));
+	responseToClient(cli,rplMyInfo(nick));
+}
+
+bool	Server::isNickInUse(const std::string& nick){
 
 }
 
-
-void	quitCommand(Message& msg, Client& cli){
+void	Server::quitCommand(Message& msg, Client& cli){
 
 }
 
@@ -52,7 +72,7 @@ void	Server::kickUser(Message& msg, Client& user){
 	std::vector<std::string> target_list = msg.getParamsList();
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
-	
+
 	if (n_channel == 1){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
 		if (!channel_ptr->isChannelUser(user)){
@@ -71,7 +91,7 @@ void	Server::kickUser(Message& msg, Client& user){
 				responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_list.at(0)));
 				continue;
 			}
-			
+
 			std::string message = rplKick(user.getNick(), target_nick, channel_list.at(0), msg.getTrailing());
     		// Notify all users in the channel except the target
     		channel_ptr->notifyChannelUsers(*getUserByNick(target_nick), message);
@@ -103,7 +123,7 @@ void	Server::kickUser(Message& msg, Client& user){
 			std::string message = rplKick(user.getNick(), target_list.at(0), channel_name, msg.getTrailing());
 			channel_ptr->notifyChannelUsers(*getUserByNick(target_list.at(0)), message);
 			responseToClient(*getUserByNick(target_list.at(0)), message);
-    		
+
 			Logger::log(Logger::INFO, "User " + target_list.at(0) + " was kicked from channel " + channel_name + " by " + user.getNick());
     		channel_ptr->removeUser(*getUserByNick(target_list.at(0)));
 		}
@@ -112,7 +132,7 @@ void	Server::kickUser(Message& msg, Client& user){
 			const std::string& channel_name = channel_list[i];
 			const std::string& target_nick = target_list[i];
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
-			
+
 			if (!channel_ptr->isChannelUser(user)) {
 				responseToClient(user, notOnChannel(user.getNick(), channel_name));
 				continue;

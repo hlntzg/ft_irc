@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/06 14:20:05 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 08:57:26 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ class Server{
 
 		void	startServer();
 		static int	responseToClient(Client& cli, const std::string& response);
-	
+
 	private:
 		int					serv_port_;
 		std::string			serv_passwd_;
@@ -105,14 +105,17 @@ class Server{
 		// Client* getClientByNick(const std::string& nick) const;
 		// commands
 		void		passCommand(Message& msg, Client& cli);
-		bool		isPasswordMatch(const std::string& password);
-		void		attempRegisterClient(Client& cli);
 		void		quitCommand(Message& msg, Client& cli);
-		
+
 		// Commands specific to channel operators:
 		void		kickUser(Message& msg, Client& cli);
 		void		inviteUser(Message& msg, Client& cli);
 		void		topic(Message& msg, Client& cli);
+		
+		// command helper functions
+		bool		isPasswordMatch(const std::string& password);
+		void		attempRegisterClient(Client& cli);
+		bool		isNickInUse(const std::string& nick);
 };
 
 #include "Logger.hpp"
