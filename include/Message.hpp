@@ -109,7 +109,7 @@ class Message{
 		std::vector<std::string>	msg_channels_;//parameters that should be channels in the message
 		std::vector<std::string>	flags_;//flags from mode
 		COMMANDTYPE			cmd_type_;
-
+		/*
 		// std::string stores channel name;
 		// std::shared_ptr<Channel> stores Channel objects;
 		// std::unordered_map<std::string, std::shared_ptr<Channel>>	msg_channel_;
