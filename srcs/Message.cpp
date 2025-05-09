@@ -201,10 +201,30 @@ bool Message::parseMessage(){
     return true;
 }
 
-const std::string& Message::getRawMessage() const{
+const std::string& Message::getWholeMessage() const{
     return whole_msg_;
 }
 
-const std::vector<std::string>& Message::getParameters() const{
-    return parameters_;
+int Message::getNumberOfParameters() const{
+    return number_of_parameters_;
+}
+
+const std::string& Message::getTrailing() const {
+	return msg_trailing_;
+}
+
+const std::vector<std::string>& Message::getParameters() const {
+	return parameters_;
+}
+
+const std::vector<std::string>& Message::getUsers() const {
+	return msg_users_;
+}
+
+const std::vector<std::string>& Message::getChannels() const {
+	return msg_channels_;
+}
+
+const std::vector<std::string>& Message::getFlags() const {
+	return flags_;
 }
