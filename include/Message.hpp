@@ -94,6 +94,7 @@ class Message{
 		const std::vector<std::string>&	getUsers() const;
 		const std::vector<std::string>&	getChannels() const;
 		const std::vector<std::string>&	getFlags() const;
+		COMMANDTYPE 			getCommandType() const;
 
 		/*
 		COMMANDTYPE						getCmdType() const;
@@ -107,10 +108,7 @@ class Message{
 		std::vector<std::string>	msg_users_;//parameters that should be users in the message
 		std::vector<std::string>	msg_channels_;//parameters that should be channels in the message
 		std::vector<std::string>	flags_;//flags from mode
-
-		/*
-		// Elements contain in a message
-		COMMANDTYPE	cmd_type_;
+		COMMANDTYPE			cmd_type_;
 
 		// std::string stores channel name;
 		// std::shared_ptr<Channel> stores Channel objects;
