@@ -95,6 +95,7 @@ class Message{
 		const std::vector<std::string>&	getChannels() const;
 		const std::vector<std::string>&	getFlags() const;
 		COMMANDTYPE 			getCommandType() const;
+		const std::string& 		getCommandString() const;
 
 	private:
 		bool 				validateParameters(const std::string& command);
