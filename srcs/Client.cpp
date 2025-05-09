@@ -21,7 +21,8 @@ Client::Client(int fd, std::string host) : socket_fd_(fd), host_(host), isRegist
 
 Client&	Client::operator=(const Client& other){
 	if (this != & other){
-		Client(other.socket_fd_, other.host_);
+		this->socket_fd_ = other.socket_fd_;
+		this->raw_data_ = other.raw_data_;
 	}
 	return *this;
 }
