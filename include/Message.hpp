@@ -86,20 +86,20 @@ class Message{
 		Message(std::string& message);
 		~Message();
 
-		bool	parseMessage();
-		const std::string& getRawMessage() const;
-		const std::vector<std::string>& getParameters() const;
+		bool				parseMessage();
+		const std::string& 		getWholeMessage() const;
+		int 				getNumberOfParameters() const;
+		const std::string&		getTrailing() const;
+		const std::vector<std::string>&	getParameters() const;
+		const std::vector<std::string>&	getUsers() const;
+		const std::vector<std::string>&	getChannels() const;
+		const std::vector<std::string>&	getFlags() const;
 
 		/*
 		COMMANDTYPE						getCmdType() const;
-		const std::string&				getCmdStrType() const;
-		const std::vector<std::string>&	getMsgParams() const;
-		const std::vector<std::string> getChannelList() const;
-		const std::vector<std::string>		getParamsList() const;
-		const std::string 					getTrailing() const;
 		*/
 	private:
-		bool 	validateParameters(const std::string& command);
+		bool 				validateParameters(const std::string& command);
 		std::string			whole_msg_;
 		int				number_of_parameters_;
 		std::string			msg_trailing_;//everything found after :
@@ -111,7 +111,6 @@ class Message{
 		/*
 		// Elements contain in a message
 		COMMANDTYPE	cmd_type_;
-		std::string	cmd_str_type_;
 
 		// std::string stores channel name;
 		// std::shared_ptr<Channel> stores Channel objects;
