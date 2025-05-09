@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 13:37:13 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:55:09 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,14 +155,6 @@ bool	Client::isRegistered(){
  * Server responds with:
  *    :alice!alice@hostname PRIVMSG bob :Hello, Bob!
  */
-const std::string&	Client::getPrefix() const{
+std::string	Client::getPrefix() const{
 	return (":" + nick_ + "!" + username_ + "@" + hostname_);
 }
-
-
-void	Client::setPassword(const std::string& passwd){
-	password_ = passwd;
-}
-
-
-

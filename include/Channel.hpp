@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:41:40 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/09 11:51:23 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:46:51 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include "Client.hpp"
 #include "Logger.hpp"
 
-enum USERTYPE {
+enum class USERTYPE {
     REGULAR,
     OPERATOR,
     INVITE

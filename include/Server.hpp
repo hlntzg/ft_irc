@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 14:28:01 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:51:54 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,8 +100,8 @@ class Server{
 		void		removeClient(Client& usr, std::string reason);
 		void		executeCommand(Message& msg, Client& cli);
 
-		const std::shared_ptr<Channel>&		getChannelByName(const std::string& channel_name) const;
-		const std::shared_ptr<Client>&		getUserByNick(const std::string& user_nick) const;
+		std::shared_ptr<Channel>		getChannelByName(const std::string& channel_name) const;
+		std::shared_ptr<Client>			getUserByNick(const std::string& user_nick) const;
 		// Client* getClientByNick(const std::string& nick) const;
 
 		// commands

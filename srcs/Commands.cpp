@@ -291,7 +291,7 @@ void    Server::inviteUser(Message& msg, Client& user){
 				responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_list.at(0)));
 				continue;
 			}
-			channel_ptr->insertUser(getUserByNick(target_nick), INVITE);
+			channel_ptr->insertUser(getUserByNick(target_nick), USERTYPE::INVITE);
 			responseToClient(user, Inviting(user.getNick(), channel_list.at(0), target_nick));
 			std::string inviteMessage = ":" + user.getNick() + " INVITE " + target_nick + " " + channel_list.at(0) + "\r\n";
     		responseToClient(*getUserByNick(target_nick), inviteMessage);
@@ -308,7 +308,7 @@ void    Server::inviteUser(Message& msg, Client& user){
 				continue;
 			}
 			std::shared_ptr<Client> target_ptr = getUserByNick(target_list.at(0));
-			channel_ptr->insertUser(target_ptr, INVITE);
+			channel_ptr->insertUser(target_ptr, USERTYPE::INVITE);
 			responseToClient(user, Inviting(user.getNick(), channel_name, target_ptr->getNick()));
 			std::string inviteMessage = ":" + user.getNick() + " INVITE " + target_ptr->getNick() + " " + channel_name + "\r\n";
     		responseToClient(*getUserByNick(target_ptr->getNick()), inviteMessage);
@@ -417,6 +417,7 @@ void	Server::topic(Message& msg, Client& user){
  * @param msg   The parsed Message object containing the MODE command and parameters.
  * @param user  The client issuing the MODE command.
  */
+#if 0
 void	Server::mode(Message& msg, Client& user){
 	std::vector<std::string> channel_list = msg.getChannels();
 	std::vector<std::string> params_list = msg.getParamsList();
@@ -527,3 +528,4 @@ void	Server::mode(Message& msg, Client& user){
 	channel_ptr->notifyChannelUsers(user, message);
 	responseToClient(user, message);
 }
+#endif

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 13:40:18 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:54:32 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Client{
 		const std::string&	getUsername() const;
 		const std::string&	getPassword() const;
 		bool				getNextMessage(std::string& buffer);
-		const std::string&	getPrefix() const;
+		std::string	getPrefix() const;
 
 		// setters
 		void	setNick(const std::string& nick);

@@ -50,9 +50,3 @@ Sherry:
     removeUser Logic
     disconnect server??
 
-
-
-Need below functions:
-
-
-   std::unordered_set<Client*>  getChannelUsers();

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 14:38:42 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 15:00:35 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,13 +86,13 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{PASS, &Server::passCommand},
 	{NICK, &Server::nickCommand},
 	{USER, &Server::userCommand},
-	{PRIVMSG, &Server::privmsgCommand},
-	{JOIN, &Server::joinCommand},
-	{PART, &Server::partCommand},
+	// {PRIVMSG, &Server::privmsgCommand},
+	// {JOIN, &Server::joinCommand},
+	// {PART, &Server::partCommand},
 	{KICK, &Server::kickUser},
 	{COMMANDTYPE::INVITE, &Server::inviteUser},
 	{TOPIC, &Server::topic},
-	{MODE, &Server::mode},
+	// {MODE, &Server::mode},
 	{QUIT, &Server::quitCommand}
 };
 
@@ -354,7 +354,7 @@ void	Server::removeClient(Client& usr, std::string reason){
  */
 void	Server::executeCommand(Message& msg, Client& cli){
 	COMMANDTYPE	cmd_type = msg.getCommandType();
-	std::string cmd_str_type = msg.getCmdStrType();
+	std::string cmd_str_type = msg.getCommandString();
 
 	// 1.If the client hasn't finished registration, then the user can not operate
 	// the commands except PASS, NICK, USER and QUIT
@@ -400,19 +400,14 @@ int	Server::responseToClient(Client& cli, const std::string& response){
  * @param nick: The nickname of the client to search for.
  * @return Pointer to the Client if found, nullptr otherwise.
  */
- const std::shared_ptr<Client>&	Server::getUserByNick(const std::string& user_nick) const{
+// we can't return a reference, becasue it might be a nullptr
+ std::shared_ptr<Client>	Server::getUserByNick(const std::string& user_nick) const{
 	for (auto& [fd, user] : clients_){
 		if (user && user->getNick() == user_nick){
 			return user;
 		}
 	}
 	return nullptr;
-	// for (std::unordered_map<int, std::shared_ptr<Client>>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
-    //     if (it->second && it->second->getNick() == user_nick) {
-    //         return it->second.get(); // Return raw pointer from shared_ptr
-    //     }
-    // }
-    // return nullptr;
 }
 
 /**
@@ -421,7 +416,8 @@ int	Server::responseToClient(Client& cli, const std::string& response){
  * @param channel_name: channel name to search for.
  * @return Pointer to the channel if found, nullptr otherwise.
  */
-const std::shared_ptr<Channel>&	Server::getChannelByName(const std::string& channel_name) const{
+// we can't return a reference, becasue it might be a nullptr
+std::shared_ptr<Channel>	Server::getChannelByName(const std::string& channel_name) const{
 	for (const auto& [name, channelPtr] : channels_){
 		if (name == channel_name){
 			return channelPtr;

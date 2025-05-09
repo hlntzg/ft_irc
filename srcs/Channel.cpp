@@ -6,14 +6,11 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/09 09:08:26 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:56:36 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
-
-Channel::Channel(){
-}
 
 Channel::Channel(const std::string& name, Client& user) : channel_name_(name) {
     channel_passwd_ = "";
@@ -132,7 +129,7 @@ void    Channel::addLimit(int limit){
  * @param user The client attempting to join the channel.
  */
 void    Channel::addNewUser(Client& user){
-    int fd = user.getSocketFD();
+    int fd = user.getSocketFd();
 
     if (channel_invite_only_) {
         if (!isInvitedUser(user)) {
@@ -165,7 +162,7 @@ void    Channel::addNewUser(Client& user){
  * @param user The client to be removed from the channel.
  */
 void    Channel::removeUser(Client& user){
-    int fd = user.getSocketFD();
+    int fd = user.getSocketFd();
     if (users_.erase(&user) > 0){
         operators_.erase(&user);
         invited_users_.erase(&user);
@@ -216,13 +213,13 @@ bool    Channel::isEmptyChannel(){
 }
 
 void    Channel::insertUser(std::shared_ptr<Client> user, USERTYPE type){
-    if (type == REGULAR){
+    if (type == USERTYPE::REGULAR){
         addNewUser(*user);
     }
-    if (type == OPERATOR){
+    if (type == USERTYPE::OPERATOR){
         addNewOperator(*user);
     }
-    if (type == INVITE){
+    if (type == USERTYPE::INVITE){
         addNewInviteUser(*user);
     }
 }
