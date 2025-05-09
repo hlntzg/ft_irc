@@ -29,18 +29,18 @@ enum USERTYPE {
 class Channel{
 	public:
 		Channel() = delete;
-        Channel(std::string& name, Client& user);
+        Channel(const std::string& name, Client& user);
         Channel(const Channel&) = delete;
 		Channel& operator=(const Channel& other) = delete;
 		~Channel();
 
-        std::string getName();
-        std::string getPassword();
-        std::string getTopic();
-        bool        getInviteMode();
-        bool        getTopicMode();
-        bool        getPasswdMode();
-        bool        getLimitMode();
+        const std::string& getName() const;
+        const std::string& getPassword() const;
+        const std::string& getTopic() const;
+        bool        getInviteMode() const;
+        bool        getTopicMode() const;
+        bool        getPasswdMode() const;
+        bool        getLimitMode() const;
         size_t      channelSize();
         const std::unordered_set<Client*>&  getChannelUsers() const;
 
@@ -81,7 +81,7 @@ class Channel{
         // void        kickUser(Client& user, Client& target, const std::string& reason);
         // void        inviteUser(Client& user, Client& target);
         // void        topic(Client& user, const std::string& topic);
-        void        mode(Server& server, Client& user, const std::string& mode_flags, std::vector<std::string> args);
+        // void        mode(Server& server, Client& user, const std::string& mode_flags, std::vector<std::string> args);
 
     private:
         std::string channel_name_;

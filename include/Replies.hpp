@@ -95,6 +95,22 @@ const std::string& channel, const std::string& reason) {
 	return msg + "\r\n";
 }
 
+/**
+ * @brief Constructs a MODE message indicating mode changes on a channel.
+ *
+ * This message is sent to all users in the channel to inform them of a mode change.
+ * It follows the IRC format: ":<nick> MODE <channel> <modes> [<args>...]"
+ */
+inline std::string rplMode(const std::string& nick, const std::string& channel,
+                           const std::string& mode_flags,
+                           const std::vector<std::string>& args) {
+	std::string msg = ":" + nick + " MODE " + channel + " " + mode_flags;
+	for (const std::string& arg : args) {
+		msg += " " + arg;
+	}
+	return msg + "\r\n";
+}
+
 /*...................................Error Replies.................................*/
 
 // 401 ERR_NOSUCHNICK

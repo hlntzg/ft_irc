@@ -111,6 +111,7 @@ class Server{
 		void		kickUser(Message& msg, Client& cli);
 		void		inviteUser(Message& msg, Client& cli);
 		void		topic(Message& msg, Client& cli);
+		void		mode(Message& msg, Client& cli);
 		
 		// command helper functions
 		bool		isPasswordMatch(const std::string& password);
