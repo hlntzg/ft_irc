@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 12:07:35 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:28:01 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class Message;
 
 #define SPECIAL_CHARS "!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`"
 #define PASSWORD_RULE "Allow contain:\n1.Letters\n2.Digits\n3.Characters in\"!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`\""
+#define TARGET_LIM_IN_ONE_CMD (4)
 
 enum COMMANDTYPE{
 	PASS,
@@ -41,7 +42,6 @@ enum COMMANDTYPE{
 	PRIVMSG,
 	JOIN,
 	PART,
-	OPER,
 	KICK,
 	INVITE,
 	TOPIC,

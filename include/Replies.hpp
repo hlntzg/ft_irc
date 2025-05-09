@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 11:19:35 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:12:17 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,17 @@ inline std::string rplMode(const std::string& nick, const std::string& channel,
 	return msg + "\r\n";
 }
 
+/**
+ * @brief Constructs a MODE message indicating mode changes on a channel.
+ *
+ * This message is sent to all users in the channel to inform them of a mode change.
+ * It follows the IRC format: ":<nick> MODE <channel> <modes> [<args>...]"
+ */
+inline std::string rplJoinChannel(Client& cli, const std::string& channel_name) {
+	 return cli.getPrefix() + " has joined #" + channel_name + "\r\n";
+}
+
+
 /*...................................Error Replies.................................*/
 
 // 401 ERR_NOSUCHNICK
@@ -147,6 +158,15 @@ inline std::string canNotSendToChan(const std::string& nick, const std::string& 
 inline std::string tooManyChannels(const std::string& nick, const std::string& channel_name){
 	return (std::string(SERVER) + " 405 " + nick + " " + channel_name
 			+ " :You have joined too many channels\r\n");
+}
+
+// 405 ERR_TOOMANYTARGETS
+/**
+ * @brief Sent to a user when they have joined the maximum number of allowed channels
+ * and they try to join another channel.
+ */
+inline std::string tooManyTargets(const std::string& nick){
+	return (std::string(SERVER) + nick + " :too many targets\r\n");
 }
 
 // 421 ERR_UNKNOWNCOMMAND

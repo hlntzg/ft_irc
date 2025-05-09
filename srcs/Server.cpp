@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 11:29:05 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:38:42 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,11 +70,12 @@ const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
 
 /**
  * @brief Define the commands that only an operator can execute. Currenctly
- * set to: OPER, KICK, INVITE, TOPIC and MODE
+ * set to: KICK, INVITE and MODE
  */
 const std::set<COMMANDTYPE> Server::operator_commands_ = {
 	KICK,
-	INVITE,
+	COMMANDTYPE::INVITE, // if I don't add COMMANDTYPE::, the INVITE will be
+	                      //interpreted as something other value
 	MODE
 };
 
@@ -89,7 +90,7 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{JOIN, &Server::joinCommand},
 	{PART, &Server::partCommand},
 	{KICK, &Server::kickUser},
-	{INVITE, &Server::inviteUser},
+	{COMMANDTYPE::INVITE, &Server::inviteUser},
 	{TOPIC, &Server::topic},
 	{MODE, &Server::mode},
 	{QUIT, &Server::quitCommand}
@@ -310,7 +311,7 @@ void	Server::processDataFromClient(int idx){
  * @param reason: the reason that why remove the user;
  */
 void	Server::removeClient(Client& usr, std::string reason){
-	int	usr_fd = usr.getSocketFD();
+	int	usr_fd = usr.getSocketFd();
 
 	// 1.Remove the user from joined channels
 	for (const auto& [name, channelPtr] : channels_){
@@ -323,7 +324,7 @@ void	Server::removeClient(Client& usr, std::string reason){
 			} else { // if the channel is not empty, then send QUIT information to all other users
 				std::unordered_set<Client*> channel_users = channelPtr->getChannelUsers(); // need add getChannelUsers into Channel class
 				for (Client* the_user : channel_users){
-					responseToClient(*the_user, usr.getPrefix() + " QUIT : "+ reason);
+					responseToClient(*the_user, usr.getPrefix() + " QUIT : "+ reason + "\r\n");
 				}
 			}
 		}
@@ -352,7 +353,7 @@ void	Server::removeClient(Client& usr, std::string reason){
  *
  */
 void	Server::executeCommand(Message& msg, Client& cli){
-	COMMANDTYPE	cmd_type = msg.getCmdType();
+	COMMANDTYPE	cmd_type = msg.getCommandType();
 	std::string cmd_str_type = msg.getCmdStrType();
 
 	// 1.If the client hasn't finished registration, then the user can not operate
@@ -383,7 +384,7 @@ void	Server::executeCommand(Message& msg, Client& cli){
  * @return bytes written or throw error(negative value)
  */
 int	Server::responseToClient(Client& cli, const std::string& response){
-	int	n_bytes = send(cli.getSocketFD(), response.c_str(), response.length(), MSG_DONTWAIT);
+	int	n_bytes = send(cli.getSocketFd(), response.c_str(), response.length(), MSG_DONTWAIT);
 	if (n_bytes < 0){
 		Logger::log(Logger::WARNING, "Failed to send data to user " + cli.getNick() +
 		": " + response);

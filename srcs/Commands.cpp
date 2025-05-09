@@ -14,7 +14,7 @@
  */
 void	Server::passCommand(Message& msg, Client& cli){
 	std::string	nick = cli.getNick();
-	if (msg.getMsgParams().empty()){
+	if (msg.getParameters().empty()){
 		responseToClient(cli, needMoreParams("PASS"));
 		return;
 	} else if (cli.isRegistered()){
@@ -23,7 +23,7 @@ void	Server::passCommand(Message& msg, Client& cli){
 	}
 	// vector.at() is safer than vector.at[0] to access the element.
 	// at() will do the bounds checking
-	std::string	password = msg.getMsgParams().at(0);
+	std::string	password = msg.getParameters().at(0);
 	if (!isPasswordMatch(password)){
 		responseToClient(cli, passwdMismatch(nick));
 	}
@@ -50,36 +50,99 @@ void	Server::attempRegisterClient(Client& cli){
 		responseToClient(cli, passwdMismatch(nick));
 		return;
 	}
-	cli.setRegisterStatus(); // set it to true
+	cli.setRegistrationStatus(true);
 	responseToClient(cli, rplWelcome(nick));
 	responseToClient(cli,rplYourHost(nick));
 	responseToClient(cli,rplCreated(nick));
 	responseToClient(cli,rplMyInfo(nick));
 }
 
+/**
+ * @brief Checking if the passed nick is in use
+ *
+ * @param nick The nickname to be checked
+ *
+ * @return
+ * - `true`: The nickname is already in use
+ * - `false`: The nickname is available
+ */
 bool	Server::isNickInUse(const std::string& nick){
+	for (auto& [fd, user] : clients_){
+		if (user->getNick() == nick){
+			return true;
+		}
+	}
+	return false;
+}
 
+void	Server::nickCommand(Message& msg, Client& cli){
+	std::vector<std::string>	params = msg.getParameters();
+	if (params.size() == 0){
+		responseToClient(cli, nonNickNameGiven());
+		return;
+	}
+	const std::string& nick = params.at(0);
+	if (isNickInUse(nick) == true){
+		responseToClient(cli, nickNameinuse(""));
+	}
+	// checking if nick string contains only valid characters
+	for (auto c : nick){
+		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
+			responseToClient(cli, erroneusNickName(""));
+			return;
+		}
+	}
+	cli.setNick(nick);
+	attempRegisterClient(cli);
+}
+
+void	Server::userCommand(Message& msg, Client& cli){
+	std::vector<std::string>	params = msg.getParameters();
+	if (params.size() < 4){
+		responseToClient(cli, needMoreParams("USER"));
+		return;
+	}
+	const std::string& username = params.at(0);
+	const std::string& realname = params.at(3);
+	for (auto c : username){
+		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
+			responseToClient(cli, erroneusNickName(""));
+			return;
+		}
+	}
+	for (auto c : realname){
+		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
+			responseToClient(cli, erroneusNickName(""));
+			return;
+		}
+	}
+	cli.setUsername(username);
+	cli.setRealname(realname);
+	cli.setHostname(params.at(1));
+	cli.setServername(params.at(2));
+	attempRegisterClient(cli);
 }
 
 void	Server::quitCommand(Message& msg, Client& cli){
-
+	std::vector<std::string>	params = msg.getParameters();
+	removeClient(cli, params.at(0));
 }
 
 // Commands specific to channel operators:
 
 /**
  * KICK <channel> <nick> [:<reason>]
- * 
+ *
  * @brief Handles the IRC KICK command to forcibly remove users from one or more channels.
  * This function allows an IRC operator or channel operator to remove target users from channels.
  *
  * KICK command support:
- *   1. Kick multiple users from a single channel  
- *      - Example: KICK #chan user1,user2  
- *   2. Kick a single user from multiple channels  
- *      - Example: KICK #chan1,#chan2 user1  
- *   3. Kick N users from N channels (one-to-one mapping)  
- *      - Example: KICK #chan1,#chan2 user1,user2  
+ *   1. Kick multiple users from a single channel
+ *      - Example: KICK #chan user1,user2
+ *   2. Kick a single user from multiple channels
+ *      - Example: KICK #chan1,#chan2 user1
+ *   3. Kick N users from N channels (one-to-one mapping)
+ *      - Example: KICK #chan1,#chan2 user1,user2
  *        This kicks:
  *          - user1 from #chan1
  *          - user2 from #chan2
@@ -98,8 +161,8 @@ void	Server::quitCommand(Message& msg, Client& cli){
  * @param user  The client issuing the KICK command.
  */
 void	Server::kickUser(Message& msg, Client& user){
-	std::vector<std::string> channel_list = msg.getChannelList();
-	std::vector<std::string> target_list = msg.getParamsList();
+	std::vector<std::string> channel_list = msg.getChannels();
+	std::vector<std::string> target_list = msg.getUsers();
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
 
@@ -183,16 +246,16 @@ void	Server::kickUser(Message& msg, Client& user){
 
 /**
  * INVITE <nickname> <channel>
- * 
+ *
  * @brief Handles the IRC INVITE command to invite user(s) to one or more channels.
  * This function allows a user (typically an operator in invite-only channels) to invite
  * other users to join channels they are in.
  *
  * INVITE command support:
- *   1. Invite a single user to multiple channels  
- *      - Example: INVITE user1 #chan1,#chan2  
- *   2. Invite multiple users to a single channel  
- *      - Example: INVITE user1,user2 #chan  
+ *   1. Invite a single user to multiple channels
+ *      - Example: INVITE user1 #chan1,#chan2
+ *   2. Invite multiple users to a single channel
+ *      - Example: INVITE user1,user2 #chan
  *
  * The function performs permission and validity checks:
  *   - Whether the user who is inviting in the channel :: ERR_NOTONCHANNEL (442)
@@ -208,8 +271,8 @@ void	Server::kickUser(Message& msg, Client& user){
  * @param user  The client issuing the INVITE command.
  */
 void    Server::inviteUser(Message& msg, Client& user){
-	std::vector<std::string> channel_list = msg.getChannelList();
-	std::vector<std::string> target_list = msg.getParamsList();
+	std::vector<std::string> channel_list = msg.getChannels();
+	std::vector<std::string> target_list = msg.getUsers();
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
 
@@ -257,7 +320,7 @@ void    Server::inviteUser(Message& msg, Client& user){
 
 /**
  * TOPIC <channel> [:topic]
- * 
+ *
  * @brief Handles the IRC TOPIC command to set or view a channel's topic.
  *
  * TOPIC command support:
@@ -281,7 +344,7 @@ void    Server::inviteUser(Message& msg, Client& user){
  * @param user  The client issuing the TOPIC command.
  */
 void	Server::topic(Message& msg, Client& user){
-	std::vector<std::string> channel_list = msg.getChannelList();
+	std::vector<std::string> channel_list = msg.getChannels();
 	size_t	n_channel = channel_list.size();
 
 	if (n_channel > 1){
@@ -307,7 +370,7 @@ void	Server::topic(Message& msg, Client& user){
 	}
 
     // // Unset topic
-	// [!!!] Comment by Helena: check with parsing, probably dont get ':' as msg_trailing, 
+	// [!!!] Comment by Helena: check with parsing, probably dont get ':' as msg_trailing,
 	// so no need this check just if msg_training is "" somehow;
     // if (msg.getTrailing() == ":") {
     //     channel_ptr->getTopic().clear();
@@ -325,7 +388,7 @@ void	Server::topic(Message& msg, Client& user){
 
 /**
  * MODE <channel> [modes-flags [mode-params]]
- * 
+ *
  * @brief Handles the IRC MODE command for viewing or modifying a channel's modes.
  *
  * MODE command support:
@@ -347,7 +410,7 @@ void	Server::topic(Message& msg, Client& user){
  * 	 | `+k <key>`   | `-k`         | Set/unset a password required to join the channel |
  * 	 | `+o <nick>`  | `-o <nick>`  | Grant/revoke operator status to a user            |
  * 	 | `+l <limit>` | `-l`         | Set/unset a maximum user limit in the channel     |
- * 
+ *
  *   - Notifies all users in the channel of the mode changes.
  *   - Returns error replies for invalid flags, missing parameters, or permission issues.
  *
@@ -355,13 +418,13 @@ void	Server::topic(Message& msg, Client& user){
  * @param user  The client issuing the MODE command.
  */
 void	Server::mode(Message& msg, Client& user){
-	std::vector<std::string> channel_list = msg.getChannelList();
+	std::vector<std::string> channel_list = msg.getChannels();
 	std::vector<std::string> params_list = msg.getParamsList();
 
 	std::string	channel_name = channel_list.at(0);
 	std::string	mode_flags = params_list.at(0);
 	std::vector<std::string> args(params_list.begin() + 1, params_list.end());
-	
+
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
    	if (!channel_ptr->isChannelUser(user)) {
         responseToClient(user, notOnChannel(user.getNick(), channel_name));
