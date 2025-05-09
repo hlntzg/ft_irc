@@ -29,6 +29,7 @@ class Client{
 		const std::string&	getPassword() const;
 		bool				getNextMessage(std::string& buffer);
 		const std::string&	getPrefix() const;
+		int getSocketFd() const;
 
 
 		// setters
