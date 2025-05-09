@@ -51,7 +51,29 @@ const std::string&	Client::getNick() const{
  *
  */
 bool	Client::receiveRawData(){
-	// remeber we use edge_trigger mode, so we need to receive all the massage at once
+	char buffer[BUFFER_SIZE + 1];
+    ssize_t bytes_read;
+
+    while (true) {
+        bytes_read = recv(socket_fd_, buffer, BUFFER_SIZE, 0);
+        
+        if (bytes_read > 0) {
+            raw_data_.append(buffer, bytes_read);
+        } else if (bytes_read == 0) {
+            // Connection closed
+            return false;
+        } else {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                // All data read
+                break;
+            } else {
+                // Other errors
+                perror("recv");
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 /**
@@ -66,7 +88,21 @@ bool	Client::receiveRawData(){
  * false: raw data is empty.
  */
 bool	Client::getNextMessage(std::string& buffer){
-
+	// Find the position of CRLF ("\r\n") in raw_data_
+    size_t crlf_pos = raw_data_.find("\r\n");
+    
+    if (crlf_pos == std::string::npos) {
+        // No complete message yet
+        return false;
+    }
+    
+    // Extract the message (including CRLF)
+    buffer = raw_data_.substr(0, crlf_pos + 2);
+    
+    // Remove the processed message from raw_data_
+    raw_data_.erase(0, crlf_pos + 2);
+    
+    return true;
 }
 
 
@@ -91,4 +127,8 @@ const std::string&	Client::getPrefix() const{
 
 void	Client::setPassword(const std::string& passwd){
 	password_ = passwd;
+}
+
+int Client::getSocketFd() const{
+	return socket_fd_;
 }
