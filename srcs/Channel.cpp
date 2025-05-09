@@ -15,7 +15,7 @@
 Channel::Channel(){
 }
 
-Channel::Channel(std::string& name, Client& user) : channel_name_(name) {
+Channel::Channel(const std::string& name, Client& user) : channel_name_(name) {
     channel_passwd_ = "";
     channel_topic_ = "";
     channel_invite_only_ = false;
@@ -30,31 +30,31 @@ Channel::Channel(std::string& name, Client& user) : channel_name_(name) {
 Channel::~Channel(){
 }
 
-std::string Channel::getName(){
+const std::string& Channel::getName() const{
     return channel_name_;
 }
 
-std::string Channel::getPassword(){
+const std::string& Channel::getPassword() const{
     return channel_passwd_;
 }
 
-std::string Channel::getTopic(){
+const std::string& Channel::getTopic() const{
     return channel_topic_;
 }
 
-bool    Channel::getInviteMode(){
+bool    Channel::getInviteMode() const{
     return channel_invite_only_;
 }
 
-bool    Channel::getTopicMode(){
+bool    Channel::getTopicMode() const{
     return channel_restric_topic_;
 }
 
-bool    Channel::getPasswdMode(){
+bool    Channel::getPasswdMode() const{
     return channel_with_passwd_;
 }
 
-bool    Channel::getLimitMode(){
+bool    Channel::getLimitMode() const{
     return channel_user_limit_;
 }
 
@@ -425,116 +425,116 @@ void    Channel::insertUser(std::shared_ptr<Client> user, USERTYPE type){
  * ERR_CHANOPRIVSNEEDED (482) if user isn’t a channel operator
  * ERR_UNKNOWNMODE (472) for unsupported mode
  */
-void    Channel::mode(Server& server, Client& user, const std::string& mode_flags, std::vector<std::string> args){
-    if (!isChannelUser(user)) {
-        //ERR_NOTONCHANNEL (442)
-        Server::responseToClient(user, notOnChannel(user.getNick(), channel_name_));
-        return;
-    }
-    if (mode_flags.empty()) {
-        std::string mode_status = "+";
-        if (channel_invite_only_)
-            mode_status += "i";
-        if (channel_restric_topic_)
-            mode_status += "t";
-        if (channel_with_passwd_)
-            mode_status += "k";
-        if (channel_user_limit_)
-            mode_status += "l";
-        // RPL_CHANNELMODEIS (324)
-        Server::responseToClient(user, ChannelModeIs(user.getNick(), channel_name_, mode_status));
-        return;
-    }
+// void    Channel::mode(Server& server, Client& user, const std::string& mode_flags, std::vector<std::string> args){
+//     if (!isChannelUser(user)) {
+//         //ERR_NOTONCHANNEL (442)
+//         Server::responseToClient(user, notOnChannel(user.getNick(), channel_name_));
+//         return;
+//     }
+//     if (mode_flags.empty()) {
+//         std::string mode_status = "+";
+//         if (channel_invite_only_)
+//             mode_status += "i";
+//         if (channel_restric_topic_)
+//             mode_status += "t";
+//         if (channel_with_passwd_)
+//             mode_status += "k";
+//         if (channel_user_limit_)
+//             mode_status += "l";
+//         // RPL_CHANNELMODEIS (324)
+//         Server::responseToClient(user, ChannelModeIs(user.getNick(), channel_name_, mode_status));
+//         return;
+//     }
 
-    if (!isChannelOperator(user)) {
-        // ERR_CHANOPRIVSNEEDED (482)
-        Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name_));
-        return;
-    }
+//     if (!isChannelOperator(user)) {
+//         // ERR_CHANOPRIVSNEEDED (482)
+//         Server::responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name_));
+//         return;
+//     }
 
-    bool adding = true;
-    size_t arg_index = 0;
-    std::string update_modes;
+//     bool adding = true;
+//     size_t arg_index = 0;
+//     std::string update_modes;
 
-    for (size_t i = 0; i < mode_flags.size(); ++i) {
-        char c = mode_flags[i];
+//     for (size_t i = 0; i < mode_flags.size(); ++i) {
+//         char c = mode_flags[i];
 
-        if (c == '+') {
-            adding = true;
-        }
-        else if (c == '-') {
-            adding = false;
-        }
-        else if (c == 'i') {
-            adding ? setInviteOnly() : unsetInviteOnly();
-            update_modes += (adding ? "+i" : "-i");
-        }
-        else if (c == 't') {
-            adding ? setTopicRestrictions() : unsetTopicRestrictions();
-            update_modes += (adding ? "+t" : "-t");
-        }
-        else if (c == 'k') {
-            if (adding) {
-                if (arg_index >= args.size()) {
-                    Server::responseToClient(user, needMoreParams("MODE"));
-                    return;
-                }
-                addNewPassword(args[arg_index++]);
-                setPassword();
-                update_modes += "+k";
-            }
-            else {
-                unsetPassword();
-                update_modes += "-k";
-            }
-        }
-        else if (c == 'l') {
-            if (adding) {
-                if (arg_index >= args.size()) {
-                    Server::responseToClient(user, needMoreParams("MODE"));
-                    return;
-                }
-                addLimit(std::stoi(args[arg_index++]));
-                setLimit();
-                update_modes += "+l";
-            }
-            else {
-                unsetLimit();
-                update_modes += "-l";
-            }
-        }
-        else if (c == 'o') {
-            if (arg_index >= args.size()) {
-                Server::responseToClient(user, needMoreParams("MODE"));
-                return;
-            }
-            std::string nick = args[arg_index++];
-            Client* target = Server::getClientByNick(nick);
-            if (!target || !isChannelUser(*target)) {
-                Server::responseToClient(user, userNotInChannel(user.getNick(), nick, channel_name_));
-                continue;
-            }
-            if (adding) {
-                addNewOperator(*target);
-                update_modes += "+o";
-            }
-            else {
-                removeOperator(*target);
-                update_modes += "-o";
-            }
-        }
-        else {
-            Server::responseToClient(user, unknownMode(user.getNick(), std::to_string(c)));
-        }
-    }
+//         if (c == '+') {
+//             adding = true;
+//         }
+//         else if (c == '-') {
+//             adding = false;
+//         }
+//         else if (c == 'i') {
+//             adding ? setInviteOnly() : unsetInviteOnly();
+//             update_modes += (adding ? "+i" : "-i");
+//         }
+//         else if (c == 't') {
+//             adding ? setTopicRestrictions() : unsetTopicRestrictions();
+//             update_modes += (adding ? "+t" : "-t");
+//         }
+//         else if (c == 'k') {
+//             if (adding) {
+//                 if (arg_index >= args.size()) {
+//                     Server::responseToClient(user, needMoreParams("MODE"));
+//                     return;
+//                 }
+//                 addNewPassword(args[arg_index++]);
+//                 setPassword();
+//                 update_modes += "+k";
+//             }
+//             else {
+//                 unsetPassword();
+//                 update_modes += "-k";
+//             }
+//         }
+//         else if (c == 'l') {
+//             if (adding) {
+//                 if (arg_index >= args.size()) {
+//                     Server::responseToClient(user, needMoreParams("MODE"));
+//                     return;
+//                 }
+//                 addLimit(std::stoi(args[arg_index++]));
+//                 setLimit();
+//                 update_modes += "+l";
+//             }
+//             else {
+//                 unsetLimit();
+//                 update_modes += "-l";
+//             }
+//         }
+//         else if (c == 'o') {
+//             if (arg_index >= args.size()) {
+//                 Server::responseToClient(user, needMoreParams("MODE"));
+//                 return;
+//             }
+//             std::string nick = args[arg_index++];
+//             Client* target = Server::getClientByNick(nick);
+//             if (!target || !isChannelUser(*target)) {
+//                 Server::responseToClient(user, userNotInChannel(user.getNick(), nick, channel_name_));
+//                 continue;
+//             }
+//             if (adding) {
+//                 addNewOperator(*target);
+//                 update_modes += "+o";
+//             }
+//             else {
+//                 removeOperator(*target);
+//                 update_modes += "-o";
+//             }
+//         }
+//         else {
+//             Server::responseToClient(user, unknownMode(user.getNick(), std::to_string(c)));
+//         }
+//     }
 
-    // Notify all users of the mode change
-    std::string message = ":" + user.getNick() + " MODE " + channel_name_ + " " + update_modes;
-    for (size_t i = 0; i < arg_index; ++i) {
-        message += " " + args[i];
-    }
-    message += "\r\n";
+//     // Notify all users of the mode change
+//     std::string message = ":" + user.getNick() + " MODE " + channel_name_ + " " + update_modes;
+//     for (size_t i = 0; i < arg_index; ++i) {
+//         message += " " + args[i];
+//     }
+//     message += "\r\n";
 
-    notifyChannelUsers(user, message);
-    Server::responseToClient(user, message);
-}
+//     notifyChannelUsers(user, message);
+//     Server::responseToClient(user, message);
+// }

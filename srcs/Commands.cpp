@@ -67,6 +67,36 @@ void	Server::quitCommand(Message& msg, Client& cli){
 
 // Commands specific to channel operators:
 
+/**
+ * KICK <channel> <nick> [:<reason>]
+ * 
+ * @brief Handles the IRC KICK command to forcibly remove users from one or more channels.
+ * This function allows an IRC operator or channel operator to remove target users from channels.
+ *
+ * KICK command support:
+ *   1. Kick multiple users from a single channel  
+ *      - Example: KICK #chan user1,user2  
+ *   2. Kick a single user from multiple channels  
+ *      - Example: KICK #chan1,#chan2 user1  
+ *   3. Kick N users from N channels (one-to-one mapping)  
+ *      - Example: KICK #chan1,#chan2 user1,user2  
+ *        This kicks:
+ *          - user1 from #chan1
+ *          - user2 from #chan2
+ *
+ * The function performs permission checks:
+ *   - Whether the kicking user is in the channel :: ERR_NOTONCHANNEL (442)
+ *   - Whether the kicking user has operator privileges :: ERR_CHANOPRIVSNEEDED (482)
+ *   - Whether the target user is present in the specified channel :: ERR_USERNOTINCHANNEL (441)
+ *
+ * On success:
+ *   - Notifies all channel members of the kick
+ *   - Sends the KICK message directly to the kicked user (target)
+ *   - Removes the target user from the channel
+ *
+ * @param msg   The parsed Message object containing the KICK command with channel(s), target(s), and optional comment.
+ * @param user  The client issuing the KICK command.
+ */
 void	Server::kickUser(Message& msg, Client& user){
 	std::vector<std::string> channel_list = msg.getChannelList();
 	std::vector<std::string> target_list = msg.getParamsList();
@@ -76,26 +106,21 @@ void	Server::kickUser(Message& msg, Client& user){
 	if (n_channel == 1){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
 		if (!channel_ptr->isChannelUser(user)){
-			// ERR_NOTONCHANNEL (442)
 			responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
 			return;
 		}
 		if (!channel_ptr->isChannelOperator(user)){
-			// ERR_CHANOPRIVSNEEDED (482)
 			responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_list.at(0)));
 			return ;
 		}
 		for(const auto& target_nick : target_list){
-			// ERR_USERNOTINCHANNEL (441)
 			if (!channel_ptr->isChannelUser(*getUserByNick(target_nick))){
 				responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_list.at(0)));
 				continue;
 			}
 
 			std::string message = rplKick(user.getNick(), target_nick, channel_list.at(0), msg.getTrailing());
-    		// Notify all users in the channel except the target
     		channel_ptr->notifyChannelUsers(*getUserByNick(target_nick), message);
-    		// Notify the target separately (optional)
     		responseToClient(*getUserByNick(target_nick), message);
 
     		Logger::log(Logger::INFO, "User " + target_nick + " was kicked from channel " + channel_list.at(0) + " by " + user.getNick());
@@ -105,17 +130,14 @@ void	Server::kickUser(Message& msg, Client& user){
 		for(const auto& channel_name : channel_list){
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 			if (!channel_ptr->isChannelUser(user)){
-        	// ERR_NOTONCHANNEL (442)
 				responseToClient(user, notOnChannel(user.getNick(), channel_name));
 				continue;;
 			}
 			if (!channel_ptr->isChannelOperator(user)){
-				// ERR_CHANOPRIVSNEEDED (482)
 				responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name));
 				continue;
 			}
 			if (!channel_ptr->isChannelUser(*getUserByNick(target_list.at(0)))){
-				// ERR_USERNOTINCHANNEL (441)
 				responseToClient(user, userOnChannel(user.getNick(), target_list.at(0), channel_name));
 				continue;
 			}
@@ -159,6 +181,32 @@ void	Server::kickUser(Message& msg, Client& user){
 	}
 }
 
+/**
+ * INVITE <nickname> <channel>
+ * 
+ * @brief Handles the IRC INVITE command to invite user(s) to one or more channels.
+ * This function allows a user (typically an operator in invite-only channels) to invite
+ * other users to join channels they are in.
+ *
+ * INVITE command support:
+ *   1. Invite a single user to multiple channels  
+ *      - Example: INVITE user1 #chan1,#chan2  
+ *   2. Invite multiple users to a single channel  
+ *      - Example: INVITE user1,user2 #chan  
+ *
+ * The function performs permission and validity checks:
+ *   - Whether the user who is inviting in the channel :: ERR_NOTONCHANNEL (442)
+ *   - Whether the channel is invite-only and if the user who is inviting has operator privileges :: ERR_CHANOPRIVSNEEDED (482)
+ *   - Whether the target user is already in the channel :: ERR_USERONCHANNEL (443)
+ *
+ * On success:
+ *   - Sends RPL_INVITING (341) to the inviting user
+ *   - Sends the INVITE command message to the invited user
+ *   - Marks the target user as invited in the channel's state
+ *
+ * @param msg   The parsed Message object containing the INVITE command with channel(s) and target(s).
+ * @param user  The client issuing the INVITE command.
+ */
 void    Server::inviteUser(Message& msg, Client& user){
 	std::vector<std::string> channel_list = msg.getChannelList();
 	std::vector<std::string> target_list = msg.getParamsList();
@@ -168,12 +216,10 @@ void    Server::inviteUser(Message& msg, Client& user){
 	if (n_channel == 1){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
 		if (!channel_ptr->isChannelUser(user)){
-        // ERR_NOTONCHANNEL (442)
 			responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
 			return;
 		}
 		if (channel_ptr->getInviteMode() && !channel_ptr->isChannelOperator(user)){
-			// ERR_CHANOPRIVSNEEDED (482)
 			responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_list.at(0)));
 			return ;
 		}
@@ -187,16 +233,14 @@ void    Server::inviteUser(Message& msg, Client& user){
 			std::string inviteMessage = ":" + user.getNick() + " INVITE " + target_nick + " " + channel_list.at(0) + "\r\n";
     		responseToClient(*getUserByNick(target_nick), inviteMessage);
 		}
-	} else if (n_target == 1){
+	}  else if (n_target == 1){
 		for(const auto& channel_name : channel_list){
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 			if (!channel_ptr->isChannelUser(user)){
-        	// ERR_NOTONCHANNEL (442)
 				responseToClient(user, notOnChannel(user.getNick(), channel_name));
 				continue;;
 			}
 			if (channel_ptr->getInviteMode() && !channel_ptr->isChannelOperator(user)){
-				// ERR_CHANOPRIVSNEEDED (482)
 				responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name));
 				continue;
 			}
@@ -211,6 +255,31 @@ void    Server::inviteUser(Message& msg, Client& user){
 	}
 }
 
+/**
+ * TOPIC <channel> [:topic]
+ * 
+ * @brief Handles the IRC TOPIC command to set or view a channel's topic.
+ *
+ * TOPIC command support:
+ *   1. Only supports changing or viewing the topic of a single channel at a time.
+ *   2. If no trailing parameter is provided:
+ *      - Returns the current topic with RPL_TOPIC (332) if one is set.
+ *      - Otherwise, returns RPL_NOTOPIC (331) indicating no topic is set.
+ *   3. If the channel is in topic-protected mode (+t), only channel operators may set the topic.
+ *   4. If the trailing parameter is a colon (`:`) with no content, the topic will be cleared.
+ *
+ * The function performs the following checks:
+ *   - Ensures the user is a member of the channel :: ERR_NOTONCHANNEL (442)
+ *   - Checks topic-change privileges if the channel is protected :: ERR_CHANOPRIVSNEEDED (482)
+ *
+ * On success:
+ *   - Updates or clears the channel topic.
+ *   - Notifies all users in the channel of the topic change.
+ *   - Responds to the user with the updated topic message.
+ *
+ * @param msg   The parsed Message object containing the TOPIC command and parameters.
+ * @param user  The client issuing the TOPIC command.
+ */
 void	Server::topic(Message& msg, Client& user){
 	std::vector<std::string> channel_list = msg.getChannelList();
 	size_t	n_channel = channel_list.size();
@@ -222,34 +291,31 @@ void	Server::topic(Message& msg, Client& user){
 
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
     if (!channel_ptr->isChannelUser(user)){
-        // ERR_NOTONCHANNEL (442)
         Server::responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
         return ;
     }
 	if (msg.getTrailing().empty()){
 		if (channel_ptr->getTopic().empty())
-		 	// RPL_NOTOPIC (331)
 			responseToClient(user, NoTopic(user.getNick(), channel_list.at(0)));
 		else
-			// RPL_TOPIC (332)
 			responseToClient(user, Topic(user.getNick(), channel_list.at(0), channel_ptr->getTopic()));
 		return ;
 	}
 	if (channel_ptr->getTopicMode() && !channel_ptr->isChannelOperator(user)){
-		// ERR_CHANOPRIVSNEEDED (482)
 		responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_list.at(0)));
 		return ;
 	}
 
-    // Unset topic
-    if (msg.getTrailing() == ":") {
-        channel_ptr->getTopic().clear();
-        Logger::log(Logger::INFO, "User " + user.getNick() + " cleared topic in channel " + channel_list.at(0));
-        return;
-    }
+    // // Unset topic
+	// [!!!] Comment by Helena: check with parsing, probably dont get ':' as msg_trailing, 
+	// so no need this check just if msg_training is "" somehow;
+    // if (msg.getTrailing() == ":") {
+    //     channel_ptr->getTopic().clear();
+    //     Logger::log(Logger::INFO, "User " + user.getNick() + " cleared topic in channel " + channel_list.at(0));
+    //     return;
+    // }
 
 	channel_ptr->addNewTopic(msg.getTrailing());
-    // 332 RPL_TOPIC
 	std::string message = Topic(user.getNick(), channel_list.at(0), msg.getTrailing());
 	channel_ptr->notifyChannelUsers(user, message);
 	responseToClient(user, message);
@@ -257,10 +323,144 @@ void	Server::topic(Message& msg, Client& user){
     Logger::log(Logger::INFO, "User " + user.getNick() + " set new topic in channel " + channel_list.at(0) + ": " + msg.getTrailing());
 }
 
-// By Helena: maybe it's possible to have also mode() in here
-// void	Server::mode(Message& msg, Client& user){
-// 	std::vector<std::string> params_list = msg.getParamsList();
-// 	std::string	mode_flags = params_list.at(0);
-// 	1. add the rest of params_list on std::vector<std::string> args
-// 	2. check if code from Channel::mode(...) can fit here :)
-// }
+/**
+ * MODE <channel> [modes-flags [mode-params]]
+ * 
+ * @brief Handles the IRC MODE command for viewing or modifying a channel's modes.
+ *
+ * MODE command support:
+ *   1. Only supports modifying modes for one channel at a time.
+ *   2. Supports multiple mode flags in a single command (e.g., "+itlk key 10").
+ *   3. Parameters must be provided in the correct order and quantity as required by the flags.
+ *      - Flags that require arguments: 'k' (password), 'l' (user limit), 'o' (operator toggle).
+ *      - Flags without arguments: 'i' (invite-only), 't' (topic restrictions).
+ *
+ * Function behavior:
+ *   - If no flags are specified, the current channel modes are returned using RPL_CHANNELMODEIS (324).
+ *   - Validates that the user is a member of the channel :: ERR_NOTONCHANNEL (442)
+ *   - Validates operator privileges for modifying modes :: ERR_CHANOPRIVSNEEDED (482)
+ *   - Applies mode changes as specified, including:
+ * 	 | Set mode     | Unset mode   | Description                                       |
+ * 	 |--------------|--------------|---------------------------------------------------|
+ * 	 | `+i`         | `-i`         | Allow only invited users to join the channel      |
+ * 	 | `+t`         | `-t`         | Restrict/allow topic changes to operators only    |
+ * 	 | `+k <key>`   | `-k`         | Set/unset a password required to join the channel |
+ * 	 | `+o <nick>`  | `-o <nick>`  | Grant/revoke operator status to a user            |
+ * 	 | `+l <limit>` | `-l`         | Set/unset a maximum user limit in the channel     |
+ * 
+ *   - Notifies all users in the channel of the mode changes.
+ *   - Returns error replies for invalid flags, missing parameters, or permission issues.
+ *
+ * @param msg   The parsed Message object containing the MODE command and parameters.
+ * @param user  The client issuing the MODE command.
+ */
+void	Server::mode(Message& msg, Client& user){
+	std::vector<std::string> channel_list = msg.getChannelList();
+	std::vector<std::string> params_list = msg.getParamsList();
+
+	std::string	channel_name = channel_list.at(0);
+	std::string	mode_flags = params_list.at(0);
+	std::vector<std::string> args(params_list.begin() + 1, params_list.end());
+	
+	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+   	if (!channel_ptr->isChannelUser(user)) {
+        responseToClient(user, notOnChannel(user.getNick(), channel_name));
+        return;
+    }
+	if (mode_flags.empty()) {
+        std::string status = "+";
+        if (channel_ptr->getInviteMode())
+            status += "i";
+        if (channel_ptr->getTopicMode())
+            status += "t";
+        if (channel_ptr->getPasswdMode())
+            status += "k";
+        if (channel_ptr->getLimitMode())
+            status += "l";
+        responseToClient(user, ChannelModeIs(user.getNick(), channel_name, status));
+        return;
+    }
+	if (!channel_ptr->isChannelOperator(user)) {
+        responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name));
+        return;
+    }
+
+	bool adding = true;
+	size_t arg_index = 0;
+	std::string update_modes;
+
+	for (size_t i = 0; i < mode_flags.size(); ++i) {
+		char c = mode_flags[i];
+
+		if (c == '+') {
+			adding = true;
+		}
+		else if (c == '-') {
+			adding = false;
+		}
+		else if (c == 'i') {
+			adding ? channel_ptr->setInviteOnly() : channel_ptr->unsetInviteOnly();
+			update_modes += (adding ? "+i" : "-i");
+		}
+		else if (c == 't') {
+			adding ? channel_ptr->setTopicRestrictions() : channel_ptr->unsetTopicRestrictions();
+			update_modes += (adding ? "+t" : "-t");
+		}
+		else if (c == 'k') {
+			if (adding) {
+				if (arg_index >= args.size()) {
+					responseToClient(user, needMoreParams("MODE"));
+					return;
+				}
+				channel_ptr->addNewPassword(args[arg_index++]);
+				channel_ptr->setPassword();
+				update_modes += "+k";
+			} else {
+				channel_ptr->unsetPassword();
+				update_modes += "-k";
+			}
+		}
+		else if (c == 'l') {
+			if (adding) {
+				if (arg_index >= args.size()) {
+					responseToClient(user, needMoreParams("MODE"));
+					return;
+				}
+				channel_ptr->addLimit(std::stoi(args[arg_index++]));
+				channel_ptr->setLimit();
+				update_modes += "+l";
+			} else {
+				channel_ptr->unsetLimit();
+				update_modes += "-l";
+			}
+		}
+		else if (c == 'o') {
+			if (arg_index >= args.size()) {
+				responseToClient(user, needMoreParams("MODE"));
+				return;
+			}
+			std::string nick = args[arg_index++];
+			std::shared_ptr<Client> target = getUserByNick(nick);
+			if (!target || !channel_ptr->isChannelUser(*target)) {
+				responseToClient(user, userNotInChannel(user.getNick(), nick, channel_name));
+				continue;
+			}
+			if (adding) {
+				channel_ptr->addNewOperator(*target);
+				update_modes += "+o";
+			} else {
+				channel_ptr->removeOperator(*target);
+				update_modes += "-o";
+			}
+		}
+		else {
+			responseToClient(user, unknownMode(user.getNick(), std::string(1, c)));
+		}
+	}
+	// Notify all users in the channel about the mode change
+	std::vector<std::string> params(args.begin(), args.begin() + arg_index);
+	std::string message = rplMode(user.getNick(), channel_name, update_modes, params);
+
+	channel_ptr->notifyChannelUsers(user, message);
+	responseToClient(user, message);
+}

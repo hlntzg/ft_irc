@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 11:45:17 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 12:07:35 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,12 +117,12 @@ class Server{
 		void		kickUser(Message& msg, Client& cli);
 		void		inviteUser(Message& msg, Client& cli);
 		void		topic(Message& msg, Client& cli);
+		void		mode(Message& msg, Client& cli);
 
 		// command helper functions
 		bool		isPasswordMatch(const std::string& password);
 		void		attempRegisterClient(Client& cli);
 		bool		isNickInUse(const std::string& nick);
-		// bool		isExistedChannel(const std::string& channel_name);
 };
 
 #include "Logger.hpp"
