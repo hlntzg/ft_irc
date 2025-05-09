@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/06 09:08:59 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 11:19:35 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,8 +147,8 @@ inline std::string unknowCommand(const std::string& nick, const std::string& wro
 /**
  * @brief Returned when a nickname parameter expected for a command and isn't found.
  */
-inline std::string nonNickNameGiven(const std::string& nick){
-	return (std::string(SERVER) + " 431 " + nick + " :No nickname given\r\n");
+inline std::string nonNickNameGiven(){
+	return (std::string(SERVER) + " 431 :No nickname given\r\n");
 }
 
 // 432 ERR_ERRONEUSNICKNAME
@@ -157,7 +157,7 @@ inline std::string nonNickNameGiven(const std::string& nick){
  * not fall in the defined set.
  */
 inline std::string erroneusNickName(const std::string& nick){
-	return (std::string(SERVER) + " 432 " + nick + " :Erroneus nickname\r\n");
+	return (std::string(SERVER) + " 432 " + nick + " :Erroneus nickname/username\r\n");
 }
 
 // 433 ERR_NICKNAMEINUSE

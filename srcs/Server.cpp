@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 08:48:08 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 11:29:05 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,16 +83,15 @@ const std::set<COMMANDTYPE> Server::operator_commands_ = {
  */
 const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ = {
 	{PASS, &Server::passCommand},
-	// {NICK, &Server::nickCommand},
-	// {USER, &Server::userCommand},
-	// {PRIVMSG, &Server::privmsgCommand},
-	// {JOIN, &Server::joinCommand},
-	// {PART, &Server::partCommand},
-	// {OPER, &Server::operCommand},
+	{NICK, &Server::nickCommand},
+	{USER, &Server::userCommand},
+	{PRIVMSG, &Server::privmsgCommand},
+	{JOIN, &Server::joinCommand},
+	{PART, &Server::partCommand},
 	{KICK, &Server::kickUser},
 	{INVITE, &Server::inviteUser},
 	{TOPIC, &Server::topic},
-	// {MODE, &Server::modeCommand},
+	{MODE, &Server::mode},
 	{QUIT, &Server::quitCommand}
 };
 
@@ -364,20 +363,6 @@ void	Server::executeCommand(Message& msg, Client& cli){
 		responseToClient(cli, NotRegistered(cmd_str_type));
 		return;
 	}
-	// 2.If an non-operator user try to execute operator commands, then reject.
-	// currently dicide to put this logic into commands functions.
-	// if (operator_commands_.find(cmd_type) != operator_commands_.end()){
-	// 	// std::unordered_set<std::shared_ptr<Channel>>::iterator it = msg_channels_.begin();
-	// 	1) checking if the user is in the operated channel
-	// 	2) checking if the user is the operator of the channel
-	// 	for (; it != msg_channels_.end(); it++){
-	// 		// need add a checking user's permisson in channle class
-	// 		if (!it->isClientOperator(cli)){
-	// 			Server::responseToClient(// need add response message here);
-	// 		}
-	// 	}
-	// }
-
 	// 2. Find the matched command, then call that command; otherwise, response
 	// unknowncommand error
 	std::unordered_map<COMMANDTYPE, executeFunc>::const_iterator it =
@@ -414,7 +399,7 @@ int	Server::responseToClient(Client& cli, const std::string& response){
  * @param nick: The nickname of the client to search for.
  * @return Pointer to the Client if found, nullptr otherwise.
  */
- const std::shared_ptr<Client>	Server::getUserByNick(const std::string& user_nick) const{
+ const std::shared_ptr<Client>&	Server::getUserByNick(const std::string& user_nick) const{
 	for (auto& [fd, user] : clients_){
 		if (user && user->getNick() == user_nick){
 			return user;
@@ -427,4 +412,19 @@ int	Server::responseToClient(Client& cli, const std::string& response){
     //     }
     // }
     // return nullptr;
+}
+
+/**
+ * @brief Return a channel object by the given channel name.
+ *
+ * @param channel_name: channel name to search for.
+ * @return Pointer to the channel if found, nullptr otherwise.
+ */
+const std::shared_ptr<Channel>&	Server::getChannelByName(const std::string& channel_name) const{
+	for (const auto& [name, channelPtr] : channels_){
+		if (name == channel_name){
+			return channelPtr;
+		}
+	}
+	return nullptr;
 }

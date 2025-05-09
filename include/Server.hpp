@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 08:57:26 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/09 11:45:17 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,22 +100,29 @@ class Server{
 		void		removeClient(Client& usr, std::string reason);
 		void		executeCommand(Message& msg, Client& cli);
 
-		const std::shared_ptr<Channel>		getChannelByName(const std::string& channel_name) const;
-		const std::shared_ptr<Client>		getUserByNick(const std::string& user_nick) const;
+		const std::shared_ptr<Channel>&		getChannelByName(const std::string& channel_name) const;
+		const std::shared_ptr<Client>&		getUserByNick(const std::string& user_nick) const;
 		// Client* getClientByNick(const std::string& nick) const;
+
 		// commands
 		void		passCommand(Message& msg, Client& cli);
+		void		nickCommand(Message& msg, Client& cli);
+		void		userCommand(Message& msg, Client& cli);
+		void		privmsgCommand(Message& msg, Client& cli);
+		void		joinCommand(Message& msg, Client& cli);
+		void		partCommand(Message& msg, Client& cli);
 		void		quitCommand(Message& msg, Client& cli);
 
 		// Commands specific to channel operators:
 		void		kickUser(Message& msg, Client& cli);
 		void		inviteUser(Message& msg, Client& cli);
 		void		topic(Message& msg, Client& cli);
-		
+
 		// command helper functions
 		bool		isPasswordMatch(const std::string& password);
 		void		attempRegisterClient(Client& cli);
 		bool		isNickInUse(const std::string& nick);
+		// bool		isExistedChannel(const std::string& channel_name);
 };
 
 #include "Logger.hpp"
