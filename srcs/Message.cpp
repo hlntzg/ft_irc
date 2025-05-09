@@ -43,6 +43,17 @@ bool Message::validateParameters(const std::string& command) {
             return false;
         }
     }
+    else if (command == "USER") {
+	cmd_type_ = USER;
+        if (parameters_.size() != 3) {
+            std::cout << "USER command requires exactly 3 parameters." << std::endl;
+            return false;
+        }
+        if (msg_trailing_.empty()) {
+            std::cout << "USER command requires a trailing message" << std::endl;
+            return false;
+        }
+    }
     else if (command == "PRIVMSG") {
 	cmd_type_ = PRIVMSG;
         if (parameters_.size() != 1) {
