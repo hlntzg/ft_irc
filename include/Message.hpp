@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <unordered_set>
+#include <vector>
 
 class Client;
 class Server;
@@ -98,10 +99,14 @@ class Message{
 		const std::string 					getTrailing() const;
 		*/
 	private:
-		std::string	whole_msg_;
-		int							number_of_parameters_;
-		std::string					msg_trailing_;
-		std::vector<std::string>	parameters_;
+		bool 	validateParameters(const std::string& command);
+		std::string			whole_msg_;
+		int				number_of_parameters_;
+		std::string			msg_trailing_;//everything found after :
+		std::vector<std::string>	parameters_;//all the parameters in a vector
+		std::vector<std::string>	msg_users_;//parameters that should be users in the message
+		std::vector<std::string>	msg_channels_;//parameters that should be channels in the message
+		std::vector<std::string>	flags_;//flags from mode
 
 		/*
 		// Elements contain in a message
