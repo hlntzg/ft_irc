@@ -189,6 +189,7 @@ bool Message::parseMessage(){
     std::string     word;
 
     input_stream >> command;
+    cmd_string_ = command;
     std::cout << "Command == " << command << std::endl;
     while (input_stream >> word) {
         if (!word.empty() && word[0] == ':') {
