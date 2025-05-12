@@ -128,13 +128,31 @@ void	Server::quitCommand(Message& msg, Client& cli){
 	removeClient(cli, params.at(0));
 }
 
-/* 	The PART command indicates that the client wants to leave one or more channels. 
-	In response, the server sends one or more PART message to indicate that the request was successful.
- 	<channel> : Name of the channel(s) to join, separated by commas.
-	
-	ERR_NOSUCHCHANNEL (403)
-	ERR_NOTONCHANNEL (442)
-*/
+
+/**
+ * PART <channel>{,<channel>} [:message]
+ *
+ * @brief Handles the IRC PART command, allowing a user to leave one or more channels.
+ * 
+ * This function removes the user from each specified channel (if they are a member), 
+ * and notifies all users in the channel of the departure. If a channel becomes empty 
+ * after the departure, it is deleted from the server.
+ *
+ * Syntax:
+ *   - PART #chan1,#chan2 [:optional parting message]
+ *
+ * Behavior:
+ *   - Sends a PART message to all users in the channel
+ *   - If the channel becomes empty, it is destroyed
+ *
+ * Error Replies:
+ *   - ERR_NOSUCHCHANNEL (403) – If the specified channel does not exist
+ *   - ERR_NOTONCHANNEL (442) – If the user is not a member of the channel
+ *   - ERR_TOOMANYTARGETS (407) – If too many channels are specified in one command
+ *
+ * @param msg  The parsed Message object containing the list of channels and optional message.
+ * @param cli  The client issuing the PART command.
+ */
 void		Server::partCommand(Message& msg, Client& cli){
 	std::vector<std::string> channel_list = msg.getChannels();
 
