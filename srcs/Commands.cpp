@@ -689,7 +689,7 @@ void Server::privmsgCommand(Message& msg, Client& cli){
             responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name));
             continue;
         }
-        if (!channel_ptr->isChannelUser(cli)) {
+        if (!channel_ptr->isChannelUser(cli)){
             responseToClient(cli, notOnChannel(cli.getNick(), channel_name));
             continue;
         }
@@ -698,7 +698,7 @@ void Server::privmsgCommand(Message& msg, Client& cli){
     for (const auto& target_nick : users){
         std::shared_ptr<Client> target_client = getUserByNick(target_nick);
 
-        if (!target_client) {
+        if (!target_client){
             responseToClient(cli, errNoSuchNick(cli.getNick(), target_nick));
             continue;
         }
