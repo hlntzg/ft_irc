@@ -112,10 +112,27 @@ inline std::string rplMode(const std::string& nick, const std::string& channel,
 }
 
 /**
- * @brief
+ * @brief Constructs a MODE message indicating mode changes on a channel.
+ *
+ * This message is sent to all users in the channel to inform them of a mode change.
+ * It follows the IRC format: ":<nick> MODE <channel> <modes> [<args>...]"
  */
-inline std::string rplJoinChannel(const std::string& nick, const std::string& channel_name) {
-	 return nick + " has joined #" + channel_name + "\r\n";
+inline std::string rplJoinChannel(Client& cli, const std::string& channel_name) {
+	 return cli.getPrefix() + " has joined #" + channel_name + "\r\n";
+}
+
+/**
+ * @brief Constructs a PART message indicating that a user has left a channel.
+ *
+ * This message is sent to all users in the channel, including the parting user.
+ * It follows the IRC format: ":<nick> PART <channel> [:reason]"
+ */
+inline std::string rplPart(const std::string& nick, const std::string& channel, const std::string& reason = "") {
+	std::string msg = ":" + nick + " PART " + channel;
+	if (!reason.empty()) {
+		msg += " :" + reason;
+	}
+	return msg + "\r\n";
 }
 
 /*...................................Error Replies.................................*/

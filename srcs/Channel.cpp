@@ -59,9 +59,9 @@ size_t  Channel::channelSize(){
     return users_.size();
 }
 
-const std::unordered_set<Client*>&  Channel::getChannelUsers() const{
-    return users_;
-}
+// const std::unordered_set<Client*>&  Channel::getChannelUsers() const{
+//     return users_;
+// }
 
 // Channel's set mode:
 void    Channel::setInviteOnly(){

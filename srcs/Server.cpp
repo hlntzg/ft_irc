@@ -346,6 +346,26 @@ void	Server::removeClient(Client& usr, std::string reason){
 	Logger::log(Logger::INFO, "Removing client " + std::to_string(usr_fd) + ": " + reason);
 }
 
+
+/**
+ * @brief Removes a channel from the server's channel map.
+ *
+ * Erases the channel from the map, destroying the Channel object
+ * if no other shared_ptr references exist.
+ * 
+ * The std::shared_ptr<Channel> will automatically delete the Channel object
+ * when all references (including the one in the map) are gone.
+ * 
+ * @param channel_name The name of the channel to remove.
+ */
+void Server::removeChannel(const std::string& channel_name) {
+	auto it = channels_.find(channel_name);
+	if (it != channels_.end()) {
+		channels_.erase(it); // Triggers destruction if this was the last shared_ptr
+		Logger::log(Logger::INFO, "Channel " + channel_name + " has been deleted.");
+	}
+}
+
 /**
  * @brief If the client hasn't finished registration process, and execute no-permission-
  * command, then just return. Otherwise, call Message::execute to execute the command

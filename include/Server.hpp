@@ -98,6 +98,7 @@ class Server{
 		void		acceptNewClient();
 		void		processDataFromClient(int idx);
 		void		removeClient(Client& usr, std::string reason);
+		void		removeChannel(const std::string& channel_name);
 		void		executeCommand(Message& msg, Client& cli);
 
 		std::shared_ptr<Channel>		getChannelByName(const std::string& channel_name) const;

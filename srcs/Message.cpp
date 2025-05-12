@@ -218,29 +218,29 @@ bool Message::validateParameters(const std::string& command){
  * and then validated separately for each command.
  */
 bool Message::parseMessage(){
-    std::cout << "Received message: " << whole_msg_ << std::endl;
     std::istringstream input_stream(whole_msg_);
     std::string command;
     std::string     word;
 
     input_stream >> command;
     cmd_string_ = command;
-    std::cout << "Command == " << command << std::endl;
     while (input_stream >> word){
         if (!word.empty() && word[0] == ':') {
             std::string rest_of_line;
             std::getline(input_stream, rest_of_line);
             msg_trailing_ = word.substr(1) + rest_of_line;
-            std::cout << "Trailing message: " << msg_trailing_ << std::endl;
-            std::cout << "number of parameters == " << number_of_parameters_ << std::endl;
             break;
         }
         std::stringstream string_stream(word);
         std::string token;
         while (std::getline(string_stream, token, ',')){
             if (!token.empty()){
-                std::cout << "Adding \"" << token << "\" to parameters_" << std::endl;
                 ++number_of_parameters_;
+                if (number_of_parameters_ > 4)
+                {
+                    Logger::log(Logger::ERROR, "Too many parameters given in the message");
+                    return false;
+                }
                 parameters_.push_back(token);
             }
         }
@@ -249,7 +249,6 @@ bool Message::parseMessage(){
         Logger::log(Logger::ERROR, "Validation failed");
         return false;
     }
-    std::cout << "Success" << std::endl;
     return true;
 }
 

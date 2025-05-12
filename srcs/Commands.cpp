@@ -130,6 +130,68 @@ void	Server::quitCommand(Message& msg, Client& cli){
 	removeClient(cli, params.at(0));
 }
 
+
+/**
+ * PART <channel>{,<channel>} [:message]
+ *
+ * @brief Handles the IRC PART command, allowing a user to leave one or more channels.
+ * 
+ * This function removes the user from each specified channel (if they are a member), 
+ * and notifies all users in the channel of the departure. If a channel becomes empty 
+ * after the departure, it is deleted from the server.
+ *
+ * Syntax:
+ *   - PART #chan1,#chan2 [:optional parting message]
+ *
+ * Behavior:
+ *   - Sends a PART message to all users in the channel
+ *   - If the channel becomes empty, it is destroyed
+ *
+ * Error Replies:
+ *   - ERR_NOSUCHCHANNEL (403) – If the specified channel does not exist
+ *   - ERR_NOTONCHANNEL (442) – If the user is not a member of the channel
+ *   - ERR_TOOMANYTARGETS (407) – If too many channels are specified in one command
+ *
+ * @param msg  The parsed Message object containing the list of channels and optional message.
+ * @param cli  The client issuing the PART command.
+ */
+void		Server::partCommand(Message& msg, Client& cli){
+	std::vector<std::string> channel_list = msg.getChannels();
+
+	if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
+		responseToClient(cli, tooManyTargets(cli.getNick()));
+		return;
+	}
+	
+	for(const auto& channel_name : channel_list){
+		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+
+		if (!channel_ptr) {
+			responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name)); // ERR_NOSUCHCHANNEL (403)
+			continue;
+		}
+		if (!channel_ptr->isChannelUser(cli)) {
+			responseToClient(cli, notOnChannel(cli.getNick(), channel_name)); // ERR_NOTONCHANNEL (442)
+			continue;
+		}
+
+		std::string message = rplPart(cli.getNick(), channel_name, msg.getTrailing());
+
+		// Notify all users
+		channel_ptr->notifyChannelUsers(cli, message);
+		responseToClient(cli, message);
+
+		channel_ptr->removeUser(cli);
+
+		if (channel_ptr->isEmptyChannel()) {
+			removeChannel(channel_name);
+		}
+
+		Logger::log(Logger::INFO, "User " + cli.getNick() + " left channel " + channel_name);
+	}
+}
+
+
 // Commands specific to channel operators:
 
 /**
@@ -606,4 +668,40 @@ bool	Server::isExistedChannel(const std::string& channel_name){
 		}
 	}
 	return false;
+}
+
+/**
+ * @brief Send a message to a user or a channel if they exist.
+ * Can be used to message multiple users and/or channels at the same time
+ */
+void Server::privmsgCommand(Message& msg, Client& cli){
+    std::vector<std::string> channels = msg.getChannels();
+    std::vector<std::string> users = msg.getUsers();
+    std::string message = msg.getTrailing();
+
+    if (channels.empty() && users.empty()){
+        responseToClient(cli, needMoreParams("PRIVMSG"));
+        return;
+    }
+    for (const auto& channel_name : channels){
+        std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+        if (!channel_ptr) {
+            responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name));
+            continue;
+        }
+        if (!channel_ptr->isChannelUser(cli)) {
+            responseToClient(cli, notOnChannel(cli.getNick(), channel_name));
+            continue;
+        }
+        channel_ptr->notifyChannelUsers(cli, message);
+    }
+    for (const auto& target_nick : users){
+        std::shared_ptr<Client> target_client = getUserByNick(target_nick);
+
+        if (!target_client) {
+            responseToClient(cli, errNoSuchNick(cli.getNick(), target_nick));
+            continue;
+        }
+        responseToClient(*target_client, message);
+    }
 }

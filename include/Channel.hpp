@@ -42,7 +42,7 @@ class Channel{
         bool        getPasswdMode() const;
         bool        getLimitMode() const;
         size_t      channelSize();
-        const std::unordered_set<Client*>&  getChannelUsers() const;
+        // const std::unordered_set<Client*>&  getChannelUsers() const;
 
         // Channel's set mode:
         void        setInviteOnly();
