@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/12 11:17:26 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 13:32:34 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,8 +117,8 @@ inline std::string rplMode(const std::string& nick, const std::string& channel,
  * This message is sent to all users in the channel to inform them of a mode change.
  * It follows the IRC format: ":<nick> MODE <channel> <modes> [<args>...]"
  */
-inline std::string rplJoinChannel(Client& cli, const std::string& channel_name) {
-	 return cli.getPrefix() + " has joined #" + channel_name + "\r\n";
+inline std::string rplJoinChannel(const std::string& nick, const std::string& channel_name) {
+	 return nick + " has joined #" + channel_name + "\r\n";
 }
 
 /**

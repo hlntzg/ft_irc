@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/12 11:27:49 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 13:30:24 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,9 @@ size_t  Channel::channelSize(){
     return users_.size();
 }
 
-// const std::unordered_set<Client*>&  Channel::getChannelUsers() const{
-//     return users_;
-// }
+const std::unordered_set<Client*>&  Channel::getChannelUsers() const{
+    return users_;
+}
 
 // Channel's set mode:
 void    Channel::setInviteOnly(){

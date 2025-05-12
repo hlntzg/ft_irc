@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Message.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arissane <arissane@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/09 09:15:15 by arissane         ###   ########.fr       */
+/*   Updated: 2025/05/12 14:03:05 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,7 +213,7 @@ bool Message::validateParameters(const std::string& command){
 /**
  * Transforms the entire message received into a istringstream and extracts
  * one by one all the parts of it separated by spaces, then further separates each
- * word by commas if any are found. The command is saved in thecmd_string_ and the 
+ * word by commas if any are found. The command is saved in thecmd_string_ and the
  * trailing message in msg_trailing, everything else is pushed to the parameters_ vector
  * and then validated separately for each command.
  */

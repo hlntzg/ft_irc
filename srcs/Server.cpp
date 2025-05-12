@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/12 13:25:13 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 13:29:58 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -352,10 +352,10 @@ void	Server::removeClient(Client& usr, std::string reason){
  *
  * Erases the channel from the map, destroying the Channel object
  * if no other shared_ptr references exist.
- * 
+ *
  * The std::shared_ptr<Channel> will automatically delete the Channel object
  * when all references (including the one in the map) are gone.
- * 
+ *
  * @param channel_name The name of the channel to remove.
  */
 void Server::removeChannel(const std::string& channel_name) {

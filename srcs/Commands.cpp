@@ -135,9 +135,9 @@ void	Server::quitCommand(Message& msg, Client& cli){
  * PART <channel>{,<channel>} [:message]
  *
  * @brief Handles the IRC PART command, allowing a user to leave one or more channels.
- * 
- * This function removes the user from each specified channel (if they are a member), 
- * and notifies all users in the channel of the departure. If a channel becomes empty 
+ *
+ * This function removes the user from each specified channel (if they are a member),
+ * and notifies all users in the channel of the departure. If a channel becomes empty
  * after the departure, it is deleted from the server.
  *
  * Syntax:
@@ -162,7 +162,7 @@ void		Server::partCommand(Message& msg, Client& cli){
 		responseToClient(cli, tooManyTargets(cli.getNick()));
 		return;
 	}
-	
+
 	for(const auto& channel_name : channel_list){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 

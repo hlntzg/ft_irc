@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:41:40 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/12 11:28:15 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 13:30:03 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Channel{
         bool        getPasswdMode() const;
         bool        getLimitMode() const;
         size_t      channelSize();
-        // const std::unordered_set<Client*>&  getChannelUsers() const;
+        const std::unordered_set<Client*>&  getChannelUsers() const;
 
         // Channel's set mode:
         void        setInviteOnly();
