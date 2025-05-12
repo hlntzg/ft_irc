@@ -417,14 +417,11 @@ void	Server::topic(Message& msg, Client& user){
  * @param msg   The parsed Message object containing the MODE command and parameters.
  * @param user  The client issuing the MODE command.
  */
-#if 0
 void	Server::mode(Message& msg, Client& user){
-	std::vector<std::string> channel_list = msg.getChannels();
-	std::vector<std::string> params_list = msg.getParamsList();
-
-	std::string	channel_name = channel_list.at(0);
-	std::string	mode_flags = params_list.at(0);
-	std::vector<std::string> args(params_list.begin() + 1, params_list.end());
+	std::vector<std::string> params_list = msg.getParameters();
+	std::string	channel_name = params_list.at(0);
+	std::string	mode_flags = params_list.at(1);
+	std::vector<std::string> args(params_list.begin() + 2, params_list.end());
 
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
    	if (!channel_ptr->isChannelUser(user)) {
@@ -528,4 +525,3 @@ void	Server::mode(Message& msg, Client& user){
 	channel_ptr->notifyChannelUsers(user, message);
 	responseToClient(user, message);
 }
-#endif
