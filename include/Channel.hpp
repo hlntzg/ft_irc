@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:41:40 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/09 14:46:51 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 11:28:15 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ class Channel{
         void        addLimit(int limit);
 
         // Regular user and Channel Operator:
-        bool        addNewUser(Client& user);
+        void        addNewUser(Client& user);
         void        removeUser(Client& user);
 
         void        addNewOperator(Client& user);
