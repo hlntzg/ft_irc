@@ -94,11 +94,24 @@ class Message{
 		const std::vector<std::string>&	getParameters() const;
 		const std::vector<std::string>&	getUsers() const;
 		const std::vector<std::string>&	getChannels() const;
-		const std::vector<std::string>&	getFlags() const;
 		COMMANDTYPE 			getCommandType() const;
 		const std::string& 		getCommandString() const;
 
 	private:
+		using CommandHandler = std::function<bool()>;
+		std::unordered_map<std::string, CommandHandler> command_handlers_;
+		void				initCommandHandlers();
+		bool				handlePASS();
+		bool				handleNICK();
+		bool				handleTOPIC();
+		bool				handleUSER();
+		bool				handlePRIVMSG();
+		bool				handlePART();
+		bool				handleJOIN();
+		bool				handleQUIT();
+		bool				handleINVITE();
+		bool				handleMODE();
+		bool				handleKICK();
 		bool 				validateParameters(const std::string& command);
 		std::string			whole_msg_;
 		int				number_of_parameters_;
@@ -106,7 +119,6 @@ class Message{
 		std::vector<std::string>	parameters_;//All the parameters, except commandtype or trailing message
 		std::vector<std::string>	msg_users_;//parameters that should be users in the message
 		std::vector<std::string>	msg_channels_;//parameters that should be channels in the message
-		std::vector<std::string>	flags_;//flags from mode
 		COMMANDTYPE			cmd_type_;
 		std::string			cmd_string_;
 };
