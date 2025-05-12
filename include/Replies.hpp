@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 14:12:17 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 11:17:26 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -332,3 +332,12 @@ inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& 
 	return (std::string(SERVER) + " 482 " + nick + " " + channel + " :You're not channel operator\r\n");
 }
 
+
+// ERR_NOCHANOPASSWD
+/**
+ * @brief Any command requiring 'chanop' privileges (such as MODE messages) must return this
+ * error if the client making the attempt is not a chanop on the specified channel
+ */
+inline std::string noChanoPasswd(const std::string& nick, const std::string& channel){
+	return (std::string(SERVER) + nick + " " + channel + " :Channel password doesn't be provided\r\n");
+}

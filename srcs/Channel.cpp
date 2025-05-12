@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/09 14:56:36 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 11:27:49 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,32 +127,25 @@ void    Channel::addLimit(int limit){
  *
  * @param user The client attempting to join the channel.
  */
-bool    Channel::addNewUser(Client& user){
+void    Channel::addNewUser(Client& user){
     int fd = user.getSocketFd();
 
     if (channel_invite_only_) {
-        if (!isInvitedUser(user)) {
-            // 473 ERR_INVITEONLYCHAN
-            Server::responseToClient(user, inviteOnlyChan(user.getNick(), channel_name_));
-            return (false);
-        }
         invited_users_.erase(&user);
     }
-    if (channel_user_limit_ && channelSize() >= user_limit_) {
-        Logger::log(Logger::WARNING, "User " + std::to_string(fd) + " cannot join " + channel_name_ + ": channel is full");
-        // 471 ERR_CHANNELISFULL
-        Server::responseToClient(user, channelIsFull(user.getNick(), channel_name_));
-        return (false);
-    }
-	if (users_.find(&user) == users_.end()){
+    // if (channel_user_limit_ && channelSize() >= user_limit_) {
+    //     Logger::log(Logger::WARNING, "User " + std::to_string(fd) + " cannot join " + channel_name_ + ": channel is full");
+    //     // 471 ERR_CHANNELISFULL
+    //     Server::responseToClient(user, channelIsFull(user.getNick(), channel_name_));
+    //     return (false);
+    // }
+	// if (users_.find(&user) == users_.end()){
 		users_.insert(&user);
 		Logger::log(Logger::INFO, "User " + std::to_string(fd) + " joined " + channel_name_);
-        return(true);
-	}
-	else {
-		Logger::log(Logger::INFO, "User " + std::to_string(fd) + " is already in " + channel_name_);
-        return (false);
-    }
+	// }
+	// else {
+	// 	Logger::log(Logger::INFO, "User " + std::to_string(fd) + " is already in " + channel_name_);
+    // }
 }
 
 /**
