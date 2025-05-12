@@ -112,21 +112,12 @@ bool Message::handleJOIN(){
         Logger::log(Logger::ERROR, "JOIN requires at least one parameter.");
         return false;
     }
-
-    if (parameters_.size() == 2 && parameters_[0][0] == '#' && parameters_[1][0] != '#'){
-        msg_channels_.push_back(parameters_[0].substr(1));
-        std::string key = parameters_[1];
-        join_key_ = key;
-        parameters_[0] = parameters_[0].substr(1);
-        return true;
-    }
-    for (size_t i = 0; i < parameters_.size(); ++i){
-        if (parameters_[i][0] != '#'){
-            Logger::log(Logger::ERROR, "JOIN requires all parameters to begin with '#' or exactly one channel and one key.");
-            return false;
+    for (const std::string& param : parameters_){
+        if (!param.empty() && param[0] == '#') {
+            msg_channels_.push_back(param.substr(1));
+        } else {
+            join_keys_.push_back(param);
         }
-        msg_channels_.push_back(parameters_[i].substr(1));
-        parameters_[i] = parameters_[i].substr(1);
     }
     return true;
 }
