@@ -284,3 +284,7 @@ COMMANDTYPE Message::getCommandType() const{
 const std::string& Message::getCommandString() const{
 	return cmd_string_;
 }
+
+const std::vector<std::string>& Message::getPasswords() const{
+	return passwords_;
+}
