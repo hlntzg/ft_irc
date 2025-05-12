@@ -128,6 +128,47 @@ void	Server::quitCommand(Message& msg, Client& cli){
 	removeClient(cli, params.at(0));
 }
 
+/* 	The PART command indicates that the client wants to leave one or more channels. 
+	In response, the server sends one or more PART message to indicate that the request was successful.
+ 	<channel> : Name of the channel(s) to join, separated by commas.
+	
+	ERR_NOSUCHCHANNEL (403)
+	ERR_NOTONCHANNEL (442)
+*/
+void		Server::partCommand(Message& msg, Client& cli){
+	std::vector<std::string> channel_list = msg.getChannels();
+	
+	for(const auto& channel_name : channel_list){
+		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+
+		if (!channel_ptr) {
+			responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name)); // ERR_NOSUCHCHANNEL (403)
+			continue;
+		}
+		if (!channel_ptr->isChannelUser(cli)) {
+			responseToClient(cli, notOnChannel(cli.getNick(), channel_name)); // ERR_NOTONCHANNEL (442)
+			continue;
+		}
+
+		std::string message = rplPart(cli.getNick(), channel_name, msg.getTrailing());
+
+		// Notify all users
+		channel_ptr->notifyChannelUsers(cli, message);
+		responseToClient(cli, message);
+
+		// Remove user from channel
+		channel_ptr->removeUser(cli);
+
+		// Remove channel if empty
+		if (channel_ptr->isEmptyChannel()) {
+			removeChannel(channel_name);
+		}
+
+		Logger::log(Logger::INFO, "User " + cli.getNick() + " left channel " + channel_name);
+	}
+}
+
+
 // Commands specific to channel operators:
 
 /**
