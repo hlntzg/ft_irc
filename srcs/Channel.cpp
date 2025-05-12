@@ -63,7 +63,7 @@ const std::unordered_set<Client*>&  Channel::getChannelUsers() const{
     return users_;
 }
 
-// Channel's mode:
+// Channel's set mode:
 void    Channel::setInviteOnly(){
     channel_invite_only_ = true;
 }
@@ -220,6 +220,12 @@ bool    Channel::isFullChannel(){
     return false;
 }
 
+/**
+ * @brief Adds a user to the specified user type list in the channel.
+ *
+ * @param user The user to add.
+ * @param type The user type (regular, operator, or invited).
+ */
 void    Channel::insertUser(std::shared_ptr<Client> user, USERTYPE type){
     if (type == USERTYPE::REGULAR){
         addNewUser(*user);
@@ -232,6 +238,13 @@ void    Channel::insertUser(std::shared_ptr<Client> user, USERTYPE type){
     }
 }
 
+/**
+ * @brief Checks if a user belongs to a specific user type list in the channel.
+ *
+ * @param user The user to check.
+ * @param type The channel list to check the user type (regular, operator, or invited).
+ * @return True if the user is in the specified list, false otherwise.
+ */
 bool    Channel::isUserInList(Client& user, USERTYPE type){
     if (type == USERTYPE::REGULAR){
         if (isChannelUser(user))
