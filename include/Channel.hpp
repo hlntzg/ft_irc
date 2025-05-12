@@ -62,7 +62,7 @@ class Channel{
         void        addLimit(int limit);
 
         // Regular user and Channel Operator:
-        void        addNewUser(Client& user);
+        bool        addNewUser(Client& user);
         void        removeUser(Client& user);
 
         void        addNewOperator(Client& user);
@@ -76,12 +76,6 @@ class Channel{
         void        notifyChannelUsers(Client& target, std::string& msg);
         bool        isEmptyChannel();
         void        insertUser(std::shared_ptr<Client>user, USERTYPE type);
-
-        // Channel Operators commands:
-        // void        kickUser(Client& user, Client& target, const std::string& reason);
-        // void        inviteUser(Client& user, Client& target);
-        // void        topic(Client& user, const std::string& topic);
-        // void        mode(Server& server, Client& user, const std::string& mode_flags, std::vector<std::string> args);
 
     private:
         std::string channel_name_;
