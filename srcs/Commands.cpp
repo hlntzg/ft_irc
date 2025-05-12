@@ -98,21 +98,23 @@ void	Server::nickCommand(Message& msg, Client& cli){
 
 void	Server::userCommand(Message& msg, Client& cli){
 	std::vector<std::string>	params = msg.getParameters();
-	if (params.size() < 4){
+	if (params.size() < 3){
 		responseToClient(cli, needMoreParams("USER"));
 		return;
 	}
 	const std::string& username = params.at(0);
-	const std::string& realname = params.at(3);
+	const std::string& realname = msg.getTrailing();
 	for (auto c : username){
 		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
 			responseToClient(cli, erroneusNickName(""));
+			Logger::log(Logger::INFO, "username is invalid");
 			return;
 		}
 	}
 	for (auto c : realname){
 		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
 			responseToClient(cli, erroneusNickName(""));
+			Logger::log(Logger::INFO, "Realname is invalid");
 			return;
 		}
 	}

@@ -46,7 +46,4 @@ The -C flag: Send CRLF (\r\n) as line endings instead of just \n.
 
 
 Sherry:
-    execute function in Message classes
-    removeUser Logic
-    disconnect server??
 

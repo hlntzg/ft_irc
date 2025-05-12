@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/12 08:05:51 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 13:25:13 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,12 +86,12 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{NICK, &Server::nickCommand},
 	{USER, &Server::userCommand},
 	// {PRIVMSG, &Server::privmsgCommand},
-	// {JOIN, &Server::joinCommand},
+	{JOIN, &Server::joinCommand},
 	// {PART, &Server::partCommand},
 	{KICK, &Server::kickUser},
 	{INVITE, &Server::inviteUser},
 	{TOPIC, &Server::topic},
-	// {MODE, &Server::mode},
+	{MODE, &Server::mode},
 	{QUIT, &Server::quitCommand}
 };
 
@@ -158,8 +158,8 @@ void	Server::setupServSocket(){
 
 	// 5. register listeing socket for read(EPOLLIN)
 	// only need for MacOS
-	// int flags = fcntl(serv_fd_, F_GETFL, 0);
-	// fcntl(serv_fd_, F_SETFL, flags | O_NONBLOCK);
+	int flags = fcntl(serv_fd_, F_GETFL, 0);
+	fcntl(serv_fd_, F_SETFL, flags | O_NONBLOCK);
 
 	struct epoll_event ev{};
 	// EPOLLIN for read events + EPOLLET for edge-triggered
@@ -255,8 +255,8 @@ void	Server::acceptNewClient(){
 
         // setting non-blockning mode
 		// Only need for MacOs
-        // int flags = fcntl(client_fd, F_GETFL, 0);
-        // fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+        int flags = fcntl(client_fd, F_GETFL, 0);
+        fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
 
         // Register new client into epoll
         epoll_event ev{};
