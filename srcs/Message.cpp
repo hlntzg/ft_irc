@@ -116,7 +116,7 @@ bool Message::handleJOIN(){
         if (!param.empty() && param[0] == '#') {
             msg_channels_.push_back(param.substr(1));
         } else {
-            join_keys_.push_back(param);
+            passwords_.push_back(param);
         }
     }
     return true;
