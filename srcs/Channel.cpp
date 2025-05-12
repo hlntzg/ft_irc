@@ -128,14 +128,14 @@ void    Channel::addLimit(int limit){
  *
  * @param user The client attempting to join the channel.
  */
-void    Channel::addNewUser(Client& user){
+bool    Channel::addNewUser(Client& user){
     int fd = user.getSocketFd();
 
     if (channel_invite_only_) {
         if (!isInvitedUser(user)) {
             // 473 ERR_INVITEONLYCHAN
             Server::responseToClient(user, inviteOnlyChan(user.getNick(), channel_name_));
-            return;
+            return (false);
         }
         invited_users_.erase(&user);
     }
@@ -143,14 +143,17 @@ void    Channel::addNewUser(Client& user){
         Logger::log(Logger::WARNING, "User " + std::to_string(fd) + " cannot join " + channel_name_ + ": channel is full");
         // 471 ERR_CHANNELISFULL
         Server::responseToClient(user, channelIsFull(user.getNick(), channel_name_));
-        return;
+        return (false);
     }
 	if (users_.find(&user) == users_.end()){
 		users_.insert(&user);
 		Logger::log(Logger::INFO, "User " + std::to_string(fd) + " joined " + channel_name_);
+        return(true);
 	}
-	else
+	else {
 		Logger::log(Logger::INFO, "User " + std::to_string(fd) + " is already in " + channel_name_);
+        return (false);
+    }
 }
 
 /**
