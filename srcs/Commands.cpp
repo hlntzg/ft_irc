@@ -137,6 +137,11 @@ void	Server::quitCommand(Message& msg, Client& cli){
 */
 void		Server::partCommand(Message& msg, Client& cli){
 	std::vector<std::string> channel_list = msg.getChannels();
+
+	if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
+		responseToClient(cli, tooManyTargets(cli.getNick()));
+		return;
+	}
 	
 	for(const auto& channel_name : channel_list){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
@@ -156,10 +161,8 @@ void		Server::partCommand(Message& msg, Client& cli){
 		channel_ptr->notifyChannelUsers(cli, message);
 		responseToClient(cli, message);
 
-		// Remove user from channel
 		channel_ptr->removeUser(cli);
 
-		// Remove channel if empty
 		if (channel_ptr->isEmptyChannel()) {
 			removeChannel(channel_name);
 		}
