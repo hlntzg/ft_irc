@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 14:55:09 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 08:16:51 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,23 @@ const std::string&	Client::getUsername() const{
 const std::string&	Client::getNick() const{
 	return nick_;
 }
+
+const std::string&	Client::getPassword() const{
+    return password_;
+}
+
+/**
+ * @brief Used when the server responding to a command issued by client.
+ * For example:
+ *    PRIVMSG bob :Hello, Bob!
+ *
+ * Server responds with:
+ *    :alice!alice@hostname PRIVMSG bob :Hello, Bob!
+ */
+std::string	Client::getPrefix() const{
+	return (":" + nick_ + "!" + username_ + "@" + hostname_);
+}
+
 
 void	Client::setNick(const std::string& nick){
     nick_ = nick;
@@ -147,14 +164,4 @@ bool	Client::isRegistered(){
 	return isRegistered_;
 }
 
-/**
- * @brief Used when the server responding to a command issued by client.
- * For example:
- *    PRIVMSG bob :Hello, Bob!
- *
- * Server responds with:
- *    :alice!alice@hostname PRIVMSG bob :Hello, Bob!
- */
-std::string	Client::getPrefix() const{
-	return (":" + nick_ + "!" + username_ + "@" + hostname_);
-}
+

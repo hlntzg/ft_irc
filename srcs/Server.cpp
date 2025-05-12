@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/09 15:00:35 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/12 08:05:51 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,7 @@ const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
  */
 const std::set<COMMANDTYPE> Server::operator_commands_ = {
 	KICK,
-	COMMANDTYPE::INVITE, // if I don't add COMMANDTYPE::, the INVITE will be
-	                      //interpreted as something other value
+	INVITE,
 	MODE
 };
 
@@ -90,7 +89,7 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	// {JOIN, &Server::joinCommand},
 	// {PART, &Server::partCommand},
 	{KICK, &Server::kickUser},
-	{COMMANDTYPE::INVITE, &Server::inviteUser},
+	{INVITE, &Server::inviteUser},
 	{TOPIC, &Server::topic},
 	// {MODE, &Server::mode},
 	{QUIT, &Server::quitCommand}
