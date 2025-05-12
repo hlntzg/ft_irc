@@ -667,3 +667,39 @@ bool	Server::isExistedChannel(const std::string& channel_name){
 	}
 	return false;
 }
+
+/**
+ * @brief Send a message to a user or a channel if they exist.
+ * Can be used to message multiple users and/or channels at the same time
+ */
+void Server::privmsgCommand(Message& msg, Client& cli){
+    std::vector<std::string> channels = msg.getChannels();
+    std::vector<std::string> users = msg.getUsers();
+    std::string message = msg.getTrailing();
+
+    if (channels.empty() && users.empty()){
+        responseToClient(cli, needMoreParams("PRIVMSG"));
+        return;
+    }
+    for (const auto& channel_name : channels){
+        std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+        if (!channel_ptr) {
+            responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name));
+            continue;
+        }
+        if (!channel_ptr->isChannelUser(cli)) {
+            responseToClient(cli, notOnChannel(cli.getNick(), channel_name));
+            continue;
+        }
+        channel_ptr->notifyChannelUsers(cli, message);
+    }
+    for (const auto& target_nick : users){
+        std::shared_ptr<Client> target_client = getUserByNick(target_nick);
+
+        if (!target_client) {
+            responseToClient(cli, errNoSuchNick(cli.getNick(), target_nick));
+            continue;
+        }
+        responseToClient(*target_client, message);
+    }
+}
