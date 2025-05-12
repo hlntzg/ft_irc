@@ -56,14 +56,21 @@ bool Message::validateParameters(const std::string& command) {
     }
     else if (command == "PRIVMSG") {
 	cmd_type_ = PRIVMSG;
-        if (parameters_.size() != 1) {
-            std::cout << "PRIVMSG requires exactly one parameter." << std::endl;
+        if (parameters_.size() < 1) {
+            std::cout << "PRIVMSG requires at least one parameter." << std::endl;
             return false;
         }
         if (msg_trailing_.empty())
         {
             std::cout << "PRIVMSG no trailing message." << std::endl;
             return false;
+        }
+        for (const std::string& param : parameters_) {
+            if (!param.empty() && param[0] == '#') {
+                msg_channels_.push_back(param.substr(1));
+            } else {
+                msg_users_.push_back(param);
+            }
         }
     }
     else if (command == "PART") {
@@ -116,28 +123,23 @@ bool Message::validateParameters(const std::string& command) {
             return false;
         }
     
-        std::vector<std::string> users;
-        std::vector<std::string> channels;
-    
         for (const std::string& param : parameters_) {
             if (!param.empty() && param[0] == '#') {
-                channels.push_back(param.substr(1));
+                msg_channels_.push_back(param.substr(1));
             } else {
-                users.push_back(param);
+                msg_users_.push_back(param);
             }
         }
     
-        if (users.empty() || channels.empty()) {
+        if (msg_users_.empty() || msg_channels_.empty()) {
             std::cout << "INVITE must include at least one user and one channel." << std::endl;
             return false;
         }
     
-        if (channels.size() > 1 && users.size() > 1) {
+        if (msg_channels_.size() > 1 && msg_users_.size() > 1) {
             std::cout << "INVITE can only have multiple users OR multiple channels, not both." << std::endl;
             return false;
         }
-        msg_channels_ = channels;
-        msg_users_ = users;
     }
     else if (command == "MODE") {
 	cmd_type_ = MODE;
@@ -211,9 +213,15 @@ bool Message::parseMessage(){
             std::cout << "number of parameters == " << number_of_parameters_ << std::endl;
             break;
         }
-        std::cout << "Adding \"" << word << "\" to parameters_" << std::endl;
-        ++number_of_parameters_;
-        parameters_.push_back(word);
+        std::stringstream string_stream(word);
+        std::string token;
+        while (std::getline(string_stream, token, ',')) {
+            if (!token.empty()) {
+                std::cout << "Adding \"" << token << "\" to parameters_" << std::endl;
+                ++number_of_parameters_;
+                parameters_.push_back(token);
+            }
+        }
     }
     if (validateParameters(command) == false){
         std::cout << "Validation failed" << std::endl;
