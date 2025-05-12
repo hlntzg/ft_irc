@@ -75,6 +75,7 @@ class Channel{
         // General:
         void        notifyChannelUsers(Client& target, std::string& msg);
         bool        isEmptyChannel();
+        bool        isFullChannel();
         void        insertUser(std::shared_ptr<Client>user, USERTYPE type);
         bool        isUserInList(Client& user, USERTYPE type);
 

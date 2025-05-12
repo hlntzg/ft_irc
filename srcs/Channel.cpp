@@ -63,7 +63,6 @@ const std::unordered_set<Client*>&  Channel::getChannelUsers() const{
     return users_;
 }
 
-
 // Channel's mode:
 void    Channel::setInviteOnly(){
     channel_invite_only_ = true;
@@ -213,6 +212,12 @@ void    Channel::notifyChannelUsers(Client& target, std::string& msg){
 
 bool    Channel::isEmptyChannel(){
     return users_.empty();
+}
+
+bool    Channel::isFullChannel(){
+    if (channelSize() >= user_limit_)
+        return true;
+    return false;
 }
 
 void    Channel::insertUser(std::shared_ptr<Client> user, USERTYPE type){
