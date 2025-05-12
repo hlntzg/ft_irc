@@ -76,6 +76,7 @@ class Channel{
         void        notifyChannelUsers(Client& target, std::string& msg);
         bool        isEmptyChannel();
         void        insertUser(std::shared_ptr<Client>user, USERTYPE type);
+        bool        isUserInList(std::shared_ptr<Client>user, USERTYPE type);
 
     private:
         std::string channel_name_;

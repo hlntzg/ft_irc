@@ -227,6 +227,24 @@ void    Channel::insertUser(std::shared_ptr<Client> user, USERTYPE type){
     }
 }
 
+bool    Channel::isUserInList(std::shared_ptr<Client>user, USERTYPE type){
+    if (type == USERTYPE::REGULAR){
+        if (isChannelUser(*user))
+            return (true);
+        return (false);
+    }
+    if (type == USERTYPE::OPERATOR){
+        if (isChannelOperator(*user))
+            return (true);
+        return (false);
+    }
+    if (type == USERTYPE::INVITE){
+        if (isInvitedUser(*user))
+            return (true);
+        return (false);
+    }
+}
+
 // Channel Operators commands:
 
 /**
