@@ -121,7 +121,7 @@ class Message{
 		std::vector<std::string>	msg_channels_;//parameters that should be channels in the message
 		COMMANDTYPE			cmd_type_;//type of the command as defined in the server.hpp
 		std::string			cmd_string_;//string version of the given command
-		std::string			join_key_;//key for the JOIN command if it exists
+		std::vector<std::string>	join_keys_;//key for the JOIN command if it exists
 };
 
 #include "Client.hpp"
