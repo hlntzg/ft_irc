@@ -132,14 +132,14 @@ void	Server::userCommand(Message& msg, Client& cli){
 	attempRegisterClient(cli);
 }
 
-void Server::quitCommand(Message& msg, Client& cli) {
+void Server::quitCommand(Message& msg, Client& cli){
 	std::vector<std::string> params = msg.getParameters();
 	std::string reason = params.empty() ? "Client quit" : params[0];
 
 	int fd = cli.getSocketFd();
 
 	auto it = clients_.find(fd);
-	if (it != clients_.end()) {
+	if (it != clients_.end()){
 		std::shared_ptr<Client> client_ptr = it->second;
 		removeClient(*client_ptr, reason);
 	}
