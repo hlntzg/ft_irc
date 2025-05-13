@@ -142,6 +142,7 @@ bool Message::parseMessage(){
 
     input_stream >> command;
     cmd_string_ = command;
+    cmd_type_ = INVALID;
     while (input_stream >> word){
         if (!word.empty() && word[0] == ':'){
             std::string rest_of_line;
