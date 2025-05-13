@@ -164,6 +164,10 @@ void	Server::quitCommand(Message& msg, Client& cli){
 void		Server::partCommand(Message& msg, Client& cli){
 	std::vector<std::string> channel_list = msg.getChannels();
 
+	if (channel_list.size() == 0){
+		responseToClient(cli, needMoreParams("PART"));
+		return;
+	}
 	if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
 		responseToClient(cli, tooManyTargets(cli.getNick()));
 		return;
@@ -173,27 +177,26 @@ void		Server::partCommand(Message& msg, Client& cli){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 
 		if (!channel_ptr) {
-			responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name)); // ERR_NOSUCHCHANNEL (403)
+			responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name));
 			continue;
 		}
 		if (!channel_ptr->isChannelUser(cli)) {
-			responseToClient(cli, notOnChannel(cli.getNick(), channel_name)); // ERR_NOTONCHANNEL (442)
+			responseToClient(cli, notOnChannel(cli.getNick(), channel_name));
 			continue;
 		}
 
 		std::string message = rplPart(cli.getNick(), channel_name, msg.getTrailing());
 
-		// Notify all users
 		channel_ptr->notifyChannelUsers(cli, message);
 		responseToClient(cli, message);
 
 		channel_ptr->removeUser(cli);
 
+		Logger::log(Logger::INFO, "User " + cli.getNick() + " left channel " + channel_name);
+		
 		if (channel_ptr->isEmptyChannel()) {
 			removeChannel(channel_name);
 		}
-
-		Logger::log(Logger::INFO, "User " + cli.getNick() + " left channel " + channel_name);
 	}
 }
 
@@ -234,6 +237,14 @@ void	Server::kickUser(Message& msg, Client& user){
 	std::vector<std::string> target_list = msg.getUsers();
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
+
+	if (channel_list.size() == 0){
+		responseToClient(user, needMoreParams("KICK"));
+		return;
+	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
+		responseToClient(user, tooManyTargets(user.getNick()));
+		return;
+	}
 
 	if (n_channel == 1 && n_target > 0){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
@@ -345,7 +356,15 @@ void    Server::inviteUser(Message& msg, Client& user){
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
 
-	if (n_channel == 1){
+	if (channel_list.size() == 0){
+		responseToClient(user, needMoreParams("INVITE"));
+		return;
+	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
+		responseToClient(user, tooManyTargets(user.getNick()));
+		return;
+	}
+
+	if (n_channel == 1 && n_target > 0){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
 		if (!channel_ptr->isChannelUser(user)){
 			responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
@@ -365,7 +384,7 @@ void    Server::inviteUser(Message& msg, Client& user){
 			std::string inviteMessage = ":" + user.getNick() + " INVITE " + target_nick + " " + channel_list.at(0) + "\r\n";
     		responseToClient(*getUserByNick(target_nick), inviteMessage);
 		}
-	}  else if (n_target == 1){
+	}  else if (n_target == 1 && n_channel > 0){
 		for(const auto& channel_name : channel_list){
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 			if (!channel_ptr->isChannelUser(user)){
@@ -415,7 +434,11 @@ void    Server::inviteUser(Message& msg, Client& user){
 void	Server::topic(Message& msg, Client& user){
 	std::vector<std::string> channel_list = msg.getChannels();
 	size_t	n_channel = channel_list.size();
-
+	
+	if (channel_list.size() == 0){
+		responseToClient(user, needMoreParams("TOPIC"));
+		return;
+	}
 	if (n_channel > 1){
 		responseToClient(user,InviteSyntaxErr(user.getNick()));
 		return ;
@@ -491,9 +514,14 @@ void	Server::mode(Message& msg, Client& user){
 	std::string	channel_name = params_list.at(0);
 	std::string	mode_flags = params_list.at(1);
 	std::vector<std::string> args(params_list.begin() + 2, params_list.end());
-
+	
+	if (channel_name.size() == 0){
+		responseToClient(user, needMoreParams("MODE"));
+		return;
+	}
+	
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
-   	if (!channel_ptr->isChannelUser(user)) {
+	if (!channel_ptr->isChannelUser(user)) {
         responseToClient(user, notOnChannel(user.getNick(), channel_name));
         return;
     }
