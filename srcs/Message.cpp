@@ -24,96 +24,37 @@ Message::~Message(){
 
 void Message::initCommandHandlers(){
     command_handlers_ = {
-        {"PASS",   [this](){ cmd_type_ = PASS; return handlePASS(); }},
-        {"NICK",   [this](){ cmd_type_ = NICK; return handleNICK(); }},
-        {"TOPIC",  [this](){ cmd_type_ = TOPIC; return handleTOPIC(); }},
-        {"USER",   [this](){ cmd_type_ = USER; return handleUSER(); }},
-        {"PRIVMSG",[this](){ cmd_type_ = PRIVMSG; return handlePRIVMSG(); }},
-        {"PART",   [this](){ cmd_type_ = PART; return handlePART(); }},
+        {"PASS",   [this](){ cmd_type_ = PASS; return handleGeneric(); }},
+        {"NICK",   [this](){ cmd_type_ = NICK; return handleGeneric(); }},
+        {"TOPIC",  [this](){ cmd_type_ = TOPIC; return handleGeneric(); }},
+        {"USER",   [this](){ cmd_type_ = USER; return handleGeneric(); }},
+        {"PRIVMSG",[this](){ cmd_type_ = PRIVMSG; return handleGeneric(); }},
+        {"PART",   [this](){ cmd_type_ = PART; return handleGeneric(); }},
         {"JOIN",   [this](){ cmd_type_ = JOIN; return handleJOIN(); }},
-        {"QUIT",   [this](){ cmd_type_ = QUIT; return handleQUIT(); }},
-        {"INVITE", [this](){ cmd_type_ = INVITE; return handleINVITE(); }},
-        {"MODE",   [this](){ cmd_type_ = MODE; return handleMODE(); }},
-        {"KICK",   [this](){ cmd_type_ = KICK; return handleKICK(); }}
+        {"QUIT",   [this](){ cmd_type_ = QUIT; return handleGeneric(); }},
+        {"INVITE", [this](){ cmd_type_ = INVITE; return handleGeneric(); }},
+        {"MODE",   [this](){ cmd_type_ = MODE; return handleGeneric(); }},
+        {"KICK",   [this](){ cmd_type_ = KICK; return handleGeneric(); }}
     };
 }
 
-bool Message::handlePASS(){
-    return true;
-}
-
-bool Message::handleNICK(){
-    return true;
-}
-
-bool Message::handleTOPIC(){
-    return true;
-}
-
-bool Message::handleUSER(){
-    return true;
-}
-
-bool Message::handlePRIVMSG(){
-    for (const std::string& param : parameters_){
-        if (!param.empty() && param[0] == '#') {
-            msg_channels_.push_back(param.substr(1));
+bool Message::handleGeneric(){
+    for (size_t i = 1; i < parameters_.size(); ++i){
+        if (parameters_[i][0] == '#') {
+            msg_channels_.push_back(parameters_[i].substr(1));
         } else {
-            msg_users_.push_back(param);
-        }
-    }
-    return true;
-}
-
-bool Message::handlePART(){
-    for (const std::string& param : parameters_){
-        if (!param.empty() && param[0] == '#') {
-            msg_channels_.push_back(param.substr(1));
-        } else {
-            msg_users_.push_back(param);
+            msg_users_.push_back(parameters_[i]);
         }
     }
     return true;
 }
 
 bool Message::handleJOIN(){
-    for (const std::string& param : parameters_){
-        if (!param.empty() && param[0] == '#') {
-            msg_channels_.push_back(param.substr(1));
-        } else {
-            passwords_.push_back(param);
-        }
-    }
-    return true;
-}
-
-bool Message::handleQUIT(){
-    return true;
-}
-
-bool Message::handleINVITE(){
-    for (const std::string& param : parameters_){
-        if (!param.empty() && param[0] == '#') {
-            msg_channels_.push_back(param.substr(1));
-        } else {
-            msg_users_.push_back(param);
-        }
-    }
-    return true;
-}
-
-bool Message::handleMODE(){
-    msg_channels_.push_back(parameters_[0].substr(1));
-    parameters_[0] = parameters_[0].substr(1);
-    return true;
-}
-
-bool Message::handleKICK(){
     for (size_t i = 1; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
             msg_channels_.push_back(parameters_[i].substr(1));
         } else {
-            msg_users_.push_back(parameters_[i]);
+            passwords_.push_back(parameters_[i]);
         }
     }
     return true;
