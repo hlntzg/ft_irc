@@ -48,7 +48,7 @@ enum COMMANDTYPE{
 	TOPIC,
 	MODE,
 	QUIT,
-	NONE
+	INVALID
 };
 
 
