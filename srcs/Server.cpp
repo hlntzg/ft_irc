@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 09:04:11 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 09:56:22 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,8 @@ Server::Server(std::string port, std::string password){
 	}
 	// if we don't cast the c to unsigned char, it can crash with UTF-8
 	for (auto c : password){
-		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
+		if (!isalnum(static_cast<unsigned char>(c))
+			&& std::string(SPECIAL_CHARS_PASSWD).find(c) == std::string::npos){
 			throw std::invalid_argument("Error: invalid character in password: '"
 				+ std::string(1,c) + "'\n" + PASSWORD_RULE);
 		}
@@ -87,7 +88,7 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{USER, &Server::userCommand},
 	{PRIVMSG, &Server::privmsgCommand},
 	{JOIN, &Server::joinCommand},
-	// {PART, &Server::partCommand},
+	{PART, &Server::partCommand},
 	{KICK, &Server::kickUser},
 	{INVITE, &Server::inviteUser},
 	{TOPIC, &Server::topic},
@@ -374,9 +375,10 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	std::string cmd_str_type = msg.getCommandString();
 
 	// Before the user sends the correct password, he/she can't execute any commands
-	if (cli.getPassword().empty()){
+	if (cmd_type != PASS && cli.getPassword().empty()){
 		Logger::log(Logger::INFO, "User hasn't sent correct password yet");
 		responseToClient(cli, passwdMismatch(cli.getNick()));
+		return;
 	}
 	// 1.If the client hasn't finished registration, then the user can not operate
 	// the commands except PASS, NICK, USER and QUIT

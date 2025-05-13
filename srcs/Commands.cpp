@@ -24,7 +24,8 @@ void	Server::passCommand(Message& msg, Client& cli){
 	// vector.at() is safer than vector.at[0] to access the element.
 	// at() will do the bounds checking
 	std::string	password = msg.getParameters().at(0);
-	if (!isPasswordMatch(password)){
+	if (isPasswordMatch(password) == false){
+		Logger::log(Logger::INFO, "Password doesn't match");
 		responseToClient(cli, passwdMismatch(nick));
 	}
 	cli.setPassword(password);
@@ -89,7 +90,8 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	}
 	// checking if nick string contains only valid characters
 	for (auto c : nick){
-		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
+		if (!isalnum(static_cast<unsigned char>(c))
+			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
 			responseToClient(cli, erroneusNickName(""));
 			return;
 		}
@@ -107,14 +109,16 @@ void	Server::userCommand(Message& msg, Client& cli){
 	const std::string& username = params.at(0);
 	const std::string& realname = msg.getTrailing();
 	for (auto c : username){
-		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
+		if (!isalnum(static_cast<unsigned char>(c))
+			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
 			responseToClient(cli, erroneusNickName(""));
 			Logger::log(Logger::INFO, "username is invalid");
 			return;
 		}
 	}
 	for (auto c : realname){
-		if (!isalnum(static_cast<unsigned char>(c)) && std::string(SPECIAL_CHARS).find(c) == std::string::npos){
+		if (!isalnum(static_cast<unsigned char>(c))
+			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
 			responseToClient(cli, erroneusNickName(""));
 			Logger::log(Logger::INFO, "Realname is invalid");
 			return;
@@ -192,7 +196,6 @@ void		Server::partCommand(Message& msg, Client& cli){
 		Logger::log(Logger::INFO, "User " + cli.getNick() + " left channel " + channel_name);
 	}
 }
-
 
 // Commands specific to channel operators:
 
