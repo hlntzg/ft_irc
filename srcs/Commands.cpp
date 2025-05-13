@@ -173,7 +173,7 @@ void	Server::partCommand(Message& msg, Client& cli){
 	std::vector<std::string> channel_list = msg.getChannels();
 	std::vector<std::string> target_list = msg.getUsers();
 
-	if (channel_list.size() == 0 ||  (target_list.size() > 0)){
+	if (channel_list.size() == 0 || (target_list.size() > 0)){
 		responseToClient(cli, needMoreParams("PART"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
@@ -715,7 +715,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 	std::vector<std::string>	passwds = msg.getPasswords();
 	size_t	index = 0;
 
-	// checking if the arguments number is valid
+	// checking if the arguments number is valid 
 	if (channels.size() == 0){
 		responseToClient(cli, needMoreParams("JOIN"));
 		return;
