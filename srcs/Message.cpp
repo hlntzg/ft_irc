@@ -39,20 +39,20 @@ void Message::initCommandHandlers(){
 }
 
 bool Message::handleGeneric(){
-    for (const std::string& param : parameters_){
-        if (!param.empty() && param[0] == '#') {
-            msg_channels_.push_back(param.substr(1));
+    for (size_t i = 0; i < parameters_.size(); ++i){
+        if (parameters_[i][0] == '#') {
+            msg_channels_.push_back(parameters_[i].substr(1));
         } else {
-            msg_users_.push_back(param);
+            msg_users_.push_back(parameters_[i]);
         }
     }
     return true;
 }
 
 bool Message::handleJOIN(){
-    for (const std::string& param : parameters_){
-        if (!param.empty() && param[0] == '#') {
-            msg_channels_.push_back(param.substr(1));
+    for (size_t i = 0; i < parameters_.size(); ++i){
+        if (parameters_[i][0] == '#') {
+            msg_channels_.push_back(parameters_[i].substr(1));
         } else {
             passwords_.push_back(param);
         }
