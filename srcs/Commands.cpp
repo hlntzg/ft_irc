@@ -193,7 +193,7 @@ void		Server::partCommand(Message& msg, Client& cli){
 		channel_ptr->removeUser(cli);
 
 		Logger::log(Logger::INFO, "User " + cli.getNick() + " left channel " + channel_name);
-		
+
 		if (channel_ptr->isEmptyChannel()) {
 			removeChannel(channel_name);
 		}
@@ -434,7 +434,7 @@ void    Server::inviteUser(Message& msg, Client& user){
 void	Server::topic(Message& msg, Client& user){
 	std::vector<std::string> channel_list = msg.getChannels();
 	size_t	n_channel = channel_list.size();
-	
+
 	if (channel_list.size() == 0){
 		responseToClient(user, needMoreParams("TOPIC"));
 		return;
@@ -514,12 +514,12 @@ void	Server::mode(Message& msg, Client& user){
 	std::string	channel_name = params_list.at(0);
 	std::string	mode_flags = params_list.at(1);
 	std::vector<std::string> args(params_list.begin() + 2, params_list.end());
-	
+
 	if (channel_name.size() == 0){
 		responseToClient(user, needMoreParams("MODE"));
 		return;
 	}
-	
+
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 	if (!channel_ptr->isChannelUser(user)) {
         responseToClient(user, notOnChannel(user.getNick(), channel_name));
@@ -659,9 +659,8 @@ void	Server::joinCommand(Message& msg, Client& cli){
 	for (const auto& chan_name : channels){
 		std::shared_ptr<Channel> channel = getChannelByName(chan_name);
 		if (channel == nullptr){
-			// Channel new_channel(chan_name, cli);
 			channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
-			responseToClient(cli, rplJoinChannel(cli.getNick(), chan_name));
+			responseToClient(cli, rplJoinChannel(cli.getNick(), cli.getPrefix(), chan_name));
 			std::cout << "call from joincommand\n";// for testing only
 			printChannels();
 		} else {
@@ -690,7 +689,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				}
 			}
 			channel->addNewUser(cli);
-			std::string	message = rplJoinChannel(nick, chan_name);
+			std::string	message = rplJoinChannel(nick, cli.getPrefix(), chan_name);
 			channel->notifyChannelUsers(cli, message);
 			responseToClient(cli, message);
 		}
