@@ -510,7 +510,7 @@ void	Server::topic(Message& msg, Client& user){
  * @param user  The client issuing the MODE command.
  */
 void	Server::mode(Message& msg, Client& user){
-	
+
 	std::vector<std::string> params_list = msg.getParameters();
 	std::string	channel_name = params_list.at(0);
 	std::string	mode_flags = params_list.at(1);
@@ -649,6 +649,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 	std::vector<std::string>	channels = msg.getChannels();
 	std::vector<std::string>	passwds = msg.getPasswords();
 	size_t	index = 0;
+
 	// checking if the arguments number is valid
 	if (channels.size() == 0){
 		responseToClient(cli, needMoreParams("JOIN"));
@@ -663,7 +664,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
 			responseToClient(cli, rplJoinChannel(cli.getNick(), cli.getPrefix(), chan_name));
 			std::cout << "call from joincommand\n";// for testing only
-			printChannels();
+			printChannels(); // for testing only
 		} else {
 			// checking if the user is in the channel already. If yes, then return without
 			// doing anything
