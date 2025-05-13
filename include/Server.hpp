@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 14:12:36 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 14:15:01 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ enum COMMANDTYPE{
 	TOPIC,
 	MODE,
 	QUIT,
-	NONE
+	INVALID
 };
 
 
@@ -126,7 +126,6 @@ class Server{
 		void		attempRegisterClient(Client& cli);
 		bool		isNickInUse(const std::string& nick);
 		bool		isExistedChannel(const std::string& channel_name);
-		bool		isValidCommand(const std::string)
 
 		// for testing
 		void	printUsers() const;
