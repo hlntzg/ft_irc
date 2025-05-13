@@ -68,7 +68,7 @@ void	Server::attempRegisterClient(Client& cli){
  */
 bool	Server::isNickInUse(const std::string& nick){
 	for (auto& [fd, user] : clients_){
-		if (user->getNick() == nick){
+		if (user->getNick() == nick && user->isRegistered() == true){
 			return true;
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/12 13:29:58 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 08:17:33 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{PASS, &Server::passCommand},
 	{NICK, &Server::nickCommand},
 	{USER, &Server::userCommand},
-	// {PRIVMSG, &Server::privmsgCommand},
+	{PRIVMSG, &Server::privmsgCommand},
 	{JOIN, &Server::joinCommand},
 	// {PART, &Server::partCommand},
 	{KICK, &Server::kickUser},
@@ -157,7 +157,6 @@ void	Server::setupServSocket(){
 	}
 
 	// 5. register listeing socket for read(EPOLLIN)
-	// only need for MacOS
 	int flags = fcntl(serv_fd_, F_GETFL, 0);
 	fcntl(serv_fd_, F_SETFL, flags | O_NONBLOCK);
 
@@ -254,7 +253,6 @@ void	Server::acceptNewClient(){
 		inet_ntop(AF_INET, &client_addr.sin_addr, host, INET_ADDRSTRLEN);
 
         // setting non-blockning mode
-		// Only need for MacOs
         int flags = fcntl(client_fd, F_GETFL, 0);
         fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
 
