@@ -668,7 +668,9 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			// checking if the user is in the channel already. If yes, then return without
 			// doing anything
 			if (channel->isUserInList(cli, USERTYPE::REGULAR) == true){
-				return;
+				// :server 443 hele #test3 :is already on channel
+				responseToClient(cli, userOnChannel(nick, nick, chan_name));
+				continue;
 			}
 			// checking if the channel is full
 			if (channel->isFullChannel() == true){
