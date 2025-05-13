@@ -102,7 +102,8 @@ void	Server::nickCommand(Message& msg, Client& cli){
 
 void	Server::userCommand(Message& msg, Client& cli){
 	std::vector<std::string>	params = msg.getParameters();
-	if (params.size() < 3){
+
+	if (params.size() < 3 || msg.getTrailing().empty()){
 		responseToClient(cli, needMoreParams("USER"));
 		return;
 	}
@@ -670,7 +671,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 		std::shared_ptr<Channel> channel = getChannelByName(chan_name);
 		if (channel == nullptr){
 			channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
-			responseToClient(cli, rplJoinChannel(cli.getNick(), cli.getPrefix(), chan_name));
+			responseToClient(cli, rplJoinChannel(cli.getNick(), chan_name));
 			std::cout << "call from joincommand\n";// for testing only
 			printChannels(); // for testing only
 		} else {
@@ -701,7 +702,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				}
 			}
 			channel->addNewUser(cli);
-			std::string	message = rplJoinChannel(nick, cli.getPrefix(), chan_name);
+			std::string	message = rplJoinChannel(nick, chan_name);
 			channel->notifyChannelUsers(cli, message);
 			responseToClient(cli, message);
 		}

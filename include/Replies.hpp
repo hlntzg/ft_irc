@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 12:25:08 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 13:09:24 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,9 +119,8 @@ inline std::string rplMode(const std::string& nick, const std::string& channel,
  * @param prefix: information about the user ,servername and hostname
  * @param channel_name: the channel what a member just joined
  */
-inline std::string rplJoinChannel(const std::string& nick, const std::string& prefix,
-	const std::string& channel_name) {
-	 return prefix + " " + nick + " has joined #" + channel_name + "\r\n";
+inline std::string rplJoinChannel(const std::string& nick, const std::string& channel_name) {
+	 return (std::string(SERVER) + " 342 " + nick + " has joined #" + channel_name + "\r\n");
 }
 
 /**
@@ -145,7 +144,7 @@ inline std::string rplPart(const std::string& nick, const std::string& channel, 
  * It follows the IRC format: ":<nick> PART <channel> [:reason]"
  */
 inline std::string rplQuit(const std::string& nick, const std::string& channel, const std::string& reason) {
-	return (std::string(SERVER) + nick + " QUIT " + channel + " :"+ reason + "\r\n");
+	return (std::string(SERVER) +  " 343 " +nick + " QUIT " + channel + " :"+ reason + "\r\n");
 }
 
 /*...................................Error Replies.................................*/
@@ -192,7 +191,7 @@ inline std::string tooManyChannels(const std::string& nick, const std::string& c
  * and they try to join another channel.
  */
 inline std::string tooManyTargets(const std::string& nick){
-	return (std::string(SERVER) + nick + " :too many targets\r\n");
+	return (std::string(SERVER) + " "+ nick + " :too many targets\r\n");
 }
 
 // 421 ERR_UNKNOWNCOMMAND
