@@ -274,7 +274,7 @@ void	Server::kickUser(Message& msg, Client& user){
 				continue ;
 			}
 			if (!channel_ptr->isChannelUser(*getUserByNick(target_nick))){
-				responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_list.at(0)));
+				responseToClient(user, userNotInChannel(user.getNick(), target_nick, channel_list.at(0)));
 				continue;
 			}
 
@@ -306,7 +306,7 @@ void	Server::kickUser(Message& msg, Client& user){
 				continue ;
 			}
 			if (!channel_ptr->isChannelUser(*getUserByNick(target_list.at(0)))){
-				responseToClient(user, userOnChannel(user.getNick(), target_list.at(0), channel_name));
+				responseToClient(user, userNotInChannel(user.getNick(), target_list.at(0), channel_name));
 				continue;
 			}
 
@@ -341,7 +341,7 @@ void	Server::kickUser(Message& msg, Client& user){
 				continue;
 			}
 			if (!channel_ptr->isChannelUser(*target_ptr)) {
-				responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_name));
+				responseToClient(user, userNotInChannel(user.getNick(), target_nick, channel_name));
 				continue;
 			}
 
@@ -568,12 +568,15 @@ void	Server::mode(Message& msg, Client& user){
 
 	std::vector<std::string> params_list = msg.getParameters();
 	std::vector<std::string> target_list = msg.getUsers();
-	std::string	channel_name = params_list.at(0);
+	std::vector<std::string> channel_list = msg.getChannels();
+	std::string	channel_name = channel_list.at(0);//params_list.at(0);
 
-	if (params_list.size() == 0 || target_list.size() == 0){
-		responseToClient(user, needMoreParams("MODE"));
-		return;
-	}
+	std::cout << "mode:" << channel_name << std::endl; // for testing
+
+	// if (params_list.size() == 0 || target_list.size() == 0){
+	// 	responseToClient(user, needMoreParams("MODE"));
+	// 	return;
+	// }
 
 	std::string	mode_flags = params_list.at(1);
 	std::vector<std::string> args(params_list.begin() + 2, params_list.end());
@@ -752,10 +755,9 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				}
 			}
 			// If the channel is invite_only but the client is not on the invitee list
-			if (channel->getInviteMode() == true){
-				if (channel->isUserInList(cli, USERTYPE::INVITE) == false){
-					responseToClient(cli, inviteOnlyChan(nick, chan_name));
-				}
+			if (channel->getInviteMode() == true && channel->isUserInList(cli, USERTYPE::INVITE) == false){
+				responseToClient(cli, inviteOnlyChan(nick, chan_name));
+				continue ;
 			}
 			channel->addNewUser(cli);
 			std::string	message = rplJoinChannel(nick, chan_name);

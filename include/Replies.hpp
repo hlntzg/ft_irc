@@ -88,7 +88,7 @@ const std::string& invitee_nick){
  */
 inline std::string rplKick(const std::string& nick, const std::string& target,
 const std::string& channel, const std::string& reason) {
-	std::string msg = ":" + nick + " KICK " + channel + " " + target;
+	std::string msg = ":" + nick + " KICK #" + channel + " " + target;
 	if (!reason.empty()) {
 		msg += " :" + reason;
 	}
@@ -104,7 +104,7 @@ const std::string& channel, const std::string& reason) {
 inline std::string rplMode(const std::string& nick, const std::string& channel,
                            const std::string& mode_flags,
                            const std::vector<std::string>& args) {
-	std::string msg = ":" + nick + " MODE " + channel + " " + mode_flags;
+	std::string msg = ":" + nick + " MODE #" + channel + " " + mode_flags;
 	for (const std::string& arg : args) {
 		msg += " " + arg;
 	}
@@ -130,7 +130,7 @@ inline std::string rplJoinChannel(const std::string& nick, const std::string& ch
  * It follows the IRC format: ":<nick> PART <channel> [:reason]"
  */
 inline std::string rplPart(const std::string& nick, const std::string& channel, const std::string& reason) {
-	std::string msg = ":" + nick + " PART " + channel;
+	std::string msg = ":" + nick + " PART #" + channel;
 	if (!reason.empty()) {
 		msg += " :" + reason;
 	}
@@ -144,7 +144,7 @@ inline std::string rplPart(const std::string& nick, const std::string& channel, 
  * It follows the IRC format: ":<nick> PART <channel> [:reason]"
  */
 inline std::string rplQuit(const std::string& nick, const std::string& channel, const std::string& reason) {
-	return (std::string(SERVER) +  " 343 " +nick + " QUIT " + channel + " :"+ reason + "\r\n");
+	return (std::string(SERVER) +  " 343 " + nick + " QUIT " + channel + " :" + reason + "\r\n");
 }
 
 /*...................................Error Replies.................................*/
@@ -154,7 +154,7 @@ inline std::string rplQuit(const std::string& nick, const std::string& channel, 
  * @brief Used to indicate the nickname parameter supplied to a command is currently unused.
  */
 inline std::string errNoSuchNick(const std::string& nick, const std::string& wrong_nick){
-	return (std::string(SERVER) + " 401 " + nick + " " + wrong_nick+" :No such nick\r\n");
+	return (std::string(SERVER) + " 401 " + nick + " " + wrong_nick + " :No such nick\r\n");
 }
 
 // 403 ERR_NOSUCHCHANNEL
