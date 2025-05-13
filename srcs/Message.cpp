@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/13 14:15:23 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 14:40:11 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,12 @@ bool Message::parseMessage(){
     }
     if (validateParameters(command) == false){
         Logger::log(Logger::ERROR, "Validation failed");
+        std::cout << "From parseMessage\n"; // for testing
+        printMsgInfo(); // for testing
         return false;
     }
+    std::cout << "From parseMessage\n"; // for testing
+    printMsgInfo(); // for testing
     return true;
 }
 
@@ -147,4 +151,16 @@ const std::string& Message::getCommandString() const{
 
 const std::vector<std::string>& Message::getPasswords() const{
 	return passwords_;
+}
+
+
+void	Message::printMsgInfo() const{
+    std::cout << "Message Info:\n";
+    std::cout << "  whole_msg=" << whole_msg_ << std::endl;
+    std::cout << "  msg_trailing=" << msg_trailing_ << std::endl;
+    std::cout << "  cmd_string_=" << cmd_string_ << std::endl;
+    std::cout << "  number_of_parameters_=" << std::to_string(number_of_parameters_) << std::endl;
+    std::cout << "  number_of_user=" << msg_users_.size() << std::endl;
+    std::cout << "  number_of_channel=" << msg_channels_.size() << std::endl;
+    std::cout << "  number_of_password=" << passwords_.size() << std::endl;
 }

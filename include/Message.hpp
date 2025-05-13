@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Message.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arissane <arissane@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 12:36:39 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/12 12:36:45 by arissane         ###   ########.fr       */
+/*   Updated: 2025/05/13 14:34:33 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@ class Message{
 		COMMANDTYPE 			getCommandType() const;
 		const std::string& 		getCommandString() const;
 		const std::vector<std::string>& getPasswords() const;
+
+		// for testing only
+		void	printMsgInfo() const;
 
 	private:
 		using CommandHandler = std::function<bool()>;

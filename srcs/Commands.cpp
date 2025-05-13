@@ -245,7 +245,7 @@ void	Server::kickUser(Message& msg, Client& user){
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
 
-	// std::cout << "n_channle=" << n_channel << std::endl << "n_target=" << n_target << std::endl; // for testing only
+	std::cout << "n_channle=" << n_channel << std::endl << "n_target=" << n_target << std::endl; // for testing only
 	if (channel_list.size() == 0){
 		responseToClient(user, needMoreParams("KICK"));
 		return;
