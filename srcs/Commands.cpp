@@ -631,8 +631,11 @@ void	Server::joinCommand(Message& msg, Client& cli){
 	for (const auto& chan_name : channels){
 		std::shared_ptr<Channel> channel = getChannelByName(chan_name);
 		if (channel == nullptr){
-			Channel new_channel(chan_name, cli);
+			// Channel new_channel(chan_name, cli);
+			channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
 			responseToClient(cli, rplJoinChannel(cli.getNick(), chan_name));
+			std::cout << "call from joincommand\n";// for testing only
+			printChannels();
 		} else {
 			// checking if the user is in the channel already. If yes, then return without
 			// doing anything

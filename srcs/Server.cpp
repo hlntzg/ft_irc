@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 09:56:22 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 10:29:10 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,4 +448,19 @@ std::shared_ptr<Channel>	Server::getChannelByName(const std::string& channel_nam
 		}
 	}
 	return nullptr;
+}
+
+// for testing only
+void	Server::printUsers() const{
+	std::cout << "All the users on this server:\n";
+	for (const auto& [fd, user_ptr] : clients_){
+		std::cout << "	fd=" << fd << ", nick=" << user_ptr->getNick() << std::endl;
+	}
+}
+
+void	Server::printChannels() const{
+	std::cout << "All the channels on this server:\n";
+	for (const auto& [name, chan_ptr] : channels_){
+		std::cout << "	name=" << name << ", chann_name=" << chan_ptr->getName() << std::endl;
+	}
 }

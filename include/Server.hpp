@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 09:39:17 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 10:23:36 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,10 @@ class Server{
 		void		attempRegisterClient(Client& cli);
 		bool		isNickInUse(const std::string& nick);
 		bool		isExistedChannel(const std::string& channel_name);
+
+		// for testing
+		void	printUsers() const;
+		void	printChannels() const;
 };
 
 #include "Logger.hpp"
