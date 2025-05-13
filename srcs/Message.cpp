@@ -47,6 +47,13 @@ bool Message::handleNICK(){
 }
 
 bool Message::handleTOPIC(){
+    for (const std::string& param : parameters_){
+        if (!param.empty() && param[0] == '#') {
+            msg_channels_.push_back(param.substr(1));
+        } else {
+            msg_users_.push_back(param);
+        }
+    }
     return true;
 }
 
@@ -103,8 +110,13 @@ bool Message::handleINVITE(){
 }
 
 bool Message::handleMODE(){
-    msg_channels_.push_back(parameters_[0].substr(1));
-    parameters_[0] = parameters_[0].substr(1);
+    for (const std::string& param : parameters_){
+        if (!param.empty() && param[0] == '#') {
+            msg_channels_.push_back(param.substr(1));
+        } else {
+            msg_users_.push_back(param);
+        }
+    }
     return true;
 }
 
