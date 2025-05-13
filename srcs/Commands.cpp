@@ -738,8 +738,8 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				responseToClient(cli, userOnChannel(nick, "", chan_name));
 				continue;
 			}
-			// checking if the channel is full
-			if (channel->isFullChannel() == true){
+			// checking if the channel is full, only if flag user_limit_ is true
+			if (channel->getLimitMode() && channel->isFullChannel() == true){
 				responseToClient(cli, channelIsFull(nick, chan_name));
 			}
 			// If the channel needs a password, but the client doesn't provide it
