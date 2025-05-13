@@ -54,7 +54,7 @@ bool Message::handleJOIN(){
         if (parameters_[i][0] == '#') {
             msg_channels_.push_back(parameters_[i].substr(1));
         } else {
-            passwords_.push_back(param);
+            passwords_.push_back(parameters_[i]);
         }
     }
     return true;
