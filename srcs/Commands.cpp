@@ -55,6 +55,8 @@ void	Server::attempRegisterClient(Client& cli){
 	responseToClient(cli,rplYourHost(nick));
 	responseToClient(cli,rplCreated(nick));
 	responseToClient(cli,rplMyInfo(nick));
+	std::cout << "Print from attempRegiser function\n";
+	cli.printInfo(); // for testing only
 }
 
 /**

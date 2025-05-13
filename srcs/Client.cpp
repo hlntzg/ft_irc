@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/12 08:16:51 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 08:54:47 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,11 +157,23 @@ bool	Client::getNextMessage(std::string& buffer){
     return true;
 }
 
-
-
-
 bool	Client::isRegistered(){
 	return isRegistered_;
 }
 
+// for testing only
+void	Client::printInfo() const{
+    std::cout << "User info:\n";
+    std::cout << "  fd:" << socket_fd_ << std::endl;
+    std::cout << "  nick:" << nick_ << std::endl;
+    std::cout << "  username:" << username_ << std::endl;
+    std::cout << "  realname:" << realname_ << std::endl;
+    std::cout << "  hostname:" << hostname_ << std::endl;
+    std::cout << "  servername:" << servername_ << std::endl;
+    std::cout << "  password:" << password_ << std::endl;
+    std::cout << "  isRegistered:" << isRegistered_ << std::endl;
+}
 
+void    Client::printRawData() const{
+    std::cout << "rawdata:" << raw_data_ << std::endl;
+}

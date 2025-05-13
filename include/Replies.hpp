@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 08:13:37 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 08:45:52 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-#define SERVER ":irc.ircserv.com"
+#define SERVER "irc.ircserv.com"
 #define SUPPORTUSERMODE "o"
 #define SUPPORTCHANNELMODE "itkol"
 
@@ -37,7 +37,7 @@ inline std::string rplWelcome(const std::string& nick){
 // 002 RPL_YOURHOST
 inline std::string rplYourHost(const std::string& nick){
 	return (std::string(SERVER) + " 002 " + nick + " : Your host is " + std::string(SERVER) +
-			", running version ircserv-1.0\r\n");
+			", running version ircserv 1.0\r\n");
 }
 
 // 003 RPL_CREATED
@@ -47,7 +47,7 @@ inline std::string rplCreated(const std::string& nick){
 
 // 004 RPL_MYINFO
 inline std::string rplMyInfo(const std::string& nick){
-	return (std::string(SERVER) + " 004 " + nick + " " + std::string(SERVER) +
+	return (std::string(SERVER) + " 004 " + nick + " :" + std::string(SERVER) +
 	        + " 1.0 " + std::string(SUPPORTUSERMODE) + " "
 			+ std::string(SUPPORTCHANNELMODE) +"\r\n");
 }

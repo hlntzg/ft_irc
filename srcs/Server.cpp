@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 08:17:33 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 09:04:11 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -373,6 +373,11 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	COMMANDTYPE	cmd_type = msg.getCommandType();
 	std::string cmd_str_type = msg.getCommandString();
 
+	// Before the user sends the correct password, he/she can't execute any commands
+	if (cli.getPassword().empty()){
+		Logger::log(Logger::INFO, "User hasn't sent correct password yet");
+		responseToClient(cli, passwdMismatch(cli.getNick()));
+	}
 	// 1.If the client hasn't finished registration, then the user can not operate
 	// the commands except PASS, NICK, USER and QUIT
 	if (!cli.isRegistered() && pre_registration_allowed_commands_.find(cmd_type)

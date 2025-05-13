@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:41:40 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/12 13:30:03 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 09:22:34 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,10 @@ class Channel{
         bool        isFullChannel();
         void        insertUser(std::shared_ptr<Client>user, USERTYPE type);
         bool        isUserInList(Client& user, USERTYPE type);
+
+        // for testing only
+        void    printChannelInfo() const;
+        void    printUsers(USERTYPE type) const;
 
     private:
         std::string channel_name_;

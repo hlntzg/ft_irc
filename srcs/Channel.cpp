@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/12 13:30:24 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 09:26:35 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,6 +253,42 @@ bool    Channel::isUserInList(Client& user, USERTYPE type){
     }
     return (false);
 }
+
+// for testing only
+void    Channel::printChannelInfo() const{
+    std::cout << "Channel Info:\n";
+    std::cout << "  name:" << channel_name_ << std::endl;
+    std::cout << "  password:" << channel_passwd_ << std::endl;
+    std::cout << "  topic:" << channel_topic_ << std::endl;
+    std::cout << "  invite_only:" << (channel_invite_only_ ? "true" : "false") << std::endl;
+    std::cout << "  restric_topic:" << (channel_restric_topic_ ? "true" : "false") << std::endl;
+    std::cout << "  with_password_mode:" << (channel_with_passwd_ ? "true" : "false") << std::endl;
+    std::cout << "  user_limit_mode:" << (channel_user_limit_ ? "true" : "false") << std::endl;
+    std::cout << "  user_limit:" << std::to_string(user_limit_) << std::endl;
+}
+
+void    Channel::printUsers(USERTYPE type) const{
+    std::unordered_set<Client*> list;
+    switch (type){
+    case USERTYPE::REGULAR:
+        std::cout << "channel users are: ";
+         list = users_;
+        break;
+    case USERTYPE::OPERATOR:
+        std::cout << "channel operators are: ";
+        list = operators_;
+        break;
+    case USERTYPE::INVITE:
+        std::cout << "channel invitees are: ";
+        list = invited_users_;
+        break;
+    }
+    for (const auto& user : list){
+        std::cout << user->getNick() << ", ";
+    }
+    std::cout << std::endl;
+}
+
 
 // Channel Operators commands:
 

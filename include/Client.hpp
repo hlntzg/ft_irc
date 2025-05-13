@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/12 08:15:32 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 09:01:03 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,10 @@ class Client{
 
 		bool	receiveRawData();
 		bool	isRegistered();
+
+		// for testing
+		void	printInfo() const;
+		void    printRawData() const;
 
 	private:
 		int	socket_fd_;

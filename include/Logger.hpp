@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/22 09:34:26 by jingwu            #+#    #+#             */
-/*   Updated: 2025/04/22 10:12:52 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 08:34:26 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 #define RESET "\033[0;0m"
 #define RED "\033[0;31m"
 #define ORANGE "\033[0;91m"
-#define BLUE "\033[1;34m"
-#define GREEN "\033[1;32m"
+#define BLUE "\033[0;34m"
+#define GREEN "\033[0;32m"
 
 #ifndef LOG_LEVEL
  #define LOG_LEVEL Logger::INFO
