@@ -510,6 +510,7 @@ void	Server::topic(Message& msg, Client& user){
  * @param user  The client issuing the MODE command.
  */
 void	Server::mode(Message& msg, Client& user){
+	
 	std::vector<std::string> params_list = msg.getParameters();
 	std::string	channel_name = params_list.at(0);
 	std::string	mode_flags = params_list.at(1);
