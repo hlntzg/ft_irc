@@ -249,7 +249,10 @@ inline std::string notOnChannel(const std::string& nick, const std::string& chan
  */
 inline std::string userOnChannel(const std::string& nick, const std::string& target,
 const std::string& channel){
-	return (std::string(SERVER) + " 443 " + nick  + " " + target + " " + channel
+	if (target != "")
+		return (std::string(SERVER) + " 443 " + nick  + " " + target + " " + channel
+		     + " :is already on channel\r\n");
+	return (std::string(SERVER) + " 443 " + nick  + " " + channel
 		     + " :is already on channel\r\n");
 }
 
