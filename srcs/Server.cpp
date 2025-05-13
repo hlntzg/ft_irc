@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 12:40:27 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 14:13:24 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -377,6 +377,10 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	COMMANDTYPE	cmd_type = msg.getCommandType();
 	std::string cmd_str_type = msg.getCommandString();
 
+	if (cmd_type == INVLIED){
+		responseToClient(cli, unknowCommand(cli.getNick(), cmd_str_type));
+		return;
+	}
 	// Before the user sends the correct password, he/she can't execute any commands
 	if (cmd_type != PASS && cli.getPassword().empty()){
 		Logger::log(Logger::INFO, "User hasn't sent correct password yet");
@@ -396,8 +400,10 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	std::unordered_map<COMMANDTYPE, executeFunc>::const_iterator it =
 		execute_map_.find(cmd_type);
 	if (it != execute_map_.end()){
+		std::cout << "1" << std::endl;//for testing
 		(this->*it->second)(msg, cli);
 	} else {
+		std::cout << "2" << std::endl;//for testing
 		responseToClient(cli, unknowCommand(cli.getNick(), cmd_str_type));
 	}
 }

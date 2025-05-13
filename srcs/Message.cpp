@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/12 14:03:05 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 14:04:27 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,6 +216,7 @@ bool Message::parseMessage(){
 
     input_stream >> command;
     cmd_string_ = command;
+    std::cout << "cmd_string(parseMessage)=" << cmd_string_ << std::endl; //for testing
     while (input_stream >> word){
         if (!word.empty() && word[0] == ':'){
             std::string rest_of_line;
