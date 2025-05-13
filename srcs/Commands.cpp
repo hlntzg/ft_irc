@@ -715,7 +715,7 @@ bool	Server::isExistedChannel(const std::string& channel_name){
 void Server::privmsgCommand(Message& msg, Client& cli){
     std::vector<std::string> channels = msg.getChannels();
     std::vector<std::string> users = msg.getUsers();
-    std::string message = msg.getTrailing();
+    std::string message = msg.getTrailing() + "\n";
 
     if (channels.empty() && users.empty()){
         responseToClient(cli, needMoreParams("PRIVMSG"));

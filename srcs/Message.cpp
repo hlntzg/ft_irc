@@ -228,7 +228,7 @@ bool Message::parseMessage(){
         if (!word.empty() && word[0] == ':'){
             std::string rest_of_line;
             std::getline(input_stream, rest_of_line);
-            rest_of_line.erase(0, rest_of_line.find_first_not_of(" \t\r\n"));
+            //rest_of_line.erase(0, rest_of_line.find_first_not_of(" \t\r\n"));
             if (!rest_of_line.empty()){
             msg_trailing_ = word.substr(1) + rest_of_line;
             }
