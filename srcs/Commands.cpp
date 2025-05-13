@@ -667,7 +667,9 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			// checking if the user is in the channel already. If yes, then return without
 			// doing anything
 			if (channel->isUserInList(cli, USERTYPE::REGULAR) == true){
-				return;
+				// :server 443 hele #test3 :is already on channel
+				responseToClient(cli, userOnChannel(nick, "", chan_name));
+				continue;
 			}
 			// checking if the channel is full
 			if (channel->isFullChannel() == true){
@@ -712,7 +714,7 @@ bool	Server::isExistedChannel(const std::string& channel_name){
 void Server::privmsgCommand(Message& msg, Client& cli){
     std::vector<std::string> channels = msg.getChannels();
     std::vector<std::string> users = msg.getUsers();
-    std::string message = msg.getTrailing();
+    std::string message = msg.getTrailing() + "\n";
 
     if (channels.empty() && users.empty()){
         responseToClient(cli, needMoreParams("PRIVMSG"));
