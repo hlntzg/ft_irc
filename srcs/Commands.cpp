@@ -144,7 +144,6 @@ void Server::quitCommand(Message& msg, Client& cli) {
 	}
 }
 
-
 /**
  * PART <channel>{,<channel>} [:message]
  *
@@ -169,10 +168,11 @@ void Server::quitCommand(Message& msg, Client& cli) {
  * @param msg  The parsed Message object containing the list of channels and optional message.
  * @param cli  The client issuing the PART command.
  */
-void		Server::partCommand(Message& msg, Client& cli){
+void	Server::partCommand(Message& msg, Client& cli){
 	std::vector<std::string> channel_list = msg.getChannels();
+	std::vector<std::string> target_list = msg.getUsers();
 
-	if (channel_list.size() == 0){
+	if (channel_list.size() == 0 ||  (target_list.size() > 0)){
 		responseToClient(cli, needMoreParams("PART"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
@@ -244,7 +244,7 @@ void	Server::kickUser(Message& msg, Client& user){
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
 
-	if (channel_list.size() == 0){
+	if (channel_list.size() == 0 || target_list.size() == 0){
 		responseToClient(user, needMoreParams("KICK"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
@@ -388,7 +388,7 @@ void    Server::inviteUser(Message& msg, Client& user){
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
 
-	if (channel_list.size() == 0){
+	if (channel_list.size() == 0 || target_list.size() == 0){
 		responseToClient(user, needMoreParams("INVITE"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
@@ -482,9 +482,10 @@ void    Server::inviteUser(Message& msg, Client& user){
  */
 void	Server::topic(Message& msg, Client& user){
 	std::vector<std::string> channel_list = msg.getChannels();
+	std::vector<std::string> target_list = msg.getUsers();
 	size_t	n_channel = channel_list.size();
 
-	if (channel_list.size() == 0){
+	if (channel_list.size() == 0 || target_list.size() == 0){
 		responseToClient(user, needMoreParams("TOPIC"));
 		return;
 	}
@@ -565,9 +566,10 @@ void	Server::topic(Message& msg, Client& user){
 void	Server::mode(Message& msg, Client& user){
 	
 	std::vector<std::string> params_list = msg.getParameters();
+	std::vector<std::string> target_list = msg.getUsers();
 	std::string	channel_name = params_list.at(0);
 
-		if (channel_name.size() == 0){
+	if (params_list.size() == 0 || target_list.size() == 0){
 		responseToClient(user, needMoreParams("MODE"));
 		return;
 	}
