@@ -513,15 +513,20 @@ void	Server::mode(Message& msg, Client& user){
 	
 	std::vector<std::string> params_list = msg.getParameters();
 	std::string	channel_name = params_list.at(0);
-	std::string	mode_flags = params_list.at(1);
-	std::vector<std::string> args(params_list.begin() + 2, params_list.end());
 
-	if (channel_name.size() == 0){
+		if (channel_name.size() == 0){
 		responseToClient(user, needMoreParams("MODE"));
 		return;
 	}
 
+	std::string	mode_flags = params_list.at(1);
+	std::vector<std::string> args(params_list.begin() + 2, params_list.end());
+
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+	if (!channel_ptr) {
+        responseToClient(user, errNoSuchChannel(user.getNick(), channel_name));
+		return;
+    }
 	if (!channel_ptr->isChannelUser(user)) {
         responseToClient(user, notOnChannel(user.getNick(), channel_name));
         return;
@@ -653,7 +658,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 	if (channels.size() == 0){
 		responseToClient(cli, needMoreParams("JOIN"));
 		return;
-	} else if (channels.size() > TARGET_LIM_IN_ONE_CMD){
+	} if (channels.size() > TARGET_LIM_IN_ONE_CMD){
 		responseToClient(cli, tooManyTargets(nick));
 		return;
 	}
