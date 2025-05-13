@@ -40,17 +40,8 @@ class Message{
 		using CommandHandler = std::function<bool()>;
 		std::unordered_map<std::string, CommandHandler> command_handlers_;
 		void				initCommandHandlers();
-		bool				handlePASS();
-		bool				handleNICK();
-		bool				handleTOPIC();
-		bool				handleUSER();
-		bool				handlePRIVMSG();
-		bool				handlePART();
+		bool				handleGeneric();
 		bool				handleJOIN();
-		bool				handleQUIT();
-		bool				handleINVITE();
-		bool				handleMODE();
-		bool				handleKICK();
 		bool 				validateParameters(const std::string& command);
 		std::string			whole_msg_;
 		int				number_of_parameters_;
