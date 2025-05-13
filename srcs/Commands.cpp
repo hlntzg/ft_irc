@@ -235,7 +235,7 @@ void	Server::kickUser(Message& msg, Client& user){
 	size_t	n_channel = channel_list.size();
 	size_t 	n_target = target_list.size();
 
-	if (n_channel == 1){
+	if (n_channel == 1 && n_target > 0){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
 		if (!channel_ptr->isChannelUser(user)){
 			responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
@@ -258,7 +258,7 @@ void	Server::kickUser(Message& msg, Client& user){
     		Logger::log(Logger::INFO, "User " + target_nick + " was kicked from channel " + channel_list.at(0) + " by " + user.getNick());
     		channel_ptr->removeUser(*getUserByNick(target_nick));
 		}
-	} else if (n_target == 1){
+	} else if (n_target == 1 && n_channel > 0){
 		for(const auto& channel_name : channel_list){
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 			if (!channel_ptr->isChannelUser(user)){
