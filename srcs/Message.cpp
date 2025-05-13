@@ -94,10 +94,6 @@ bool Message::handlePRIVMSG(){
 }
 
 bool Message::handlePART(){
-    if (parameters_.size() != 1){
-        Logger::log(Logger::ERROR, "PART requires exactly one channel parameter.");
-        return false;
-    }
     if (parameters_[0].empty() || parameters_[0][0] != '#'){
         Logger::log(Logger::ERROR, "PART channel must begin with '#'.");
         return false;
