@@ -33,8 +33,8 @@ void Message::initCommandHandlers(){
         {"JOIN",   [this](){ cmd_type_ = JOIN; return handleJOIN(); }},
         {"QUIT",   [this](){ cmd_type_ = QUIT; return handleGeneric(); }},
         {"INVITE", [this](){ cmd_type_ = INVITE; return handleGeneric(); }},
-        {"MODE",   [this](){ cmd_type_ = MODE; return handleGeneric(); }},
-        {"KICK",   [this](){ cmd_type_ = KICK; return handleGeneric(); }}
+        {"MODE",   [this](){ cmd_type_ = MODE; return handleMODE(); }},
+        {"KICK",   [this](){ cmd_type_ = KICK; return handleKICK(); }}
     };
 }
 
@@ -42,7 +42,7 @@ bool Message::handleGeneric(){
     for (size_t i = 0; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
             msg_channels_.push_back(parameters_[i].substr(1));
-        } else {
+        } else{
             msg_users_.push_back(parameters_[i]);
         }
     }
@@ -53,8 +53,41 @@ bool Message::handleJOIN(){
     for (size_t i = 0; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
             msg_channels_.push_back(parameters_[i].substr(1));
-        } else {
+        } else{
             passwords_.push_back(parameters_[i]);
+        }
+    }
+    return true;
+}
+
+bool Message::handleKICK(){
+    if (parameters_[0][0] == '#'){
+        msg_channels_.push_back(parameters_[0].substr(1));
+    } else{
+        Logger::log(Logger::ERROR, "KICK first parameter should be a channel");
+	return false;
+    }
+    if (parameters_[1][0] == '#'){
+        Logger::log(Logger::ERROR, "KICK second parameter should not be a channel");
+	return false;
+    } else{
+        msg_users_.push_back(parameters_[1]);
+    }
+    return true;
+}
+
+bool Message::handleMODE(){
+    if (parameters_[0][0] == '#'){
+        msg_channels_.push_back(parameters_[0].substr(1));
+    } else{
+        Logger::log(Logger::ERROR, "MODE first parameter should be a channel");
+        return false;
+    }
+    for (size_t i = 1; i < parameters_.size(); ++i){
+        if (parameters_[i][0] == '#') {
+            msg_channels_.push_back(parameters_[i].substr(1));
+        } else{
+            msg_users_.push_back(parameters_[i]);
         }
     }
     return true;
