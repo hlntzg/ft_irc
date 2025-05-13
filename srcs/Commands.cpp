@@ -102,7 +102,8 @@ void	Server::nickCommand(Message& msg, Client& cli){
 
 void	Server::userCommand(Message& msg, Client& cli){
 	std::vector<std::string>	params = msg.getParameters();
-	if (params.size() < 3){
+
+	if (params.size() < 3 || msg.getTrailing().empty()){
 		responseToClient(cli, needMoreParams("USER"));
 		return;
 	}
@@ -321,11 +322,11 @@ void	Server::kickUser(Message& msg, Client& user){
 			const std::string& channel_name = channel_list[i];
 			const std::string& target_nick = target_list[i];
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
-			
+
 			if (!channel_ptr) {
 				responseToClient(user, errNoSuchChannel(user.getNick(), channel_list.at(0)));
 				return ;
-			}	
+			}
 			if (!channel_ptr->isChannelUser(user)) {
 				responseToClient(user, notOnChannel(user.getNick(), channel_name));
 				continue;
@@ -564,7 +565,7 @@ void	Server::topic(Message& msg, Client& user){
  * @param user  The client issuing the MODE command.
  */
 void	Server::mode(Message& msg, Client& user){
-	
+
 	std::vector<std::string> params_list = msg.getParameters();
 	std::vector<std::string> target_list = msg.getUsers();
 	std::string	channel_name = params_list.at(0);
@@ -713,6 +714,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 	std::vector<std::string>	channels = msg.getChannels();
 	std::vector<std::string>	passwds = msg.getPasswords();
 	size_t	index = 0;
+
 	// checking if the arguments number is valid
 	if (channels.size() == 0){
 		responseToClient(cli, needMoreParams("JOIN"));
@@ -725,9 +727,9 @@ void	Server::joinCommand(Message& msg, Client& cli){
 		std::shared_ptr<Channel> channel = getChannelByName(chan_name);
 		if (channel == nullptr){
 			channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
-			responseToClient(cli, rplJoinChannel(cli.getNick(), cli.getPrefix(), chan_name));
+			responseToClient(cli, rplJoinChannel(cli.getNick(), chan_name));
 			std::cout << "call from joincommand\n";// for testing only
-			printChannels();
+			printChannels(); // for testing only
 		} else {
 			// checking if the user is in the channel already. If yes, then return without
 			// doing anything
@@ -756,7 +758,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				}
 			}
 			channel->addNewUser(cli);
-			std::string	message = rplJoinChannel(nick, cli.getPrefix(), chan_name);
+			std::string	message = rplJoinChannel(nick, chan_name);
 			channel->notifyChannelUsers(cli, message);
 			responseToClient(cli, message);
 		}
