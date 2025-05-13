@@ -175,15 +175,13 @@ void		Server::partCommand(Message& msg, Client& cli){
 	if (channel_list.size() == 0){
 		responseToClient(cli, needMoreParams("PART"));
 		return;
-	}
-	if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
+	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
 		responseToClient(cli, tooManyTargets(cli.getNick()));
 		return;
 	}
 
 	for(const auto& channel_name : channel_list){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
-
 		if (!channel_ptr) {
 			responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name));
 			continue;
@@ -256,6 +254,10 @@ void	Server::kickUser(Message& msg, Client& user){
 
 	if (n_channel == 1 && n_target > 0){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
+		if (!channel_ptr) {
+			responseToClient(user, errNoSuchChannel(user.getNick(), channel_list.at(0)));
+			return ;
+		}
 		if (!channel_ptr->isChannelUser(user)){
 			responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
 			return;
@@ -265,6 +267,11 @@ void	Server::kickUser(Message& msg, Client& user){
 			return ;
 		}
 		for(const auto& target_nick : target_list){
+			std::shared_ptr<Client> target_ptr = getUserByNick(target_nick);
+			if (!target_ptr) {
+				responseToClient(user, errNoSuchNick(user.getNick(), target_nick));
+				continue ;
+			}
 			if (!channel_ptr->isChannelUser(*getUserByNick(target_nick))){
 				responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_list.at(0)));
 				continue;
@@ -280,6 +287,10 @@ void	Server::kickUser(Message& msg, Client& user){
 	} else if (n_target == 1 && n_channel > 0){
 		for(const auto& channel_name : channel_list){
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+			if (!channel_ptr) {
+				responseToClient(user, errNoSuchChannel(user.getNick(), channel_list.at(0)));
+				continue ;
+			}
 			if (!channel_ptr->isChannelUser(user)){
 				responseToClient(user, notOnChannel(user.getNick(), channel_name));
 				continue;;
@@ -287,6 +298,11 @@ void	Server::kickUser(Message& msg, Client& user){
 			if (!channel_ptr->isChannelOperator(user)){
 				responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name));
 				continue;
+			}
+			std::shared_ptr<Client> target_ptr = getUserByNick(target_list.at(0));
+			if (!target_ptr) {
+				responseToClient(user, errNoSuchNick(user.getNick(), target_list.at(0)));
+				continue ;
 			}
 			if (!channel_ptr->isChannelUser(*getUserByNick(target_list.at(0)))){
 				responseToClient(user, userOnChannel(user.getNick(), target_list.at(0), channel_name));
@@ -305,7 +321,11 @@ void	Server::kickUser(Message& msg, Client& user){
 			const std::string& channel_name = channel_list[i];
 			const std::string& target_nick = target_list[i];
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
-
+			
+			if (!channel_ptr) {
+				responseToClient(user, errNoSuchChannel(user.getNick(), channel_list.at(0)));
+				return ;
+			}	
 			if (!channel_ptr->isChannelUser(user)) {
 				responseToClient(user, notOnChannel(user.getNick(), channel_name));
 				continue;
@@ -314,18 +334,22 @@ void	Server::kickUser(Message& msg, Client& user){
 				responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name));
 				continue;
 			}
-			std::shared_ptr<Client> target_user = getUserByNick(target_nick);
-			if (!target_user || !channel_ptr->isChannelUser(*target_user)) {
+			std::shared_ptr<Client> target_ptr = getUserByNick(target_nick);
+			if (!target_ptr){
+				responseToClient(user, errNoSuchNick(user.getNick(), target_list.at(0)));
+				continue;
+			}
+			if (!channel_ptr->isChannelUser(*target_ptr)) {
 				responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_name));
 				continue;
 			}
 
 			std::string message = rplKick(user.getNick(), target_nick, channel_name, msg.getTrailing());
-			channel_ptr->notifyChannelUsers(*target_user, message);
-			responseToClient(*target_user, message);
+			channel_ptr->notifyChannelUsers(*target_ptr, message);
+			responseToClient(*target_ptr, message);
 
 			Logger::log(Logger::INFO, "User " + target_nick + " was kicked from channel " + channel_name + " by " + user.getNick());
-			channel_ptr->removeUser(*target_user);
+			channel_ptr->removeUser(*target_ptr);
 		}
 	} else {
 		responseToClient(user,InviteSyntaxErr(user.getNick()));
@@ -374,6 +398,10 @@ void    Server::inviteUser(Message& msg, Client& user){
 
 	if (n_channel == 1 && n_target > 0){
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
+		if (!channel_ptr) {
+			responseToClient(user, errNoSuchChannel(user.getNick(), channel_list.at(0)));
+			return ;
+		}
 		if (!channel_ptr->isChannelUser(user)){
 			responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
 			return;
@@ -383,6 +411,11 @@ void    Server::inviteUser(Message& msg, Client& user){
 			return ;
 		}
 		for(const auto& target_nick : target_list){
+			std::shared_ptr<Client> target_ptr = getUserByNick(target_nick);
+			if (!target_ptr) {
+				responseToClient(user, errNoSuchNick(user.getNick(), target_nick));
+				continue ;
+			}
 			if (channel_ptr->isChannelUser(*getUserByNick(target_nick))){
 				responseToClient(user, userOnChannel(user.getNick(), target_nick, channel_list.at(0)));
 				continue;
@@ -395,6 +428,10 @@ void    Server::inviteUser(Message& msg, Client& user){
 	}  else if (n_target == 1 && n_channel > 0){
 		for(const auto& channel_name : channel_list){
 			std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
+			if (!channel_ptr) {
+				responseToClient(user, errNoSuchChannel(user.getNick(), channel_list.at(0)));
+				continue ;
+			}
 			if (!channel_ptr->isChannelUser(user)){
 				responseToClient(user, notOnChannel(user.getNick(), channel_name));
 				continue;;
@@ -404,6 +441,10 @@ void    Server::inviteUser(Message& msg, Client& user){
 				continue;
 			}
 			std::shared_ptr<Client> target_ptr = getUserByNick(target_list.at(0));
+			if (!target_ptr) {
+				responseToClient(user, errNoSuchNick(user.getNick(), target_list.at(0)));
+				return ;
+			}
 			channel_ptr->insertUser(target_ptr, USERTYPE::INVITE);
 			responseToClient(user, Inviting(user.getNick(), channel_name, target_ptr->getNick()));
 			std::string inviteMessage = ":" + user.getNick() + " INVITE " + target_ptr->getNick() + " " + channel_name + "\r\n";
@@ -453,6 +494,10 @@ void	Server::topic(Message& msg, Client& user){
 	}
 
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_list.at(0));
+	if (!channel_ptr) {
+		responseToClient(user, errNoSuchChannel(user.getNick(), channel_list.at(0)));
+		return ;
+	}
     if (!channel_ptr->isChannelUser(user)){
         Server::responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
         return ;
@@ -612,16 +657,20 @@ void	Server::mode(Message& msg, Client& user){
 				return;
 			}
 			std::string nick = args[arg_index++];
-			std::shared_ptr<Client> target = getUserByNick(nick);
-			if (!target || !channel_ptr->isChannelUser(*target)) {
+			std::shared_ptr<Client> target_ptr = getUserByNick(nick);
+			if (!target_ptr) {
+				responseToClient(user, errNoSuchNick(user.getNick(), nick));
+				continue ;
+			}
+			if (!channel_ptr->isChannelUser(*target_ptr)) {
 				responseToClient(user, userNotInChannel(user.getNick(), nick, channel_name));
 				continue;
 			}
 			if (adding) {
-				channel_ptr->addNewOperator(*target);
+				channel_ptr->addNewOperator(*target_ptr);
 				update_modes += "+o";
 			} else {
-				channel_ptr->removeOperator(*target);
+				channel_ptr->removeOperator(*target_ptr);
 				update_modes += "-o";
 			}
 		}
