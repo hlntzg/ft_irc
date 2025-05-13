@@ -47,10 +47,6 @@ bool Message::handlePASS(){
 }
 
 bool Message::handleNICK(){
-    if (parameters_.size() != 1){
-        Logger::log(Logger::ERROR, "NICK requires exactly one parameter.");
-        return false;
-    }
     return true;
 }
 
