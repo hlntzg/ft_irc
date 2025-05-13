@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 10:29:10 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 12:40:27 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -312,22 +312,25 @@ void	Server::removeClient(Client& usr, std::string reason){
 	int	usr_fd = usr.getSocketFd();
 
 	// 1.Remove the user from joined channels
-	for (const auto& [name, channelPtr] : channels_){
-		if (channelPtr->isChannelUser(usr)){
-			channelPtr->removeUser(usr);
+	for (auto it = channels_.begin(); it != channels_.end(); ){
+		const std::string&	name = it->first;
+		std::shared_ptr<Channel> channel_ptr = it->second;
+
+		if (channel_ptr->isUserInList(usr, USERTYPE::REGULAR)
+			|| channel_ptr->isUserInList(usr, USERTYPE::INVITE)){
+			channel_ptr->removeUser(usr);
 			// After remove the user, if the channel become an empty channel, then
 			// remove it from channels map
-			if (channelPtr->isEmptyChannel()){
-				channels_.erase(name);
+			if (channel_ptr->isEmptyChannel()){
+				it = channels_.erase(it); // erase returns the next valid iterator
+				continue;
 			} else { // if the channel is not empty, then send QUIT information to all other users
-				std::unordered_set<Client*> channel_users = channelPtr->getChannelUsers(); // need add getChannelUsers into Channel class
-				for (Client* the_user : channel_users){
-					responseToClient(*the_user, usr.getPrefix() + " QUIT : "+ reason + "\r\n");
-				}
+				std::string message = rplQuit(usr.getNick(), name, reason);
+				channel_ptr->notifyChannelUsers(usr, message);
 			}
 		}
+		++it;
 	}
-
 	// 2.Remove from epoll container
 	auto it = std::remove_if(events_.begin(), events_.end(),[usr_fd](const epoll_event& ev){
 		return ev.data.fd == usr_fd;

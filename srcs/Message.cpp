@@ -39,8 +39,8 @@ void Message::initCommandHandlers(){
 }
 
 bool Message::handlePASS(){
-    if (parameters_.size() != 1){
-        Logger::log(Logger::ERROR, "PASS requires exactly one parameter.");
+    if (!msg_trailing_.empty()){
+        Logger::log(Logger::ERROR, "PASS doesn't support a trailing message");
         return false;
     }
     return true;
@@ -242,11 +242,6 @@ bool Message::parseMessage(){
         while (std::getline(string_stream, token, ',')){
             if (!token.empty()){
                 ++number_of_parameters_;
-                if (number_of_parameters_ > 4)
-                {
-                    Logger::log(Logger::ERROR, "Too many parameters given in the message");
-                    return false;
-                }
                 parameters_.push_back(token);
             }
         }

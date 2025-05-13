@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 11:16:41 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/13 12:25:08 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,12 @@
 
 // 001 RPL_WELCOME
 inline std::string rplWelcome(const std::string& nick){
-	return (std::string(SERVER) + " 001 " + nick + " : Welcome to the IRC Network, " + nick + "\r\n");
+	return (std::string(SERVER) + " 001 " + nick + " :Welcome to the IRC Network, " + nick + "\r\n");
 }
 
 // 002 RPL_YOURHOST
 inline std::string rplYourHost(const std::string& nick){
-	return (std::string(SERVER) + " 002 " + nick + " : Your host is " + std::string(SERVER) +
+	return (std::string(SERVER) + " 002 " + nick + " :Your host is " + std::string(SERVER) +
 			", running version ircserv 1.0\r\n");
 }
 
@@ -112,12 +112,15 @@ inline std::string rplMode(const std::string& nick, const std::string& channel,
 }
 
 /**
- * @brief Constructs a MODE message indicating mode changes on a channel.
+ * @brief Constructs a JOIN message When a new member join in a channel.
+ * Send message to all members a notification.
  *
- * This message is sent to all users in the channel to inform them of a mode change.
- * It follows the IRC format: ":<nick> MODE <channel> <modes> [<args>...]"
+ * @param nick: the command inputter
+ * @param prefix: information about the user ,servername and hostname
+ * @param channel_name: the channel what a member just joined
  */
-inline std::string rplJoinChannel(const std::string& nick, const std::string& prefix, const std::string& channel_name) {
+inline std::string rplJoinChannel(const std::string& nick, const std::string& prefix,
+	const std::string& channel_name) {
 	 return prefix + " " + nick + " has joined #" + channel_name + "\r\n";
 }
 
@@ -133,6 +136,16 @@ inline std::string rplPart(const std::string& nick, const std::string& channel, 
 		msg += " :" + reason;
 	}
 	return msg + "\r\n";
+}
+
+/**
+ * @brief Constructs a QUIT message indicating that a user has left a channel.
+ *
+ * This message is sent to all users in the channel, including the parting user.
+ * It follows the IRC format: ":<nick> PART <channel> [:reason]"
+ */
+inline std::string rplQuit(const std::string& nick, const std::string& channel, const std::string& reason) {
+	return (std::string(SERVER) + nick + " QUIT " + channel + " :"+ reason + "\r\n");
 }
 
 /*...................................Error Replies.................................*/
