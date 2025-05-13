@@ -66,8 +66,13 @@ bool Message::handlePRIVMSG(){
 }
 
 bool Message::handlePART(){
-    msg_channels_.push_back(parameters_[0].substr(1));
-    parameters_[0] = parameters_[0].substr(1);
+    for (const std::string& param : parameters_){
+        if (!param.empty() && param[0] == '#') {
+            msg_channels_.push_back(param.substr(1));
+        } else {
+            msg_users_.push_back(param);
+        }
+    }
     return true;
 }
 
