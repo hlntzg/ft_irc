@@ -516,8 +516,8 @@ void	Server::topic(Message& msg, Client& user){
         Server::responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
         return ;
     }
-	// No trailing parameter present → just show topic (or no topic)
-	// If trailing is empty AND there was no explicit ':' → just display topic
+
+	// No trailing parameter present AND there was no explicit ':' → just display topic (or no topic)
 	if (msg.getTrailing().empty() && msg.getTrailingEmpty() == false){
 		if (channel_ptr->getTopic().empty())
 			responseToClient(user, NoTopic(user.getNick(), channel_list.at(0)));
