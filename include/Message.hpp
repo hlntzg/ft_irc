@@ -35,7 +35,7 @@ class Message{
 		COMMANDTYPE 			getCommandType() const;
 		const std::string& 		getCommandString() const;
 		const std::vector<std::string>& getPasswords() const;
-		bool Message::getTrailingEmpty() const;
+		bool getTrailingEmpty() const;
 
 		// for testing only
 		void	printMsgInfo() const;
