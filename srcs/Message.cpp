@@ -134,6 +134,7 @@ bool Message::parseMessage(){
     input_stream >> command;
     cmd_string_ = command;
     cmd_type_ = INVALID;
+    msg_trailing_empty_ = false;
     while (input_stream >> word){
         if (!word.empty() && word[0] == ':'){
             std::string rest_of_line;
@@ -144,6 +145,9 @@ bool Message::parseMessage(){
             }
             else{
             msg_trailing_ = word.substr(1);
+            if (msg_trailing_.empty()){
+                msg_trailing_empty_ = true;
+            }
             }
             break;
         }
@@ -203,6 +207,9 @@ const std::vector<std::string>& Message::getPasswords() const{
 	return passwords_;
 }
 
+bool Message::getTrailingEmpty() const{
+	return msg_trailing_empty_;
+}
 
 void	Message::printMsgInfo() const{
     std::cout << "Message Info:\n";
