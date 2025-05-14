@@ -176,7 +176,7 @@ void	Server::partCommand(Message& msg, Client& cli){
 		responseToClient(cli, needMoreParams("PART"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(cli, tooManyTargets(cli.getNick()));
+		responseToClient(cli, tooManyTargets(cli.getNick(), channel_list.at(TARGET_LIM_IN_ONE_CMD), TARGET_LIM_IN_ONE_CMD));
 		return;
 	}
 
@@ -248,7 +248,7 @@ void	Server::kickUser(Message& msg, Client& user){
 		responseToClient(user, needMoreParams("KICK"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(user, tooManyTargets(user.getNick()));
+		responseToClient(user, tooManyTargets(user.getNick(), channel_list.at(TARGET_LIM_IN_ONE_CMD), TARGET_LIM_IN_ONE_CMD));
 		return;
 	}
 
@@ -404,7 +404,7 @@ void    Server::inviteUser(Message& msg, Client& user){
 		responseToClient(user, needMoreParams("INVITE"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(user, tooManyTargets(user.getNick()));
+		responseToClient(user, tooManyTargets(user.getNick(), channel_list.at(TARGET_LIM_IN_ONE_CMD), TARGET_LIM_IN_ONE_CMD));
 		return;
 	}
 
@@ -589,7 +589,7 @@ void	Server::mode(Message& msg, Client& user){
 		return;
 	} 
 	if (channel_list.size() > 1){
-		responseToClient(user, tooManyTargets(user.getNick(), channel_list.at(1)));
+		responseToClient(user, tooManyTargets(user.getNick(), channel_list.at(1), 1));
 		return;
 	}
 	
@@ -750,7 +750,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 		responseToClient(cli, needMoreParams("JOIN"));
 		return;
 	} if (channels.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(cli, tooManyTargets(nick));
+		responseToClient(cli, tooManyTargets(nick, channels.at(TARGET_LIM_IN_ONE_CMD), TARGET_LIM_IN_ONE_CMD));
 		return;
 	}
 	for (const auto& chan_name : channels){
@@ -811,6 +811,8 @@ bool	Server::isExistedChannel(const std::string& channel_name){
 void Server::privmsgCommand(Message& msg, Client& cli){
     std::vector<std::string> channels = msg.getChannels();
     std::vector<std::string> users = msg.getUsers();
+	std::vector<std::string> params_list = msg.getParameters();
+
     std::string message = msg.getTrailing() + "\r\n";
 
     if (channels.empty() && users.empty()){
@@ -821,8 +823,9 @@ void Server::privmsgCommand(Message& msg, Client& cli){
 		responseToClient(cli, "No text to send\r\n");
 		return;
 	}
-    if (channels.size() + users.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(cli, tooManyTargets(cli.getNick()));
+    //if (channels.size() + users.size() > TARGET_LIM_IN_ONE_CMD){
+	if (params_list.size() > TARGET_LIM_IN_ONE_CMD) {
+		responseToClient(cli, tooManyTargets(cli.getNick(), params_list.at(TARGET_LIM_IN_ONE_CMD), TARGET_LIM_IN_ONE_CMD));
 		return;
 	}
     for (const auto& channel_name : channels){

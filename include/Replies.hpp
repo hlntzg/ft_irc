@@ -193,23 +193,14 @@ inline std::string tooManyChannels(const std::string& nick, const std::string& c
 			+ " :You have joined too many channels\r\n");
 }
 
-// 405 ERR_TOOMANYTARGETS
-/**
- * @brief Sent to a user when they have joined the maximum number of allowed channels
- * and they try to join another channel.
- */
-inline std::string tooManyTargets(const std::string& nick){
-	return (std::string(SERVER) + " "+ nick + " :too many targets\r\n");
-}
-
 // 407 ERR_TOOMANYTARGETS
 /**
  * @brief Sent when a command is given with too many targets (e.g., multiple channels or users),
  *        but only one is allowed (like in MODE or PRIVMSG).
  */
-inline std::string tooManyTargets(const std::string& nick, const std::string& target) {
+inline std::string tooManyTargets(const std::string& nick, const std::string& target, int max) {
 	return (std::string(SERVER) + " 407 " + nick + " " + target
-			+ " :Too many targets. Only one is allowed.\r\n");
+			+ " :Too many targets. Only " + std::to_string(max) + " is allowed.\r\n");
 }
 
 // 421 ERR_UNKNOWNCOMMAND
