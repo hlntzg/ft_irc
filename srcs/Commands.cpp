@@ -588,10 +588,10 @@ void	Server::mode(Message& msg, Client& user){
 		responseToClient(user, needMoreParams("MODE"));
 		return;
 	} 
-	// else if (channel_list.size() > 1){
-	// 	responseToClient(user, );
-	// 	return;
-	// }
+	if (channel_list.size() > 1){
+		responseToClient(user, tooManyTargets(user.getNick(), channel_list.at(1)));
+		return;
+	}
 	
 	std::string	channel_name = channel_list.at(0);//params_list.at(0);
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);

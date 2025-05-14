@@ -202,6 +202,16 @@ inline std::string tooManyTargets(const std::string& nick){
 	return (std::string(SERVER) + " "+ nick + " :too many targets\r\n");
 }
 
+// 407 ERR_TOOMANYTARGETS
+/**
+ * @brief Sent when a command is given with too many targets (e.g., multiple channels or users),
+ *        but only one is allowed (like in MODE or PRIVMSG).
+ */
+inline std::string tooManyTargets(const std::string& nick, const std::string& target) {
+	return (std::string(SERVER) + " 407 " + nick + " " + target
+			+ " :Too many targets. Only one is allowed.\r\n");
+}
+
 // 421 ERR_UNKNOWNCOMMAND
 /**
  * @brief Returned to a registered client to indicate that the command sent is unknown
