@@ -137,16 +137,11 @@ void	Server::userCommand(Message& msg, Client& cli){
 }
 
 void Server::quitCommand(Message& msg, Client& cli){
-	std::vector<std::string> params = msg.getParameters();
-	std::string reason = params.empty() ? "Client quit" : params[0];
-
-	int fd = cli.getSocketFd();
-
-	auto it = clients_.find(fd);
-	if (it != clients_.end()){
-		std::shared_ptr<Client> client_ptr = it->second;
-		removeClient(*client_ptr, reason);
+	std::string reason = "Client quit";
+	if (!msg.getParameters().empty()){
+		reason = msg.getParameters()[0];
 	}
+	removeClient(cli, reason);
 }
 
 /**
@@ -816,12 +811,20 @@ bool	Server::isExistedChannel(const std::string& channel_name){
 void Server::privmsgCommand(Message& msg, Client& cli){
     std::vector<std::string> channels = msg.getChannels();
     std::vector<std::string> users = msg.getUsers();
-    std::string message = msg.getTrailing() + "\n";
+    std::string message = msg.getTrailing() + "\r\n";
 
     if (channels.empty() && users.empty()){
-        responseToClient(cli, needMoreParams("PRIVMSG"));
-        return;
-    }
+        	responseToClient(cli, needMoreParams("PRIVMSG"));
+        	return;
+	}
+    if (msg.getTrailingEmpty() == true || message == "\r\n"){
+		responseToClient(cli, "No text to send\r\n");
+		return;
+	}
+    if (channels.size() + users.size() > TARGET_LIM_IN_ONE_CMD){
+		responseToClient(cli, tooManyTargets(cli.getNick()));
+		return;
+	}
     for (const auto& channel_name : channels){
         std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
         if (!channel_ptr) {
@@ -837,7 +840,6 @@ void Server::privmsgCommand(Message& msg, Client& cli){
     }
     for (const auto& target_nick : users){
         std::shared_ptr<Client> target_client = getUserByNick(target_nick);
-
         if (!target_client){
             responseToClient(cli, errNoSuchNick(cli.getNick(), target_nick));
             continue;
