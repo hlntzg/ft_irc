@@ -498,7 +498,7 @@ void	Server::topic(Message& msg, Client& user){
 	std::vector<std::string> target_list = msg.getUsers();
 	size_t	n_channel = channel_list.size();
 
-	if (channel_list.size() == 0 || target_list.size() == 0){
+	if (channel_list.size() == 0 || target_list.size() != 0){
 		responseToClient(user, needMoreParams("TOPIC"));
 		return;
 	}
@@ -516,7 +516,9 @@ void	Server::topic(Message& msg, Client& user){
         Server::responseToClient(user, notOnChannel(user.getNick(), channel_list.at(0)));
         return ;
     }
-	if (msg.getTrailing().empty()){
+	// No trailing parameter present → just show topic (or no topic)
+	// If trailing is empty AND there was no explicit ':' → just display topic
+	if (msg.getTrailing().empty() && msg.getTrailingEmpty() == false){
 		if (channel_ptr->getTopic().empty())
 			responseToClient(user, NoTopic(user.getNick(), channel_list.at(0)));
 		else
@@ -528,14 +530,15 @@ void	Server::topic(Message& msg, Client& user){
 		return ;
 	}
 
-    // // Unset topic
-	// [!!!] Comment by Helena: check with parsing, probably dont get ':' as msg_trailing,
-	// so no need this check just if msg_training is "" somehow;
-    // if (msg.getTrailing() == ":") {
-    //     channel_ptr->getTopic().clear();
-    //     Logger::log(Logger::INFO, "User " + user.getNick() + " cleared topic in channel " + channel_list.at(0));
-    //     return;
-    // }
+    if (msg.getTrailingEmpty() == true) {
+		channel_ptr->addNewTopic("");
+    	Logger::log(Logger::INFO, "User " + user.getNick() + " cleared topic in channel " + channel_list.at(0));
+    
+   		std::string message = Topic(user.getNick(), channel_list.at(0), "");
+    	channel_ptr->notifyChannelUsers(user, message);
+    	responseToClient(user, message);
+        return;
+    }
 
 	channel_ptr->addNewTopic(msg.getTrailing());
 	std::string message = Topic(user.getNick(), channel_list.at(0), msg.getTrailing());
@@ -585,7 +588,7 @@ void	Server::mode(Message& msg, Client& user){
 
 	std::cout << "mode:" << channel_name << std::endl; // for testing
 
-	// if (params_list.size() == 0 || target_list.size() == 0){
+	// if (params_list.size() == 0 || target_list.size() != 0){
 	// 	responseToClient(user, needMoreParams("MODE"));
 	// 	return;
 	// }

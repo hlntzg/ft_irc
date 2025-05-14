@@ -75,7 +75,7 @@ inline std::string NoTopic(const std::string& nick, const std::string& channel){
 // 332 RPL_TOPIC
 inline std::string Topic(const std::string& nick, const std::string& channel,
 const std::string& topic){
-	return (std::string(SERVER) + " 332 " + nick + " " + channel + " " + topic +"\r\n");
+	return (std::string(SERVER) + " 332 " + nick + " " + channel + " :" + topic +"\r\n");
 }
 
 // 341 RPL_INVITING
