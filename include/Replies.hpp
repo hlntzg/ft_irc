@@ -27,6 +27,14 @@
  * overhead for small functions.
  */
 
+
+/*...................................General Replies..............................*/
+
+// NOTICE message to a user
+inline std::string noticeToUser(const std::string& nick, const std::string& message) {
+    return (":" + std::string(SERVER) + " NOTICE " + nick + " :" + message + "\r\n");
+}
+
 /*...................................Commands Replies..............................*/
 
 // 001 RPL_WELCOME

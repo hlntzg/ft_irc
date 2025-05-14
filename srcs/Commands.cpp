@@ -277,6 +277,10 @@ void	Server::kickUser(Message& msg, Client& user){
 				responseToClient(user, userNotInChannel(user.getNick(), target_nick, channel_list.at(0)));
 				continue;
 			}
+			if (target_nick == user.getNick()){
+				responseToClient(user, noticeToUser(user.getNick(), "You cannot kick yourself from a channel."));
+				continue;
+			}
 
 			std::string message = rplKick(user.getNick(), target_nick, channel_list.at(0), msg.getTrailing());
     		channel_ptr->notifyChannelUsers(*getUserByNick(target_nick), message);
@@ -307,6 +311,10 @@ void	Server::kickUser(Message& msg, Client& user){
 			}
 			if (!channel_ptr->isChannelUser(*getUserByNick(target_list.at(0)))){
 				responseToClient(user, userNotInChannel(user.getNick(), target_list.at(0), channel_name));
+				continue;
+			}
+			if (target_list.at(0) == user.getNick()){
+				responseToClient(user, canNotSendToChan(user.getNick(), "You cannot kick yourself from a channel."));
 				continue;
 			}
 
@@ -342,6 +350,10 @@ void	Server::kickUser(Message& msg, Client& user){
 			}
 			if (!channel_ptr->isChannelUser(*target_ptr)) {
 				responseToClient(user, userNotInChannel(user.getNick(), target_nick, channel_name));
+				continue;
+			}
+			if (target_nick == user.getNick()){
+				responseToClient(user, canNotSendToChan(user.getNick(), "You cannot kick yourself from a channel."));
 				continue;
 			}
 
@@ -712,6 +724,9 @@ void	Server::mode(Message& msg, Client& user){
  *
  */
 // continue when we decide how to get the users list/invite list....
+
+// OBS to JOIN by Helena: Consider switching from 342 to 353 and 366 for names list
+// consistency (unless you're intentionally simplifying).
 void	Server::joinCommand(Message& msg, Client& cli){
 	const std::string&	nick = cli.getNick();
 	std::vector<std::string>	channels = msg.getChannels();
