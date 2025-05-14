@@ -124,7 +124,7 @@ class Server{
 		// command helper functions
 		bool		isPasswordMatch(const std::string& password);
 		void		attempRegisterClient(Client& cli);
-		bool		isNickInUse(const std::string& nick);
+		bool		isNickInUse(const std::string& nick, const Client* requesting_client);
 		bool		isExistedChannel(const std::string& channel_name);
 
 		// for testing
