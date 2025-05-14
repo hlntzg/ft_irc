@@ -35,6 +35,7 @@ class Message{
 		COMMANDTYPE 			getCommandType() const;
 		const std::string& 		getCommandString() const;
 		const std::vector<std::string>& getPasswords() const;
+		bool Message::getTrailingEmpty() const;
 
 		// for testing only
 		void	printMsgInfo() const;
@@ -57,6 +58,7 @@ class Message{
 		COMMANDTYPE			cmd_type_;//type of the command as defined in the server.hpp
 		std::string			cmd_string_;//string version of the given command
 		std::vector<std::string>	passwords_;//passwords for the JOIN command if it exists
+		bool			msg_trailing_empty_;//set to true only if the msg_trailing_ was ":"
 };
 
 #include "Client.hpp"
