@@ -586,20 +586,19 @@ void	Server::topic(Message& msg, Client& user){
 void	Server::mode(Message& msg, Client& user){
 
 	std::vector<std::string> params_list = msg.getParameters();
-	std::vector<std::string> target_list = msg.getUsers();
+	//std::vector<std::string> target_list = msg.getUsers();
 	std::vector<std::string> channel_list = msg.getChannels();
-	std::string	channel_name = channel_list.at(0);//params_list.at(0);
-
-	std::cout << "mode:" << channel_name << std::endl; // for testing
-
-	// if (params_list.size() == 0 || target_list.size() != 0){
-	// 	responseToClient(user, needMoreParams("MODE"));
+	
+	if (channel_list.empty()) {
+		responseToClient(user, needMoreParams("MODE"));
+		return;
+	} 
+	// else if (channel_list.size() > 1){
+	// 	responseToClient(user, );
 	// 	return;
 	// }
-
-	std::string	mode_flags = params_list.at(1);
-	std::vector<std::string> args(params_list.begin() + 2, params_list.end());
-
+	
+	std::string	channel_name = channel_list.at(0);//params_list.at(0);
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 	if (!channel_ptr) {
         responseToClient(user, errNoSuchChannel(user.getNick(), channel_name));
@@ -609,19 +608,28 @@ void	Server::mode(Message& msg, Client& user){
         responseToClient(user, notOnChannel(user.getNick(), channel_name));
         return;
     }
-	if (mode_flags.empty()) {
-        std::string status = "+";
-        if (channel_ptr->getInviteMode())
-            status += "i";
-        if (channel_ptr->getTopicMode())
-            status += "t";
-        if (channel_ptr->getPasswdMode())
-            status += "k";
-        if (channel_ptr->getLimitMode())
-            status += "l";
+
+	std::string	mode_flags = "";
+	if (params_list.size() > 1)
+		mode_flags = params_list.at(1);
+
+	std::vector<std::string> args;
+	if (params_list.size() > 2)
+    	args.assign(params_list.begin() + 2, params_list.end());
+
+	if (mode_flags.empty()) { // display only active modes
+        std::string status = "";
+        if (channel_ptr->getInviteMode()) status += "i";
+        if (channel_ptr->getTopicMode()) status += "t";
+        if (channel_ptr->getPasswdMode()) status += "k";
+        if (channel_ptr->getLimitMode()) status += "l";
+		// Prepend '+' only if at least one mode is active
+    	if (!status.empty())
+        	status = "+" + status;
         responseToClient(user, ChannelModeIs(user.getNick(), channel_name, status));
         return;
     }
+
 	if (!channel_ptr->isChannelOperator(user)) {
         responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name));
         return;
@@ -704,6 +712,8 @@ void	Server::mode(Message& msg, Client& user){
 		}
 	}
 	// Notify all users in the channel about the mode change
+	if (arg_index > args.size())
+		arg_index = args.size();
 	std::vector<std::string> params(args.begin(), args.begin() + arg_index);
 	std::string message = rplMode(user.getNick(), channel_name, update_modes, params);
 
@@ -774,6 +784,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				}
 				if (channel->getPassword() != passwds.at(index++)){
 					responseToClient(cli, badChannelKey(nick,chan_name));
+					continue;
 				}
 			}
 			// If the channel is invite_only but the client is not on the invitee list
