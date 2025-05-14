@@ -92,6 +92,10 @@ bool Message::handleKICK(){
 }
 
 bool Message::handleMODE(){
+    if (parameters_.empty()){
+        Logger::log(Logger::ERROR, "MODE should contain parameters");
+        return false;
+    }
     if (parameters_[0][0] == '#'){
         msg_channels_.push_back(parameters_[0].substr(1));
         parameters_[0] = parameters_[0].substr(1);
