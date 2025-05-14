@@ -43,7 +43,7 @@ void	Server::attempRegisterClient(Client& cli){
 		return;
 	}
 	const std::string& nick = cli.getNick();
-	if (isNickInUse(nick)){
+	if (isNickInUse(nick, &cli)){
 		responseToClient(cli, nickNameinuse(nick));
 		return;
 	}
