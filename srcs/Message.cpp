@@ -42,6 +42,7 @@ bool Message::handleGeneric(){
     for (size_t i = 0; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
             msg_channels_.push_back(parameters_[i].substr(1));
+            parameters_[i] = parameters_[i].substr(1);
         } else{
             msg_users_.push_back(parameters_[i]);
         }
@@ -53,6 +54,7 @@ bool Message::handleJOIN(){
     for (size_t i = 0; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
             msg_channels_.push_back(parameters_[i].substr(1));
+            parameters_[i] = parameters_[i].substr(1);
         } else{
             passwords_.push_back(parameters_[i]);
         }
@@ -61,17 +63,30 @@ bool Message::handleJOIN(){
 }
 
 bool Message::handleKICK(){
+    if (parameters_.size() < 2){
+        Logger::log(Logger::ERROR, "KICK should contain at least 2 parameters");
+	    return false;
+    }
     if (parameters_[0][0] == '#'){
         msg_channels_.push_back(parameters_[0].substr(1));
+        parameters_[0] = parameters_[0].substr(1);
     } else{
         Logger::log(Logger::ERROR, "KICK first parameter should be a channel");
-	return false;
+	    return false;
     }
     if (parameters_[1][0] == '#'){
         Logger::log(Logger::ERROR, "KICK second parameter should not be a channel");
-	return false;
+	    return false;
     } else{
         msg_users_.push_back(parameters_[1]);
+    }
+    for (size_t i = 2; i < parameters_.size(); ++i){
+        if (parameters_[i][0] == '#') {
+            msg_channels_.push_back(parameters_[i].substr(1));
+            parameters_[i] = parameters_[i].substr(1);
+        } else{
+            msg_users_.push_back(parameters_[i]);
+        }
     }
     return true;
 }
@@ -79,6 +94,7 @@ bool Message::handleKICK(){
 bool Message::handleMODE(){
     if (parameters_[0][0] == '#'){
         msg_channels_.push_back(parameters_[0].substr(1));
+        parameters_[0] = parameters_[0].substr(1);
     } else{
         Logger::log(Logger::ERROR, "MODE first parameter should be a channel");
         return false;
@@ -86,6 +102,7 @@ bool Message::handleMODE(){
     for (size_t i = 1; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
             msg_channels_.push_back(parameters_[i].substr(1));
+            parameters_[i] = parameters_[i].substr(1);
         } else{
             msg_users_.push_back(parameters_[i]);
         }
