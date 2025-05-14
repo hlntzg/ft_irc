@@ -69,9 +69,9 @@ void	Server::attempRegisterClient(Client& cli){
  * - `true`: The nickname is already in use
  * - `false`: The nickname is available
  */
-bool	Server::isNickInUse(const std::string& nick){
+bool Server::isNickInUse(const std::string& nick, const Client* requesting_client){
 	for (auto& [fd, user] : clients_){
-		if (user->getNick() == nick && user->isRegistered() == true){
+		if (user->getNick() == nick && user.get() != requesting_client){
 			return true;
 		}
 	}
@@ -85,7 +85,7 @@ void	Server::nickCommand(Message& msg, Client& cli){
 		return;
 	}
 	const std::string& nick = params.at(0);
-	if (isNickInUse(nick) == true){
+	if (isNickInUse(nick, &cli) == true){
 		responseToClient(cli, nickNameinuse(""));
 	}
 	// checking if nick string contains only valid characters
@@ -97,7 +97,9 @@ void	Server::nickCommand(Message& msg, Client& cli){
 		}
 	}
 	cli.setNick(nick);
-	attempRegisterClient(cli);
+	if (cli.isRegistered() == false){
+		attempRegisterClient(cli);
+	}
 }
 
 void	Server::userCommand(Message& msg, Client& cli){
@@ -129,7 +131,9 @@ void	Server::userCommand(Message& msg, Client& cli){
 	cli.setRealname(realname);
 	cli.setHostname(params.at(1));
 	cli.setServername(params.at(2));
-	attempRegisterClient(cli);
+	if (cli.isRegistered() == false){
+		attempRegisterClient(cli);
+	}
 }
 
 void Server::quitCommand(Message& msg, Client& cli){
@@ -817,7 +821,8 @@ void Server::privmsgCommand(Message& msg, Client& cli){
             responseToClient(cli, notOnChannel(cli.getNick(), channel_name));
             continue;
         }
-        channel_ptr->notifyChannelUsers(cli, message);
+		std::string full_message = cli.getPrefix() + " PRIVMSG #" + channel_name + " :" + message;
+        channel_ptr->notifyChannelUsers(cli, full_message);
     }
     for (const auto& target_nick : users){
         std::shared_ptr<Client> target_client = getUserByNick(target_nick);
@@ -826,6 +831,7 @@ void Server::privmsgCommand(Message& msg, Client& cli){
             responseToClient(cli, errNoSuchNick(cli.getNick(), target_nick));
             continue;
         }
-        responseToClient(*target_client, message);
+		std::string full_message = cli.getPrefix() + " PRIVMSG :" + message;
+        responseToClient(*target_client, full_message);
     }
 }
