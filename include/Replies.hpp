@@ -366,6 +366,9 @@ inline std::string noChanoPasswd(const std::string& nick, const std::string& cha
 	return (std::string(SERVER) + nick + " " + channel + " :Channel password doesn't be provided\r\n");
 }
 
+// 696 ERR_INVALIDMODEPARAM 
+// 696 is a non-standard but widely adopted IRC numeric that means: "You tried to apply a mode 
+// (+k, +l, etc.) but the parameter you gave is invalid for that mode."
 /**
  * @brief Returned when a user provides an invalid parameter for a channel mode.
  * Commonly used for +k (key), +l (limit), etc.
