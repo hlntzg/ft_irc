@@ -123,9 +123,19 @@ void	Server::nickCommand(Message& msg, Client& cli){
 			return;
 		}
 	}
+	const std::string&	old_nick = cli.getNick();
 	cli.setNick(nick);
-	if (cli.isRegistered() == false){
+	// std::cout << "new nick=" << cli.getNick() << std::endl; // for testing
+	if (cli.isRegistered() == false){ // first time registeration
 		attempRegisterClient(cli);
+	} else{ // reset nickname
+		// notice channels users who are joined the same channel with the user
+		for (const auto& [name, channel_ptr] : channels_){
+			if (channel_ptr->isUserInList(cli, USERTYPE::REGULAR) == true){
+				std::string	message = rplResetNick(old_nick, nick);
+				channel_ptr->notifyChannelUsers(cli, message);
+			}
+		}
 	}
 }
 
