@@ -128,6 +128,8 @@ class Server{
 		void		attempRegisterClient(Client& cli);
 		bool		isNickInUse(const std::string& nick, const Client* requesting_client);
 		bool		isExistedChannel(const std::string& channel_name);
+		bool		isValidModePassword(const std::string& password);
+		bool 		isPositiveInteger(const std::string& s);
 
 		// for testing
 		void	printUsers() const;

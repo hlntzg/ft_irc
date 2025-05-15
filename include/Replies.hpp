@@ -365,3 +365,12 @@ inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& 
 inline std::string noChanoPasswd(const std::string& nick, const std::string& channel){
 	return (std::string(SERVER) + nick + " " + channel + " :Channel password doesn't be provided\r\n");
 }
+
+/**
+ * @brief Returned when a user provides an invalid parameter for a channel mode.
+ * Commonly used for +k (key), +l (limit), etc.
+ */
+inline std::string InvalidModeParamErr(const std::string& nick, const std::string& channel,
+char mode, const std::string& param, const std::string& reason) {
+    return std::string(SERVER) + " 696 " + nick + " " + channel + " " + mode + " " + param + " :" + reason + "\r\n";
+}

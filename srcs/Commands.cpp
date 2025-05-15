@@ -684,6 +684,10 @@ void	Server::mode(Message& msg, Client& user){
 					responseToClient(user, needMoreParams("MODE"));
 					return;
 				}
+				if (!isValidModePassword(args[arg_index])){
+					responseToClient(user, InvalidModeParamErr(user.getNick(), channel_name, 'k', args[arg_index++], "Invalid channel key"));
+					continue ;
+				}
 				channel_ptr->addNewPassword(args[arg_index++]);
 				channel_ptr->setPassword();
 				update_modes += "+k";
@@ -698,6 +702,10 @@ void	Server::mode(Message& msg, Client& user){
 					responseToClient(user, needMoreParams("MODE"));
 					return;
 				}
+				if (!isPositiveInteger(args[arg_index])) {
+    				responseToClient(user, InvalidModeParamErr(user.getNick(), channel_name, 'l', args[arg_index++], "Limit must be a positive integer"));
+            		continue;
+        		}
 				channel_ptr->addLimit(std::stoi(args[arg_index++]));
 				channel_ptr->setLimit();
 				update_modes += "+l";
@@ -899,4 +907,27 @@ void	Server::capCommand(Message& msg, Client& cli){
     } else{
         Logger::log(Logger::WARNING, "Unhandled CAP subcommand: " + subcmd);
     }
+}
+
+bool Server::isValidModePassword(const std::string& key) {
+    if (key.empty() || key.length() > 23) {
+        return false;
+    }
+    for (unsigned char ch : key) {
+        // Allow if in the specified ASCII ranges
+        if ((ch >= 0x01 && ch <= 0x05) ||
+            (ch >= 0x07 && ch <= 0x08) ||
+            ch == 0x0C ||
+            (ch >= 0x0E && ch <= 0x1F) ||
+            (ch >= 0x21 && ch <= 0x7F)) {
+            continue;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Server::isPositiveInteger(const std::string& s) {
+    return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
 }
