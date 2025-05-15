@@ -96,7 +96,7 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	}
 	const std::string& nick = params.at(0);
 	// 2. nickname length checking (between 1~9 characters)
-	if (nick.size() > 9 || nick.size() < 1){
+	if (nick.size() > 20 || nick.size() < 1){
 		responseToClient(cli, erroneusNickName(""));
 		Logger::log(Logger::ERROR, "nickname is too long");
 		return;
