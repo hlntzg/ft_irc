@@ -79,23 +79,46 @@ bool Server::isNickInUse(const std::string& nick, const Client* requesting_clien
 	return false;
 }
 
+/**
+ * @brief Using to set a nick for a client
+ * syntax:
+ *    nickname = ( letter / special ) *8( letter / digit / special / "-" )
+ * special    =  %x5B-60 / %x7B-7D
+ *                 ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
+ */
 void	Server::nickCommand(Message& msg, Client& cli){
 	std::vector<std::string>	params = msg.getParameters();
+	// nickname length checking (between 1~9 characters)
 	if (params.size() == 0){
 		responseToClient(cli, nonNickNameGiven());
+		Logger::log(Logger::ERROR, "no nickname is given");
 		return;
 	}
+	if (params.size() > 9){
+		responseToClient(cli, erroneusNickName(""));
+		Logger::log(Logger::ERROR, "nickname is too long");
+		return;
+	}
+	// 2. nickname inuse checking
 	const std::string& nick = params.at(0);
-	std::cout << "nick=" << nick << std::endl; // fot tesing
 	if (isNickInUse(nick, &cli) == true){
 		responseToClient(cli, nickNameinuse(""));
-		Logger::log(Logger::INFO, "NICK is in use");
+		Logger::log(Logger::ERROR, "nickname is in use");
+		return;
 	}
-	// checking if nick string contains only valid characters
+	// 3. first letter checking, should be just letter or special character
+	if (!isalpha(static_cast<unsigned char>(nick.at(0)
+			&& std::string(SPECIAL_CHARS_NAMES).find(nick.at(0)) == std::string::npos))){
+		responseToClient(cli, erroneusNickName(""));
+		Logger::log(Logger::ERROR, "nickname's first letter is invalid");
+		return;
+	}
+	// 4. checking invalid characters in the rest nickname
 	for (auto c : nick){
 		if (!isalnum(static_cast<unsigned char>(c))
 			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
 			responseToClient(cli, erroneusNickName(""));
+			Logger::log(Logger::ERROR, "nickname contains invalid characters");
 			return;
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/15 09:21:18 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/15 10:03:23 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Channel;
 class Message;
 
 
-#define SPECIAL_CHARS_NAMES "[]{}^-'\\"
+#define SPECIAL_CHARS_NAMES "[]\\`_^{|}"
 #define SPECIAL_CHARS_PASSWD "!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`"
 #define PASSWORD_RULE "Allow contain:\n1.Letters\n2.Digits\n3.Characters in\"!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`\""
 #define TARGET_LIM_IN_ONE_CMD (4)
