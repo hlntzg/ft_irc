@@ -902,24 +902,34 @@ void Server::privmsgCommand(Message& msg, Client& cli){
     }
 }
 
-void	Server::capCommand(Message& msg, Client& cli){
+std::string trim(const std::string& str) {
+    size_t start = 0;
+    while (start < str.length() && std::isspace(str[start])) ++start;
+    size_t end = str.length();
+    while (end > start && std::isspace(str[end - 1])) --end;
+    return str.substr(start, end - start);
+}
+
+void Server::capCommand(Message& msg, Client& cli){
 	std::vector<std::string> parameters = msg.getParameters();
-	std::string	subcmd = parameters[0];
-    if (subcmd == "LS"){
-        std::string response = "CAP * LS :multi-prefix\r\n";
-        responseToClient(cli, response);
-    } else if (subcmd == "REQ"){
-        if (parameters.size() > 1){
-            std::string requested_caps = parameters[1];
-            std::string response = "CAP * ACK :" + requested_caps + "\r\n";
-            responseToClient(cli, response);
-        } else {
-            Logger::log(Logger::ERROR, "CAP REQ missing capability list");
-        }
-    } else if (subcmd == "END"){
-    } else{
-        Logger::log(Logger::WARNING, "Unhandled CAP subcommand: " + subcmd);
-    }
+	std::string subcmd = parameters.empty() ? "" : parameters[0];
+
+	if (subcmd == "LS"){
+		std::string response = "CAP * LS :multi-prefix\r\n";
+		responseToClient(cli, response);
+	} else if (subcmd == "REQ"){
+		std::string requested_caps = trim(msg.getTrailing());
+		if (!requested_caps.empty()){
+			std::string response = "CAP * ACK :" + requested_caps + "\r\n";
+			responseToClient(cli, response);
+		} else{
+			Logger::log(Logger::ERROR, "CAP REQ missing capability list");
+		}
+	} else if (subcmd == "END"){
+		// No response needed — just move on to registration
+	} else{
+		Logger::log(Logger::WARNING, "Unhandled CAP subcommand: " + subcmd);
+	}
 }
 
 bool Server::isValidModePassword(const std::string& key) {
@@ -943,4 +953,13 @@ bool Server::isValidModePassword(const std::string& key) {
 
 bool Server::isPositiveInteger(const std::string& s) {
     return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
+}
+
+void Server::pingCommand(const Message& msg, Client& cli){
+	if (msg.getParameters().empty()){
+		responseToClient(cli, ":" + std::string(SERVER) + " 409 " + cli.getNick() + " :No origin specified\r\n");
+		return;
+	}
+	const std::string& origin = msg.getParameters().at(0);
+	responseToClient(cli, "PONG :" + origin + "\r\n");
 }
