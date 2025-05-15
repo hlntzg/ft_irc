@@ -35,8 +35,13 @@ void Message::initCommandHandlers(){
         {"INVITE", [this](){ cmd_type_ = INVITE; return handleGeneric(); }},
         {"MODE",   [this](){ cmd_type_ = MODE; return handleMODE(); }},
         {"CAP",   [this](){ cmd_type_ = CAP; return handleCAP(); }},
+	{"PING",   [this](){ cmd_type_ = PING; return handlePING(); }},
         {"KICK",   [this](){ cmd_type_ = KICK; return handleKICK(); }}
     };
+}
+
+bool Message::handlePING(){
+    return true;
 }
 
 bool Message::handlePASS(){
