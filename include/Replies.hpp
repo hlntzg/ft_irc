@@ -60,6 +60,11 @@ inline std::string rplMyInfo(const std::string& nick){
 			+ std::string(SUPPORTCHANNELMODE) +"\r\n");
 }
 
+// 221 RPL_UMODEIS
+inline std::string rplUserModeIs(const std::string& nick, const std::string& modes) {
+    return (":" + std::string(SERVER) + " 221 " + nick + " " + modes + " \r\n");
+}
+
 // 324 RPL_CHANNELMODEIS
 inline std::string ChannelModeIs(const std::string& nick, const std::string& channel,
 const std::string& mode_params){
@@ -364,6 +369,16 @@ inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& 
  */
 inline std::string noChanoPasswd(const std::string& nick, const std::string& channel){
 	return (":" + std::string(SERVER) + nick + " " + channel + " :Channel password doesn't be provided\r\n");
+}
+
+// 501 ERR_UMODEUNKNOWNFLAG
+inline std::string umodeUnknownFlag(const std::string& nick) {
+    return (":" + std::string(SERVER) + " 501 " + nick + " :Unknown MODE flag\r\n");
+}
+
+// 502 ERR_USERSDONTMATCH
+inline std::string usersDontMatch(const std::string& nick) {
+    return (":" + std::string(SERVER) + " 502 " + nick + " :Cannot change mode for other users\r\n");
 }
 
 // 696 ERR_INVALIDMODEPARAM 

@@ -617,12 +617,37 @@ void	Server::topic(Message& msg, Client& user){
  *
  * @param msg   The parsed Message object containing the MODE command and parameters.
  * @param user  The client issuing the MODE command.
- */
+ */ 
+// MODE #ch +i al 
+//  MODE alic +i 
+//  MODE +i 
+//  MODE #a 
 void	Server::mode(Message& msg, Client& user){
 
 	std::vector<std::string> params_list = msg.getParameters();
-	//std::vector<std::string> target_list = msg.getUsers();
+	std::vector<std::string> target_list = msg.getUsers();
 	std::vector<std::string> channel_list = msg.getChannels();
+
+	if (!target_list.empty()){
+		if (user.getNick() != target_list.at(0)){
+			responseToClient(user, usersDontMatch(user.getNick())); // ERR_USERSDONTMATCH
+			return;
+		}
+		if (params_list.size() == 1){
+			responseToClient(user, rplUserModeIs(user.getNick(), user.getUserMode()));
+			return ;
+		}
+		const std::string mode = params_list.at(1);
+		// Validate: must start with + or - followed by valid mode chars
+		std::regex mode_regex("^([+-][iworO]*)+$");
+		if (!std::regex_match(mode, mode_regex)){
+			responseToClient(user, umodeUnknownFlag(user.getNick())); // ERR_UMODEUNKNOWNFLAG
+			return;
+		}
+		user.setUserMode(mode);
+		responseToClient(user, rplUserModeIs(user.getNick(), mode)); // RPL_UMODEIS
+		return;
+	}
 
 	if (channel_list.empty()) {
 		responseToClient(user, needMoreParams("MODE"));
