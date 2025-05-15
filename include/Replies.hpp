@@ -96,7 +96,7 @@ const std::string& invitee_nick){
  */
 inline std::string rplKick(const std::string& nick, const std::string& target,
 const std::string& channel, const std::string& reason) {
-	std::string msg = ":" + nick + " KICK #" + channel + " " + target;
+	std::string msg = ":" + nick + " KICK " + channel + " " + target;
 	if (!reason.empty()) {
 		msg += " :" + reason;
 	}
@@ -112,7 +112,7 @@ const std::string& channel, const std::string& reason) {
 inline std::string rplMode(const std::string& nick, const std::string& channel,
                            const std::string& mode_flags,
                            const std::vector<std::string>& args) {
-	std::string msg = ":" + nick + " MODE #" + channel + " " + mode_flags;
+	std::string msg = ":" + nick + " MODE " + channel + " " + mode_flags;
 	for (const std::string& arg : args) {
 		msg += " " + arg;
 	}
@@ -128,7 +128,7 @@ inline std::string rplMode(const std::string& nick, const std::string& channel,
  * @param channel_name: the channel what a member just joined
  */
 inline std::string rplJoinChannel(const std::string& nick, const std::string& channel_name) {
-	 return (std::string(SERVER) + " 342 " + nick + " has joined #" + channel_name + "\r\n");
+	 return (std::string(SERVER) + " 342 " + nick + " has joined " + channel_name + "\r\n");
 }
 
 /**
@@ -138,7 +138,7 @@ inline std::string rplJoinChannel(const std::string& nick, const std::string& ch
  * It follows the IRC format: ":<nick> PART <channel> [:reason]"
  */
 inline std::string rplPart(const std::string& nick, const std::string& channel, const std::string& reason) {
-	std::string msg = ":" + nick + " PART #" + channel;
+	std::string msg = ":" + nick + " PART " + channel;
 	if (!reason.empty()) {
 		msg += " :" + reason;
 	}
