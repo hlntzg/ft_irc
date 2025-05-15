@@ -651,7 +651,7 @@ void	Server::mode(Message& msg, Client& user){
 
 	if (channel_list.empty()) {
 		responseToClient(user, needMoreParams("MODE"));
-		return;
+		return; 
 	}
 	if (channel_list.size() > 1){
 		responseToClient(user, tooManyTargets(user.getNick(), channel_list.at(1), 1));
