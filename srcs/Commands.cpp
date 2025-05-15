@@ -90,7 +90,7 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	std::vector<std::string>	params = msg.getParameters();
 	// 1. should contain at least one parameter
 	if (params.size() == 0){
-		responseToClient(cli, nonNickNameGiven());
+		responseToClient(cli, nonNickNameGiven(""));
 		Logger::log(Logger::ERROR, "no nickname is given");
 		return;
 	}
@@ -129,6 +129,16 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	}
 }
 
+/**
+ * @brief The USER command is used at the beginning of connection to specify
+ * the username, hostname and realname of a new user.
+ *
+ *  Syntax:
+ *   USER <user> <mode> <unused> <realname>
+ *
+ *  The <realname> may contain space characters.
+ *
+ */
 void	Server::userCommand(Message& msg, Client& cli){
 	std::vector<std::string>	params = msg.getParameters();
 
@@ -138,6 +148,7 @@ void	Server::userCommand(Message& msg, Client& cli){
 	}
 	const std::string& username = params.at(0);
 	const std::string& realname = msg.getTrailing();
+
 	for (auto c : username){
 		if (!isalnum(static_cast<unsigned char>(c))
 			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
@@ -146,9 +157,11 @@ void	Server::userCommand(Message& msg, Client& cli){
 			return;
 		}
 	}
+
 	for (auto c : realname){
 		if (!isalnum(static_cast<unsigned char>(c))
-			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
+			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos &&
+			c != ' '){
 			responseToClient(cli, erroneusNickName(""));
 			Logger::log(Logger::INFO, "Realname is invalid");
 			return;

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/15 10:42:24 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/15 12:32:27 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,10 @@ bool Message::parseMessage(){
             std::string rest_of_line;
             std::getline(input_stream, rest_of_line);
             //rest_of_line.erase(0, rest_of_line.find_first_not_of(" \t\r\n"));
+            // trim the end '\n' and '\r' out
+            while (rest_of_line.back() == '\n' || rest_of_line.back() == '\r'){
+                rest_of_line.pop_back();
+            }
             if (!rest_of_line.empty()){
             msg_trailing_ = word.substr(1) + rest_of_line;
             }
@@ -168,6 +172,10 @@ bool Message::parseMessage(){
             }
             }
             break;
+        }
+        // trim the end '\n' and '\r' out
+        while (word.back() == '\n' || word.back() == '\r'){
+            word.pop_back();
         }
         std::stringstream string_stream(word);
         std::string token;

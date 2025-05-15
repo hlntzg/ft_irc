@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/13 13:09:24 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/15 11:17:48 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,23 +39,23 @@ inline std::string noticeToUser(const std::string& nick, const std::string& mess
 
 // 001 RPL_WELCOME
 inline std::string rplWelcome(const std::string& nick){
-	return (std::string(SERVER) + " 001 " + nick + " :Welcome to the IRC Network, " + nick + "\r\n");
+	return (":" + std::string(SERVER) + " 001 " + nick + " :Welcome to the IRC Network, " + nick + "\r\n");
 }
 
 // 002 RPL_YOURHOST
 inline std::string rplYourHost(const std::string& nick){
-	return (std::string(SERVER) + " 002 " + nick + " :Your host is " + std::string(SERVER) +
+	return (":" + std::string(SERVER) + " 002 " + nick + " :Your host is " + std::string(SERVER) +
 			", running version ircserv 1.0\r\n");
 }
 
 // 003 RPL_CREATED
 inline std::string rplCreated(const std::string& nick){
-	return (std::string(SERVER) + " 003 " + nick + " :This server was created on May 10 2025\r\n");
+	return (":" + std::string(SERVER) + " 003 " + nick + " :This server was created on May 10 2025\r\n");
 }
 
 // 004 RPL_MYINFO
 inline std::string rplMyInfo(const std::string& nick){
-	return (std::string(SERVER) + " 004 " + nick + " :" + std::string(SERVER) +
+	return (":" + std::string(SERVER) + " 004 " + nick + " :" + std::string(SERVER) +
 	        + " 1.0 " + std::string(SUPPORTUSERMODE) + " "
 			+ std::string(SUPPORTCHANNELMODE) +"\r\n");
 }
@@ -63,19 +63,19 @@ inline std::string rplMyInfo(const std::string& nick){
 // 324 RPL_CHANNELMODEIS
 inline std::string ChannelModeIs(const std::string& nick, const std::string& channel,
 const std::string& mode_params){
-	return (std::string(SERVER) + " 324 " + nick + " " + channel +
+	return (":" + std::string(SERVER) + " 324 " + nick + " " + channel +
 	        + " mode " + mode_params + " \r\n");
 }
 
 // 331 RPL_NOTOPIC
 inline std::string NoTopic(const std::string& nick, const std::string& channel){
-	return (std::string(SERVER) + " 331 " + nick + " " + channel +": No topic is set \r\n");
+	return (":" + std::string(SERVER) + " 331 " + nick + " " + channel +": No topic is set \r\n");
 }
 
 // 332 RPL_TOPIC
 inline std::string Topic(const std::string& nick, const std::string& channel,
 const std::string& topic){
-	return (std::string(SERVER) + " 332 " + nick + " " + channel + " :" + topic +"\r\n");
+	return (":" + std::string(SERVER) + " 332 " + nick + " " + channel + " :" + topic +"\r\n");
 }
 
 // 341 RPL_INVITING
@@ -85,7 +85,7 @@ const std::string& topic){
  */
 inline std::string Inviting(const std::string& nick, const std::string& channel,
 const std::string& invitee_nick){
-	return (std::string(SERVER) + " 341 " + nick + " " + channel + " " + invitee_nick +"\r\n");
+	return (":" + std::string(SERVER) + " 341 " + nick + " " + channel + " " + invitee_nick +"\r\n");
 }
 
 /**
@@ -128,7 +128,7 @@ inline std::string rplMode(const std::string& nick, const std::string& channel,
  * @param channel_name: the channel what a member just joined
  */
 inline std::string rplJoinChannel(const std::string& nick, const std::string& channel_name) {
-	 return (std::string(SERVER) + " 342 " + nick + " has joined " + channel_name + "\r\n");
+	 return (":" + std::string(SERVER) + " 342 " + nick + " has joined " + channel_name + "\r\n");
 }
 
 /**
@@ -152,7 +152,7 @@ inline std::string rplPart(const std::string& nick, const std::string& channel, 
  * It follows the IRC format: ":<nick> PART <channel> [:reason]"
  */
 inline std::string rplQuit(const std::string& nick, const std::string& channel, const std::string& reason) {
-	return (std::string(SERVER) +  " 343 " + nick + " QUIT " + channel + " :" + reason + "\r\n");
+	return (":" + std::string(SERVER) +  " 343 " + nick + " QUIT " + channel + " :" + reason + "\r\n");
 }
 
 /*...................................Error Replies.................................*/
@@ -162,7 +162,7 @@ inline std::string rplQuit(const std::string& nick, const std::string& channel, 
  * @brief Used to indicate the nickname parameter supplied to a command is currently unused.
  */
 inline std::string errNoSuchNick(const std::string& nick, const std::string& wrong_nick){
-	return (std::string(SERVER) + " 401 " + nick + " " + wrong_nick + " :No such nick\r\n");
+	return (":" + std::string(SERVER) + " 401 " + nick + " " + wrong_nick + " :No such nick\r\n");
 }
 
 // 403 ERR_NOSUCHCHANNEL
@@ -170,7 +170,7 @@ inline std::string errNoSuchNick(const std::string& nick, const std::string& wro
  * @brief Used to indicate the given channel name is invalid
  */
 inline std::string errNoSuchChannel(const std::string& nick, const std::string& wrong_channel){
-	return (std::string(SERVER) + " 403 " + nick + " " + wrong_channel+" :No such channel\r\n");
+	return (":" + std::string(SERVER) + " 403 " + nick + " " + wrong_channel+" :No such channel\r\n");
 }
 
 // 404 ERR_CANNOTSENDTOCHAN
@@ -180,7 +180,7 @@ inline std::string errNoSuchChannel(const std::string& nick, const std::string& 
  * a PRIVMSG message to that channel.
  */
 inline std::string canNotSendToChan(const std::string& nick, const std::string& channel_name){
-	return (std::string(SERVER) + " 404 " + nick + " " + channel_name+" :Cannot send to channel\r\n");
+	return (":" + std::string(SERVER) + " 404 " + nick + " " + channel_name+" :Cannot send to channel\r\n");
 }
 
 // 405 ERR_TOOMANYCHANNELS
@@ -189,7 +189,7 @@ inline std::string canNotSendToChan(const std::string& nick, const std::string& 
  * and they try to join another channel.
  */
 inline std::string tooManyChannels(const std::string& nick, const std::string& channel_name){
-	return (std::string(SERVER) + " 405 " + nick + " " + channel_name
+	return (":" + std::string(SERVER) + " 405 " + nick + " " + channel_name
 			+ " :You have joined too many channels\r\n");
 }
 
@@ -199,7 +199,7 @@ inline std::string tooManyChannels(const std::string& nick, const std::string& c
  *        but only one is allowed (like in MODE or PRIVMSG).
  */
 inline std::string tooManyTargets(const std::string& nick, const std::string& target, int max) {
-	return (std::string(SERVER) + " 407 " + nick + " " + target
+	return (":" + std::string(SERVER) + " 407 " + nick + " " + target
 			+ " :Too many targets. Only " + std::to_string(max) + " is allowed.\r\n");
 }
 
@@ -209,7 +209,7 @@ inline std::string tooManyTargets(const std::string& nick, const std::string& ta
  * by the server.
  */
 inline std::string unknowCommand(const std::string& nick, const std::string& wrong_command){
-	return (std::string(SERVER) + " 421 " + nick + " " + wrong_command
+	return (":" + std::string(SERVER) + " 421 " + nick + " " + wrong_command
 			+ " :Unknow command\r\n");
 }
 
@@ -217,8 +217,8 @@ inline std::string unknowCommand(const std::string& nick, const std::string& wro
 /**
  * @brief Returned when a nickname parameter expected for a command and isn't found.
  */
-inline std::string nonNickNameGiven(){
-	return (std::string(SERVER) + " 431 :No nickname given\r\n");
+inline std::string nonNickNameGiven(const std::string& nick){
+	return (":" + std::string(SERVER) + " 431 " + nick + " :No nickname given\r\n");
 }
 
 // 432 ERR_ERRONEUSNICKNAME
@@ -227,7 +227,7 @@ inline std::string nonNickNameGiven(){
  * not fall in the defined set.
  */
 inline std::string erroneusNickName(const std::string& nick){
-	return (std::string(SERVER) + " 432 " + nick + " :Erroneus nickname/username\r\n");
+	return (":" + std::string(SERVER) + " 432 " + nick + " :Erroneus nickname/username\r\n");
 }
 
 // 433 ERR_NICKNAMEINUSE
@@ -236,7 +236,7 @@ inline std::string erroneusNickName(const std::string& nick){
  * to a currently existing nickname.
  */
 inline std::string nickNameinuse(const std::string& nick){
-	return (std::string(SERVER) + " 433 " + nick + " :Nickname is already in use\r\n");
+	return (":" + std::string(SERVER) + " 433 " + nick + " :Nickname is already in use\r\n");
 }
 
 // 441 ERR_USERNOTINCHANNEL
@@ -246,7 +246,7 @@ inline std::string nickNameinuse(const std::string& nick){
  */
 inline std::string userNotInChannel(const std::string& nick, const std::string& targets,
 const std::string& channel){
-	return (std::string(SERVER) + " 441 " + nick  + " "  + targets + " "+ channel
+	return (":" + std::string(SERVER) + " 441 " + nick  + " "  + targets + " "+ channel
 		     + " :They aren't on that channel\r\n");
 }
 
@@ -256,7 +256,7 @@ const std::string& channel){
  * command for which the client isn't a member.
  */
 inline std::string notOnChannel(const std::string& nick, const std::string& channel){
-	return (std::string(SERVER) + " 442 " + nick  + " " + channel
+	return (":" + std::string(SERVER) + " 442 " + nick  + " " + channel
 		     + " :You're not on that channel\r\n");
 }
 
@@ -271,7 +271,7 @@ inline std::string notOnChannel(const std::string& nick, const std::string& chan
 inline std::string userOnChannel(const std::string& nick, const std::string& target,
 const std::string& channel){
 	if (target != "")
-		return (std::string(SERVER) + " 443 " + nick  + " " + target + " " + channel
+		return (":" + std::string(SERVER) + " 443 " + nick  + " " + target + " " + channel
 		     + " :is already on channel\r\n");
 	return (std::string(SERVER) + " 443 " + nick  + " " + channel
 		     + " :is already on channel\r\n");
@@ -283,7 +283,7 @@ const std::string& channel){
  * the server will allow it to be parsed in detail.
  */
 inline std::string NotRegistered(const std::string& command){
-	return (std::string(SERVER) + " 451 " + command  + " :You have not registered\r\n");
+	return (":" + std::string(SERVER) + " 451 " + command  + " :You have not registered\r\n");
 }
 
 // 461 ERR_NEEDMOREPARAMS
@@ -292,7 +292,7 @@ inline std::string NotRegistered(const std::string& command){
  * it didn't supply enough parameters.
  */
 inline std::string needMoreParams(const std::string& command){
-	return (std::string(SERVER) + " 461 " + command  + " :Not enough parameters\r\n");
+	return (":" + std::string(SERVER) + " 461 " + command  + " :Not enough parameters\r\n");
 }
 
 // 462 ERR_ALREADYREGISTRED
@@ -301,7 +301,7 @@ inline std::string needMoreParams(const std::string& command){
  * registered details (such as password or user details from second USER message).
  */
 inline std::string alreadyRegistred(const std::string& nick){
-	return (std::string(SERVER) + " 462 " + nick  + " :You may not reregister\r\n");
+	return (":" + std::string(SERVER) + " 462 " + nick  + " :You may not reregister\r\n");
 }
 
 // 464 ERR_PASSWDMISMATCH
@@ -310,32 +310,32 @@ inline std::string alreadyRegistred(const std::string& nick){
  * which a password was required and was either not given or incorrect.
  */
 inline std::string passwdMismatch(const std::string& nick){
-	return (std::string(SERVER) + " 464 " + nick  + " :Password incorrect\r\n");
+	return (":" + std::string(SERVER) + " 464 " + nick  + " :Password incorrect\r\n");
 }
 
 // 467 ERR_KEYSET
 inline std::string keySet(const std::string& nick, const std::string& channel){
-	return (std::string(SERVER) + " 467 " + nick + " " + channel + " :Channel key already set\r\n");
+	return (":" + std::string(SERVER) + " 467 " + nick + " " + channel + " :Channel key already set\r\n");
 }
 
 // 471 ERR_CHANNELISFULL
 inline std::string channelIsFull(const std::string& nick, const std::string& channel){
-	return (std::string(SERVER) + " 471 " + nick + " " + channel + " :Cannot join channel (+l)\r\n");
+	return (":" + std::string(SERVER) + " 471 " + nick + " " + channel + " :Cannot join channel (+l)\r\n");
 }
 
 // 472 ERR_UNKNOWNMODE
 inline std::string unknownMode(const std::string& nick, const std::string& unknown_mode){
-	return (std::string(SERVER) + " 472 " + nick + " " + unknown_mode + " :is unknown mode char to me\r\n");
+	return (":" + std::string(SERVER) + " 472 " + nick + " " + unknown_mode + " :is unknown mode char to me\r\n");
 }
 
 // 473 ERR_INVITEONLYCHAN
 inline std::string inviteOnlyChan(const std::string& nick, const std::string& channel){
-	return (std::string(SERVER) + " 473 " + nick + " " + channel + " :Cannot join channel (+i)\r\n");
+	return (":" + std::string(SERVER) + " 473 " + nick + " " + channel + " :Cannot join channel (+i)\r\n");
 }
 
 // 474 ERR_BADCHANNELKEY
 inline std::string badChannelKey(const std::string& nick, const std::string& channel){
-	return (std::string(SERVER) + " 474 " + nick + " " + channel + " :Cannot join channel (+k)\r\n");
+	return (":" + std::string(SERVER) + " 474 " + nick + " " + channel + " :Cannot join channel (+k)\r\n");
 }
 
 // 478 ERR_INVITE_SYNTAX
@@ -344,7 +344,7 @@ inline std::string badChannelKey(const std::string& nick, const std::string& cha
  * error if the client making the attempt is not a chanop on the specified channel
  */
 inline std::string InviteSyntaxErr(const std::string& nick){
-	return (std::string(SERVER) + " 478 " + nick + ":Invalid Invite command\r\n");
+	return (":" + std::string(SERVER) + " 478 " + nick + ":Invalid Invite command\r\n");
 }
 
 // 482 ERR_CHANOPRIVSNEEDED
@@ -353,7 +353,7 @@ inline std::string InviteSyntaxErr(const std::string& nick){
  * error if the client making the attempt is not a chanop on the specified channel
  */
 inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& channel){
-	return (std::string(SERVER) + " 482 " + nick + " " + channel + " :You're not channel operator\r\n");
+	return (":" + std::string(SERVER) + " 482 " + nick + " " + channel + " :You're not channel operator\r\n");
 }
 
 
@@ -363,7 +363,7 @@ inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& 
  * error if the client making the attempt is not a chanop on the specified channel
  */
 inline std::string noChanoPasswd(const std::string& nick, const std::string& channel){
-	return (std::string(SERVER) + nick + " " + channel + " :Channel password doesn't be provided\r\n");
+	return (":" + std::string(SERVER) + nick + " " + channel + " :Channel password doesn't be provided\r\n");
 }
 
 /**
@@ -372,5 +372,5 @@ inline std::string noChanoPasswd(const std::string& nick, const std::string& cha
  */
 inline std::string InvalidModeParamErr(const std::string& nick, const std::string& channel,
 char mode, const std::string& param, const std::string& reason) {
-    return std::string(SERVER) + " 696 " + nick + " " + channel + " " + mode + " " + param + " :" + reason + "\r\n";
+    return ":" + std::string(SERVER) + " 696 " + nick + " " + channel + " " + mode + " " + param + " :" + reason + "\r\n";
 }
