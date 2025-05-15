@@ -67,6 +67,7 @@ const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
 	NICK,
 	USER,
 	CAP,
+	PING,
 	QUIT
 };
 
@@ -381,6 +382,10 @@ void	Server::executeCommand(Message& msg, Client& cli){
 
 	if (cmd_type == INVALID){
 		responseToClient(cli, unknowCommand(cli.getNick(), cmd_str_type));
+		return;
+	}
+	if (cmd_type == PING){
+		pingCommand(msg, cli);
 		return;
 	}
 	// Before the user sends the correct password, he/she can't execute any commands
