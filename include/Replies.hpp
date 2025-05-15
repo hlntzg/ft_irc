@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/15 11:17:48 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/15 14:58:21 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,12 @@ inline std::string rplPart(const std::string& nick, const std::string& channel, 
 inline std::string rplQuit(const std::string& nick, const std::string& channel, const std::string& reason) {
 	return (":" + std::string(SERVER) +  " 343 " + nick + " QUIT " + channel + " :" + reason + "\r\n");
 }
+
+
+inline std::string rplResetNick(const std::string& old_nick, const std::string& new_nick) {
+	return (":" + std::string(SERVER) + old_nick + " reset nickname to " + new_nick + "\r\n");
+}
+
 
 /*...................................Error Replies.................................*/
 
@@ -381,8 +387,8 @@ inline std::string usersDontMatch(const std::string& nick) {
     return (":" + std::string(SERVER) + " 502 " + nick + " :Cannot change mode for other users\r\n");
 }
 
-// 696 ERR_INVALIDMODEPARAM 
-// 696 is a non-standard but widely adopted IRC numeric that means: "You tried to apply a mode 
+// 696 ERR_INVALIDMODEPARAM
+// 696 is a non-standard but widely adopted IRC numeric that means: "You tried to apply a mode
 // (+k, +l, etc.) but the parameter you gave is invalid for that mode."
 /**
  * @brief Returned when a user provides an invalid parameter for a channel mode.

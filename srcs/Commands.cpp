@@ -96,7 +96,7 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	}
 	const std::string& nick = params.at(0);
 	// 2. nickname length checking (between 1~9 characters)
-	if (nick.size() > 9 || nick.size() < 1){
+	if (nick.size() > 20 || nick.size() < 1){
 		responseToClient(cli, erroneusNickName(""));
 		Logger::log(Logger::ERROR, "nickname is too long");
 		return;
@@ -123,9 +123,19 @@ void	Server::nickCommand(Message& msg, Client& cli){
 			return;
 		}
 	}
+	const std::string&	old_nick = cli.getNick();
 	cli.setNick(nick);
-	if (cli.isRegistered() == false){
+	// std::cout << "new nick=" << cli.getNick() << std::endl; // for testing
+	if (cli.isRegistered() == false){ // first time registeration
 		attempRegisterClient(cli);
+	} else{ // reset nickname
+		// notice channels users who are joined the same channel with the user
+		for (const auto& [name, channel_ptr] : channels_){
+			if (channel_ptr->isUserInList(cli, USERTYPE::REGULAR) == true){
+				std::string	message = rplResetNick(old_nick, nick);
+				channel_ptr->notifyChannelUsers(cli, message);
+			}
+		}
 	}
 }
 
