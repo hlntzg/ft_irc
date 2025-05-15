@@ -856,3 +856,23 @@ void Server::privmsgCommand(Message& msg, Client& cli){
         responseToClient(*target_client, full_message);
     }
 }
+
+void	Server::capCommand(Message& msg, Client& cli){
+	std::vector<std::string> parameters = msg.getParameters();
+	std::string	subcmd = parameters[0];
+    if (subcmd == "LS"){
+        std::string response = "CAP * LS :multi-prefix\r\n";
+        responseToClient(cli, response);
+    } else if (subcmd == "REQ"){
+        if (parameters.size() > 1){
+            std::string requested_caps = parameters[1];
+            std::string response = "CAP * ACK :" + requested_caps + "\r\n";
+            responseToClient(cli, response);
+        } else {
+            Logger::log(Logger::ERROR, "CAP REQ missing capability list");
+        }
+    } else if (subcmd == "END"){
+    } else{
+        Logger::log(Logger::WARNING, "Unhandled CAP subcommand: " + subcmd);
+    }
+}
