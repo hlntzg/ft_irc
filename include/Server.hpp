@@ -48,6 +48,7 @@ enum COMMANDTYPE{
 	TOPIC,
 	MODE,
 	QUIT,
+	CAP,
 	INVALID
 };
 
@@ -114,6 +115,7 @@ class Server{
 		void		joinCommand(Message& msg, Client& cli);
 		void		partCommand(Message& msg, Client& cli);
 		void		quitCommand(Message& msg, Client& cli);
+		void		capCommand(Message& msg, Client& cli);
 
 		// Commands specific to channel operators:
 		void		kickUser(Message& msg, Client& cli);
