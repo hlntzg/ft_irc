@@ -34,6 +34,7 @@ void Message::initCommandHandlers(){
         {"QUIT",   [this](){ cmd_type_ = QUIT; return handleGeneric(); }},
         {"INVITE", [this](){ cmd_type_ = INVITE; return handleGeneric(); }},
         {"MODE",   [this](){ cmd_type_ = MODE; return handleMODE(); }},
+        {"CAP",   [this](){ cmd_type_ = CAP; return handleCAP(); }},
         {"KICK",   [this](){ cmd_type_ = KICK; return handleKICK(); }}
     };
 }
@@ -45,6 +46,14 @@ bool Message::handlePASS(){
         } else{
             passwords_.push_back(parameters_[i]);
         }
+    }
+    return true;
+}
+
+bool Message::handleCAP() {
+    if (parameters_.empty()) {
+        Logger::log(Logger::ERROR, "CAP command missing subcommand");
+        return false;
     }
     return true;
 }
