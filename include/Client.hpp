@@ -32,6 +32,7 @@ class Client{
 		const std::string&	getPassword() const;
 		bool				getNextMessage(std::string& buffer);
 		std::string			getPrefix() const;
+		const std::string&	getUserMode() const;
 
 		// setters
 		void	setNick(const std::string& nick);
@@ -41,6 +42,7 @@ class Client{
 		void	setServername(const std::string& servername);
 		void	setPassword(const std::string& passwd);
 		void	setRegistrationStatus(bool	status);
+		void	setUserMode(const std::string& mode);
 
 		bool	receiveRawData();
 		bool	isRegistered();
@@ -58,6 +60,7 @@ class Client{
 		std::string	servername_;
 		std::string password_;
 		std::string	raw_data_;
+		std::string	user_mode_;
 		bool	isRegistered_;
 
 		Client(const Client&) = delete;

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/15 14:54:34 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/15 14:58:21 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,11 @@ inline std::string rplMyInfo(const std::string& nick){
 	return (":" + std::string(SERVER) + " 004 " + nick + " :" + std::string(SERVER) +
 	        + " 1.0 " + std::string(SUPPORTUSERMODE) + " "
 			+ std::string(SUPPORTCHANNELMODE) +"\r\n");
+}
+
+// 221 RPL_UMODEIS
+inline std::string rplUserModeIs(const std::string& nick, const std::string& modes) {
+    return (":" + std::string(SERVER) + " 221 " + nick + " " + modes + " \r\n");
 }
 
 // 324 RPL_CHANNELMODEIS
@@ -370,6 +375,16 @@ inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& 
  */
 inline std::string noChanoPasswd(const std::string& nick, const std::string& channel){
 	return (":" + std::string(SERVER) + nick + " " + channel + " :Channel password doesn't be provided\r\n");
+}
+
+// 501 ERR_UMODEUNKNOWNFLAG
+inline std::string umodeUnknownFlag(const std::string& nick) {
+    return (":" + std::string(SERVER) + " 501 " + nick + " :Unknown MODE flag\r\n");
+}
+
+// 502 ERR_USERSDONTMATCH
+inline std::string usersDontMatch(const std::string& nick) {
+    return (":" + std::string(SERVER) + " 502 " + nick + " :Cannot change mode for other users\r\n");
 }
 
 // 696 ERR_INVALIDMODEPARAM

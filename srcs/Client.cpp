@@ -52,6 +52,11 @@ const std::string&	Client::getPassword() const{
     return password_;
 }
 
+const std::string&	Client::getUserMode() const{
+    return user_mode_;
+}
+
+
 /**
  * @brief Used when the server responding to a command issued by client.
  * For example:
@@ -93,6 +98,9 @@ void	Client::setRegistrationStatus(bool	status){
     isRegistered_ = status;
 }
 
+void	Client::setUserMode(const std::string& mode){
+    user_mode_ = mode;
+}
 
 /**
  * @brief Receive the raw data from socket, filling/saving into receive buffer.
