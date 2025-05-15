@@ -24,7 +24,7 @@ Message::~Message(){
 
 void Message::initCommandHandlers(){
     command_handlers_ = {
-        {"PASS",   [this](){ cmd_type_ = PASS; return handleGeneric(); }},
+        {"PASS",   [this](){ cmd_type_ = PASS; return handlePASS(); }},
         {"NICK",   [this](){ cmd_type_ = NICK; return handleGeneric(); }},
         {"TOPIC",  [this](){ cmd_type_ = TOPIC; return handleGeneric(); }},
         {"USER",   [this](){ cmd_type_ = USER; return handleGeneric(); }},
@@ -38,11 +38,21 @@ void Message::initCommandHandlers(){
     };
 }
 
+bool Message::handlePASS(){
+    for (size_t i = 0; i < parameters_.size(); ++i){
+        if (parameters_[i][0] == '#') {
+            msg_channels_.push_back(parameters_[i]);
+        } else{
+            passwords_.push_back(parameters_[i]);
+        }
+    }
+    return true;
+}
+
 bool Message::handleGeneric(){
     for (size_t i = 0; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
-            msg_channels_.push_back(parameters_[i].substr(1));
-            parameters_[i] = parameters_[i].substr(1);
+            msg_channels_.push_back(parameters_[i]);
         } else{
             msg_users_.push_back(parameters_[i]);
         }
@@ -53,8 +63,7 @@ bool Message::handleGeneric(){
 bool Message::handleJOIN(){
     for (size_t i = 0; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
-            msg_channels_.push_back(parameters_[i].substr(1));
-            parameters_[i] = parameters_[i].substr(1);
+            msg_channels_.push_back(parameters_[i]);
         } else{
             passwords_.push_back(parameters_[i]);
         }
@@ -68,8 +77,7 @@ bool Message::handleKICK(){
 	    return false;
     }
     if (parameters_[0][0] == '#'){
-        msg_channels_.push_back(parameters_[0].substr(1));
-        parameters_[0] = parameters_[0].substr(1);
+        msg_channels_.push_back(parameters_[0]);
     } else{
         Logger::log(Logger::ERROR, "KICK first parameter should be a channel");
 	    return false;
@@ -82,8 +90,7 @@ bool Message::handleKICK(){
     }
     for (size_t i = 2; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
-            msg_channels_.push_back(parameters_[i].substr(1));
-            parameters_[i] = parameters_[i].substr(1);
+            msg_channels_.push_back(parameters_[i]);
         } else{
             msg_users_.push_back(parameters_[i]);
         }
@@ -97,16 +104,14 @@ bool Message::handleMODE(){
         return false;
     }
     if (parameters_[0][0] == '#'){
-        msg_channels_.push_back(parameters_[0].substr(1));
-        parameters_[0] = parameters_[0].substr(1);
+        msg_channels_.push_back(parameters_[0]);
     } else{
         Logger::log(Logger::ERROR, "MODE first parameter should be a channel");
         return false;
     }
     for (size_t i = 1; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
-            msg_channels_.push_back(parameters_[i].substr(1));
-            parameters_[i] = parameters_[i].substr(1);
+            msg_channels_.push_back(parameters_[i]);
         } else{
             msg_users_.push_back(parameters_[i]);
         }
