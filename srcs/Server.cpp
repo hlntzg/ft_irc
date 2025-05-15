@@ -93,6 +93,7 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{INVITE, &Server::inviteUser},
 	{TOPIC, &Server::topic},
 	{MODE, &Server::mode},
+	{CAP, &Server::capCommand},
 	{QUIT, &Server::quitCommand}
 };
 
@@ -382,10 +383,12 @@ void	Server::executeCommand(Message& msg, Client& cli){
 		return;
 	}
 	// Before the user sends the correct password, he/she can't execute any commands
-	if (cmd_type != PASS && cli.getPassword().empty()){
-		Logger::log(Logger::INFO, "User hasn't sent correct password yet");
-		responseToClient(cli, passwdMismatch(cli.getNick()));
-		return;
+	if (cli.getPassword().empty()) {
+		if (cmd_type != PASS && cmd_type != CAP) {
+			Logger::log(Logger::INFO, "User hasn't sent correct password yet");
+			responseToClient(cli, passwdMismatch(cli.getNick()));
+			return;
+		}
 	}
 	// 1.If the client hasn't finished registration, then the user can not operate
 	// the commands except PASS, NICK, USER and QUIT
