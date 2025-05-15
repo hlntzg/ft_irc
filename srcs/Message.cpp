@@ -120,8 +120,7 @@ bool Message::handleMODE(){
     if (parameters_[0][0] == '#'){
         msg_channels_.push_back(parameters_[0]);
     } else{
-        Logger::log(Logger::ERROR, "MODE first parameter should be a channel");
-        return false;
+        msg_users_.push_back(parameters_[0]);
     }
     for (size_t i = 1; i < parameters_.size(); ++i){
         if (parameters_[i][0] == '#') {
