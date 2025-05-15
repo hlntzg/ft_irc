@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/15 08:41:28 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/15 10:42:24 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,7 +238,9 @@ void	Message::printMsgInfo() const{
     std::cout << "  number_of_user=" << msg_users_.size() << std::endl;
     std::cout << "  number_of_channel=" << msg_channels_.size() << std::endl;
     std::cout << "  number_of_password=" << passwords_.size() << std::endl;
-    printUserList();
+    if (msg_users_.size() > 0){
+        printUserList();
+    }
 }
 
 void	Message::printUserList() const{
