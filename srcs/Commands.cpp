@@ -71,7 +71,8 @@ void	Server::attempRegisterClient(Client& cli){
  */
 bool Server::isNickInUse(const std::string& nick, const Client* requesting_client){
 	for (auto& [fd, user] : clients_){
-		if (user->getNick() == nick && user.get() != requesting_client){
+		// why do we added second condition here??
+		if (user->getNick() == nick && user->isRegistered() && user.get() != requesting_client){
 			return true;
 		}
 	}
@@ -85,8 +86,10 @@ void	Server::nickCommand(Message& msg, Client& cli){
 		return;
 	}
 	const std::string& nick = params.at(0);
+	std::cout << "nick=" << nick << std::endl; // fot tesing
 	if (isNickInUse(nick, &cli) == true){
 		responseToClient(cli, nickNameinuse(""));
+		Logger::log(Logger::INFO, "NICK is in use");
 	}
 	// checking if nick string contains only valid characters
 	for (auto c : nick){
@@ -532,7 +535,7 @@ void	Server::topic(Message& msg, Client& user){
     if (msg.getTrailingEmpty() == true) {
 		channel_ptr->addNewTopic("");
     	Logger::log(Logger::INFO, "User " + user.getNick() + " cleared topic in channel " + channel_list.at(0));
-    
+
    		std::string message = Topic(user.getNick(), channel_list.at(0), "");
     	channel_ptr->notifyChannelUsers(user, message);
     	responseToClient(user, message);
@@ -583,16 +586,16 @@ void	Server::mode(Message& msg, Client& user){
 	std::vector<std::string> params_list = msg.getParameters();
 	//std::vector<std::string> target_list = msg.getUsers();
 	std::vector<std::string> channel_list = msg.getChannels();
-	
+
 	if (channel_list.empty()) {
 		responseToClient(user, needMoreParams("MODE"));
 		return;
-	} 
+	}
 	if (channel_list.size() > 1){
 		responseToClient(user, tooManyTargets(user.getNick(), channel_list.at(1), 1));
 		return;
 	}
-	
+
 	std::string	channel_name = channel_list.at(0);//params_list.at(0);
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 	if (!channel_ptr) {
@@ -745,7 +748,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 	std::vector<std::string>	passwds = msg.getPasswords();
 	size_t	index = 0;
 
-	// checking if the arguments number is valid 
+	// checking if the arguments number is valid
 	if (channels.size() == 0){
 		responseToClient(cli, needMoreParams("JOIN"));
 		return;
@@ -771,11 +774,13 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			// checking if the channel is full, only if flag user_limit_ is true
 			if (channel->getLimitMode() && channel->isFullChannel() == true){
 				responseToClient(cli, channelIsFull(nick, chan_name));
+				continue;
 			}
 			// If the channel needs a password, but the client doesn't provide it
 			if (channel->getPasswdMode() == true){
 				if (passwds.size() == 0){
 					responseToClient(cli, noChanoPasswd(nick,chan_name));
+					continue;
 				}
 				if (channel->getPassword() != passwds.at(index++)){
 					responseToClient(cli, badChannelKey(nick,chan_name));

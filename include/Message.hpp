@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 12:36:39 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/13 14:34:33 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/15 08:29:05 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class Message{
 
 		// for testing only
 		void	printMsgInfo() const;
+		void	printUserList() const;
 
 	private:
 		using CommandHandler = std::function<bool()>;
