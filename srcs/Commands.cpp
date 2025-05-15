@@ -44,7 +44,7 @@ void	Server::attempRegisterClient(Client& cli){
 	}
 	const std::string& nick = cli.getNick();
 	if (isNickInUse(nick, &cli)){
-		responseToClient(cli, nickNameinuse(nick));
+		responseToClient(cli, nickNameInUse(nick));
 		return;
 	}
 	if (cli.getPassword() != serv_passwd_){
@@ -103,7 +103,7 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	}
 	// 3. nickname inuse checking
 	if (isNickInUse(nick, &cli) == true){
-		responseToClient(cli, nickNameinuse(""));
+		responseToClient(cli, nickNameInUse(""));
 		Logger::log(Logger::ERROR, "nickname is in use");
 		return;
 	}
@@ -786,7 +786,7 @@ void	Server::mode(Message& msg, Client& user){
 			}
 		}
 		else {
-			responseToClient(user, unknownMode(user.getNick(), std::string(1, c)));
+			responseToClient(user, unknownMode(user.getNick(), std::string(1, c), channel_name));
 		}
 	}
 	// Notify all users in the channel about the mode change
