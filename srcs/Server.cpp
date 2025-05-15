@@ -66,6 +66,7 @@ const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
 	PASS,
 	NICK,
 	USER,
+	CAP,
 	QUIT
 };
 
