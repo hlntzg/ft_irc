@@ -141,7 +141,7 @@ bool	Client::receiveRawData(){
  */
 bool	Client::getNextMessage(std::string& buffer){
 	// Find the position of CRLF ("\r\n") in raw_data_
-    size_t crlf_pos = raw_data_.find("\n");
+    size_t crlf_pos = raw_data_.find("\r\n");
 
     if (crlf_pos == std::string::npos) {
         // No complete message yet
