@@ -46,6 +46,7 @@ class Message{
 		std::unordered_map<std::string, CommandHandler> command_handlers_;
 		void				initCommandHandlers();
 		bool				handleGeneric();
+		bool				handleCAP();
 		bool 				handlePASS();
 		bool				handleKICK();
 		bool				handleJOIN();
