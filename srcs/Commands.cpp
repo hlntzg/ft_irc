@@ -902,6 +902,14 @@ void Server::privmsgCommand(Message& msg, Client& cli){
     }
 }
 
+std::string trim(const std::string& str) {
+    size_t start = 0;
+    while (start < str.length() && std::isspace(str[start])) ++start;
+    size_t end = str.length();
+    while (end > start && std::isspace(str[end - 1])) --end;
+    return str.substr(start, end - start);
+}
+
 void Server::capCommand(Message& msg, Client& cli){
 	std::vector<std::string> parameters = msg.getParameters();
 	std::string subcmd = parameters.empty() ? "" : parameters[0];
