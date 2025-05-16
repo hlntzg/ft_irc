@@ -36,6 +36,7 @@ void Message::initCommandHandlers(){
         {"MODE",   [this](){ cmd_type_ = MODE; return handleMODE(); }},
         {"CAP",   [this](){ cmd_type_ = CAP; return handleCAP(); }},
 	{"PING",   [this](){ cmd_type_ = PING; return handlePING(); }},
+	{"WHOIS",   [this](){ cmd_type_ = WHOIS; return handleGeneric(); }},
         {"KICK",   [this](){ cmd_type_ = KICK; return handleKICK(); }}
     };
 }
