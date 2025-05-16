@@ -17,7 +17,7 @@
 #define SERVER "irc.ircserv.com"
 #define SUPPORTUSERMODE "o"
 #define SUPPORTCHANNELMODE "itkol"
-#define CRLF "\r\f" // Carriage Return - Line Feed
+#define CRLF "\r\n" // Carriage Return - Line Feed
 
 // const std::string SERVER = "irc.ircserv.com"; option to replace std::string(SERVER)
 

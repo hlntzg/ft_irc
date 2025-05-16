@@ -641,7 +641,7 @@ void	Server::mode(Message& msg, Client& user){
 	std::vector<std::string> target_list = msg.getUsers();
 	std::vector<std::string> channel_list = msg.getChannels();
 
-	if (!target_list.empty()){
+	if (!target_list.empty() && params_list.at(0) == target_list.at(0)){
 		if (user.getNick() != target_list.at(0)){
 			responseToClient(user, usersDontMatch(user.getNick())); // ERR_USERSDONTMATCH
 			return;
@@ -1021,11 +1021,8 @@ bool Server::isValidModePassword(const std::string& key) {
     }
     for (unsigned char ch : key) {
         // Allow if in the specified ASCII ranges
-        if ((ch >= 0x01 && ch <= 0x05) ||
-            (ch >= 0x07 && ch <= 0x08) ||
-            ch == 0x0C ||
-            (ch >= 0x0E && ch <= 0x1F) ||
-            (ch >= 0x21 && ch <= 0x7F)) {
+        if ((ch >= 0x01 && ch <= 0x05) || (ch >= 0x07 && ch <= 0x08) || ch == 0x0C ||
+            (ch >= 0x0E && ch <= 0x1F) || (ch >= 0x21 && ch <= 0x7F)) {
             continue;
         } else {
             return false;
