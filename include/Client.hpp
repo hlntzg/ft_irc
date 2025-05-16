@@ -29,6 +29,7 @@ class Client{
 		int					getSocketFd() const;
 		const std::string&	getNick() const;
 		const std::string&	getUsername() const;
+		const std::string&	getRealname() const;
 		const std::string&	getHostname() const;
 		const std::string&	getPassword() const;
 		bool				getNextMessage(std::string& buffer);
