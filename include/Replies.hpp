@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 10:19:00 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 11:11:30 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,9 +187,8 @@ inline std::string rplQuit(const std::string& prefix, const std::string& message
 // inline std::string rplResetNick(const std::string& old_nick, const std::string& new_nick) {
 // 	return (":" + std::string(SERVER) + old_nick + " reset nickname to " + new_nick + CRLF);
 // }
-inline std::string rplResetNick(const std::string& oldNick, const std::string& user,
-		const std::string& host, const std::string& newNick){
-	return ":" + oldNick + "!~" + user + "@" + host + " NICK :" + newNick + CRLF;
+inline std::string rplResetNick(const std::string& prefix, const std::string& newNick){
+	return prefix + " NICK :" + newNick + CRLF;
 }
 
 /*...................................Error Replies.................................*/

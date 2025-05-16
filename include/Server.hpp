@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 09:15:17 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 10:52:17 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,7 @@ class Server{
 		void		capCommand(Message& msg, Client& cli);
 		void		pingCommand(Message& msg, Client& cli);
 		void		whoisCommand(Message& msg, Client& cli);
+		void		whoCommand(Message& msg, Client& cli);
 
 		// Commands specific to channel operators:
 		void		kickUser(Message& msg, Client& cli);
