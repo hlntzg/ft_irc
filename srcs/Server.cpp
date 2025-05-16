@@ -387,7 +387,7 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	}
 	// Before the user sends the correct password, he/she can't execute any commands
 	if (cli.getPassword().empty()) {
-		if (cmd_type != PASS && cmd_type != CAP) {
+		if (cmd_type != PASS && cmd_type != CAP && cmd_type != PING) {
 			Logger::log(Logger::INFO, "User hasn't sent correct password yet");
 			responseToClient(cli, passwdMismatch(cli.getNick()));
 			return;
