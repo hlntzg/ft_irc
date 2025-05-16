@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 09:59:32 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 10:38:44 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,7 +317,6 @@ void	Server::removeClient(Client& usr, std::string reason){
 
 	// 1.Remove the user from joined channels
 	for (auto it = channels_.begin(); it != channels_.end(); ){
-		// const std::string&	name = it->first;
 		std::shared_ptr<Channel> channel_ptr = it->second;
 
 		if (channel_ptr->isUserInList(usr, USERTYPE::REGULAR)
