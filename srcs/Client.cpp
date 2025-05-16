@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/15 11:33:47 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 09:58:00 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,10 @@ const std::string&	Client::getUsername() const{
 	return username_;
 }
 
+const std::string&	Client::getHostname() const{
+    return hostname_;
+}
+
 const std::string&	Client::getNick() const{
 	return nick_;
 }
@@ -66,7 +70,7 @@ const std::string&	Client::getUserMode() const{
  *    :alice!alice@hostname PRIVMSG bob :Hello, Bob!
  */
 std::string	Client::getPrefix() const{
-	return (":" + nick_ + "!" + username_ + "@" + hostname_);
+	return (":" + nick_ + "!~" + username_ + "@" + hostname_);
 }
 
 

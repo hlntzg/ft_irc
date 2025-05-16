@@ -132,7 +132,7 @@ void	Server::nickCommand(Message& msg, Client& cli){
 		// notice channels users who are joined the same channel with the user
 		for (const auto& [name, channel_ptr] : channels_){
 			if (channel_ptr->isUserInList(cli, USERTYPE::REGULAR) == true){
-				std::string	message = rplResetNick(old_nick, nick);
+				std::string	message = rplResetNick(old_nick, cli.getUsername(), cli.getHostname(), nick);
 				channel_ptr->notifyChannelUsers(cli, message);
 			}
 		}
@@ -241,7 +241,7 @@ void	Server::partCommand(Message& msg, Client& cli){
 			continue;
 		}
 
-		std::string message = rplPart(cli.getNick(), channel_name, msg.getTrailing());
+		std::string message = rplPart(cli.getPrefix(), channel_name, msg.getTrailing());
 
 		channel_ptr->notifyChannelUsers(cli, message);
 		responseToClient(cli, message);
@@ -627,11 +627,11 @@ void	Server::topic(Message& msg, Client& user){
  *
  * @param msg   The parsed Message object containing the MODE command and parameters.
  * @param user  The client issuing the MODE command.
- */ 
-// MODE #ch +i al 
-//  MODE alic +i 
-//  MODE +i 
-//  MODE #a 
+ */
+// MODE #ch +i al
+//  MODE alic +i
+//  MODE +i
+//  MODE #a
 void	Server::mode(Message& msg, Client& user){
 
 	std::vector<std::string> params_list = msg.getParameters();
@@ -661,7 +661,7 @@ void	Server::mode(Message& msg, Client& user){
 
 	if (channel_list.empty()) {
 		responseToClient(user, needMoreParams("MODE"));
-		return; 
+		return;
 	}
 	if (channel_list.size() > 1){
 		responseToClient(user, tooManyTargets(user.getNick(), channel_list.at(1), 1));
@@ -793,8 +793,11 @@ void	Server::mode(Message& msg, Client& user){
 	if (arg_index > args.size())
 		arg_index = args.size();
 	std::vector<std::string> params(args.begin(), args.begin() + arg_index);
-	std::string message = rplMode(user.getNick(), channel_name, update_modes, params);
-
+	std::string	params_str;
+	for (const std::string& arg : params) {
+		params_str += " " + arg;
+	}
+	std::string message = rplMode(user.getPrefix(), channel_name, update_modes, params_str);
 	channel_ptr->notifyChannelUsers(user, message);
 	responseToClient(user, message);
 }
@@ -822,6 +825,8 @@ void	Server::mode(Message& msg, Client& user){
 
 // OBS to JOIN by Helena: Consider switching from 342 to 353 and 366 for names list
 // consistency (unless you're intentionally simplifying).
+
+// checking if channel reaches the server/user limit logic
 void	Server::joinCommand(Message& msg, Client& cli){
 	const std::string&	nick = cli.getNick();
 	std::vector<std::string>	channels = msg.getChannels();
@@ -839,8 +844,12 @@ void	Server::joinCommand(Message& msg, Client& cli){
 	for (const auto& chan_name : channels){
 		std::shared_ptr<Channel> channel = getChannelByName(chan_name);
 		if (channel == nullptr){
+			if (chan_name.size() > 50 || !isChannelValid(chan_name)){
+				responseToClient(cli, badChannelName(nick, chan_name));
+				continue;
+			}
 			channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
-			responseToClient(cli, rplJoinChannel(cli.getNick(), chan_name));
+			responseToClient(cli, rplJoin(cli.getPrefix(), chan_name));
 			std::cout << "call from joincommand\n";// for testing only
 			printChannels(); // for testing only
 		} else {
@@ -859,7 +868,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			// If the channel needs a password, but the client doesn't provide it
 			if (channel->getPasswdMode() == true){
 				if (passwds.size() == 0){
-					responseToClient(cli, noChanoPasswd(nick,chan_name));
+					responseToClient(cli, badChannelKey(nick,chan_name));
 					continue;
 				}
 				if (channel->getPassword() != passwds.at(index++)){
@@ -873,12 +882,35 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				continue ;
 			}
 			channel->addNewUser(cli);
-			std::string	message = rplJoinChannel(nick, chan_name);
+			std::string	message = rplJoin(cli.getPrefix(), chan_name);
 			channel->notifyChannelUsers(cli, message);
 			responseToClient(cli, message);
 		}
 	}
 }
+
+bool	Server::isChannelValid(const std::string& channel_name){
+	char	first_char = channel_name[0];
+	if (std::string(SUPPORTCHANNELPREFIX).find(first_char) == std::string::npos){ // doesn't find
+		return false;
+	}
+	// if the channel starts with '!', the size of the channel name should be 6;
+	// channelid only contains uppercase letters and digits
+	if (first_char == '!'){
+		if (channel_name.size() != 6
+			|| channel_name.substr(1,5).find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")){
+			return false;
+		}
+	}
+	// channel name can't contain: NUL, BEL, \r, \n, space, comma, and :
+	for (const char& c : channel_name){
+		if (c == 0 || c == 7 || c == 13 || c == 10 || c == 32 || c == 44 || c == 58){
+			return false;
+		}
+	}
+	return true;
+}
+
 
 bool	Server::isExistedChannel(const std::string& channel_name){
 	for (const auto& [name, channelPtr] : channels_){

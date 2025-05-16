@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/15 11:33:35 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 08:34:03 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Client{
 		int					getSocketFd() const;
 		const std::string&	getNick() const;
 		const std::string&	getUsername() const;
+		const std::string&	getHostname() const;
 		const std::string&	getPassword() const;
 		bool				getNextMessage(std::string& buffer);
 		std::string			getPrefix() const;

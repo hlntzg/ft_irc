@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/15 10:03:23 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 09:15:17 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@ class Message;
 #define SPECIAL_CHARS_PASSWD "!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`"
 #define PASSWORD_RULE "Allow contain:\n1.Letters\n2.Digits\n3.Characters in\"!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`\""
 #define TARGET_LIM_IN_ONE_CMD (4)
+#define SUPPORTCHANNELPREFIX "#+!&"
+#define	SERVER_CHANNEL_LIMIT (50)
+#define USER_CHANNEL_LIMIT (20)
 
 enum COMMANDTYPE{
 	PASS,
@@ -132,6 +135,7 @@ class Server{
 		bool		isExistedChannel(const std::string& channel_name);
 		bool		isValidModePassword(const std::string& password);
 		bool 		isPositiveInteger(const std::string& s);
+		bool		isChannelValid(const std::string& channel_name);
 
 		// for testing
 		void	printUsers() const;
