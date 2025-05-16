@@ -990,6 +990,10 @@ void Server::privmsgCommand(Message& msg, Client& cli){
     }
 }
 
+/**
+ * Helper for an old version of the capCommand(), can probably be removed if parsing
+ * handles it for msg_trailing_
+ */
 std::string trim(const std::string& str) {
     size_t start = 0;
     while (start < str.length() && std::isspace(str[start])) ++start;
@@ -998,6 +1002,11 @@ std::string trim(const std::string& str) {
     return str.substr(start, end - start);
 }
 
+/**
+ * @brief starts "Client Capability Communication" between the client and the server.
+ * This is done automatically on startup by irssi, so we only handle the responses irssi
+ * expects to hear in order to set up a successful connection.
+ */
 void Server::capCommand(Message& msg, Client& cli){
 	std::vector<std::string> parameters = msg.getParameters();
 	std::string subcmd = parameters.empty() ? "" : parameters[0];
@@ -1040,6 +1049,10 @@ bool Server::isPositiveInteger(const std::string& s) {
     return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
 }
 
+/**
+ * @brief Used by irssi to make sure the connection to the server still exists.
+ * Responds to PING commmand with a PONG reply
+ */
 void Server::pingCommand(Message& msg, Client& cli){
 	if (msg.getParameters().empty()){
 		responseToClient(cli, noOrigin(cli.getNick()));
@@ -1049,6 +1062,10 @@ void Server::pingCommand(Message& msg, Client& cli){
 	responseToClient(cli, "PONG :" + origin + "\r\n");
 }
 
+/**
+ * @brief Used by irssi when multiple users try to connect with the same information.
+ * Confirms whether the user information is the exact same or not
+ */
 void Server::whoisCommand(Message& msg, Client& cli){
 	std::vector<std::string> params = msg.getParameters();
 	if (params.empty()){
