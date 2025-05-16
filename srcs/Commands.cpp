@@ -1037,7 +1037,7 @@ bool Server::isPositiveInteger(const std::string& s) {
 
 void Server::pingCommand(Message& msg, Client& cli){
 	if (msg.getParameters().empty()){
-		responseToClient(cli, ":" + std::string(SERVER) + " 409 " + cli.getNick() + " :No origin specified\r\n");
+		responseToClient(cli, noOrigin(cli.getNick()));
 		return;
 	}
 	const std::string& origin = msg.getParameters().at(0);
@@ -1047,18 +1047,18 @@ void Server::pingCommand(Message& msg, Client& cli){
 void Server::whoisCommand(Message& msg, Client& cli){
 	std::vector<std::string> params = msg.getParameters();
 	if (params.empty()){
-		responseToClient(cli, ":irc.ircserv.com 431 " + cli.getNick() + " :No nickname given\r\n");
+		responseToClient(cli, nonNickNameGiven(cli.getNick() ));
 		return;
 	}
 	std::string targetNick = params[0];
 	std::shared_ptr<Client> target = getUserByNick(targetNick);
 	if (!target){
-		responseToClient(cli, ":irc.ircserv.com 401 " + cli.getNick() + " " + targetNick + " :No such nick\r\n");
-		responseToClient(cli, ":irc.ircserv.com 318 " + cli.getNick() + " " + targetNick + " :End of WHOIS list\r\n");
+		responseToClient(cli, errNoSuchNick(cli.getNick(), targetNick));
+		responseToClient(cli, rplEndOfWhois(cli.getNick(), targetNick));
 		return;
 	}
-	std::string r311 = ":irc.ircserv.com 311 " + cli.getNick() + " " + target->getNick() + " " + target->getUsername() + " " + target->getHostname() + " * :" + target->getRealname() + "\r\n";
+	std::string r311 = rplWhoisUser(cli.getNick(), target->getNick(), target->getUsername(), target->getHostname(), target->getRealname());
 	responseToClient(cli, r311);
-	std::string r318 = ":irc.ircserv.com 318 " + cli.getNick() + " " + target->getNick() + " :End of WHOIS list\r\n";
+	std::string r318 = rplEndOfWhois(cli.getNick(), targetNick);
 	responseToClient(cli, r318);
 }
