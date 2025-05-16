@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 11:11:30 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 12:56:06 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,17 +40,16 @@ inline std::string noticeToUser(const std::string& nick, const std::string& mess
 /*...................................Commands Replies..............................*/
 
 // 001 RPL_WELCOME
-inline std::string rplWelcome(const std::string& nick){
-	return (":" + std::string(SERVER) + " 001 " + nick + " :Welcome to the IRC Network, " + nick + "\r\n");
-}
-/*// 001 RPL_WELCOME
+// inline std::string rplWelcome(const std::string& nick){
+// 	return (":" + std::string(SERVER) + " 001 " + nick + " :Welcome to the IRC Network, " + nick + "\r\n");
+// }
+// 001 RPL_WELCOME
 // "Welcome to the Internet Relay Network <nick>!<user>@<host>"
 
-inline std::string rplWelcome(const std::string& serverName, const std::string& nick,
-	const std::string& user, const std::string& host){
-	return ":" + SERVER + " 001 " + nick + " :Welcome to the Internet Relay Network "
-				+ nick + "!~" + user + "@" + host + "\r\n";
-}*/
+inline std::string rplWelcome(const std::string& nick, const std::string& prefix){
+	return ":" + std::string(SERVER) + " 001 " + nick + " :Welcome to the Internet Relay Network "
+				+ prefix + "\r\n";
+}
 
 // 002 RPL_YOURHOST
 inline std::string rplYourHost(const std::string& nick){
@@ -168,12 +167,22 @@ inline std::string rplQuit(const std::string& prefix, const std::string& message
 	return prefix + " QUIT :" + message + "\r\n";
 }
 
-// inline std::string rplResetNick(const std::string& old_nick, const std::string& new_nick) {
-// 	return (":" + std::string(SERVER) + old_nick + " reset nickname to " + new_nick + "\r\n");
-// }
 inline std::string rplResetNick(const std::string& prefix, const std::string& newNick){
 	return prefix + " NICK :" + newNick + "\r\n";
 }
+
+/**
+ * @brief send a message to a user or channel users
+ *
+ * @param source: message sender
+ * @param target: message receiveer, can be a user or a channel
+ * @param message: message that sender input
+ */
+inline std::string rplPrivMsg(const std::string& source, const std::string& target,
+const std::string& message){
+	return ":" + source + " PRIVMSG " + target + " :" + message + "\r\n";
+}
+
 
 /*...................................Error Replies.................................*/
 

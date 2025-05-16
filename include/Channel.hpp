@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:41:40 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/13 09:22:34 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 12:46:37 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ class Channel{
         bool        isInvitedUser(Client& user);
 
         // General:
-        void        notifyChannelUsers(Client& target, std::string& msg);
+        void        notifyChannelUsers(Client& target, const std::string& msg);
         bool        isEmptyChannel();
         bool        isFullChannel();
         void        insertUser(std::shared_ptr<Client>user, USERTYPE type);

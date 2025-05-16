@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/15 14:28:47 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 11:45:36 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,17 +243,19 @@ bool Message::getTrailingEmpty() const{
 }
 
 void	Message::printMsgInfo() const{
-    std::cout << "Message Info:\n";
-    std::cout << "  whole_msg=" << whole_msg_ << std::endl;
-    // std::cout << "  msg_trailing=" << msg_trailing_ << std::endl;
-    // std::cout << "  cmd_string_=" << cmd_string_ << std::endl;
-    // std::cout << "  number_of_parameters_=" << std::to_string(number_of_parameters_) << std::endl;
-    // std::cout << "  number_of_user=" << msg_users_.size() << std::endl;
-    // std::cout << "  number_of_channel=" << msg_channels_.size() << std::endl;
-    // std::cout << "  number_of_password=" << passwords_.size() << std::endl;
-    // if (msg_users_.size() > 0){
-    //     printUserList();
-    // }
+    if (this->cmd_type_ != PING){
+        std::cout << "Message Info:\n";
+        std::cout << "  whole_msg=" << whole_msg_ << std::endl;
+        // std::cout << "  msg_trailing=" << msg_trailing_ << std::endl;
+        // std::cout << "  cmd_string_=" << cmd_string_ << std::endl;
+        // std::cout << "  number_of_parameters_=" << std::to_string(number_of_parameters_) << std::endl;
+        // std::cout << "  number_of_user=" << msg_users_.size() << std::endl;
+        // std::cout << "  number_of_channel=" << msg_channels_.size() << std::endl;
+        // std::cout << "  number_of_password=" << passwords_.size() << std::endl;
+        // if (msg_users_.size() > 0){
+        //     printUserList();
+        // }
+    }
 }
 
 void	Message::printUserList() const{

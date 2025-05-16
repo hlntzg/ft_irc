@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/13 09:26:35 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 12:46:15 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,7 +195,7 @@ bool    Channel::isInvitedUser(Client& user){
  * @param target The user to exclude from receiving the message.
  * @param msg The message to send to the other users in the channel.
  */
-void    Channel::notifyChannelUsers(Client& target, std::string& msg){
+void    Channel::notifyChannelUsers(Client& target, const std::string& msg){
     for (auto user : users_){
         if (user == &target) // do not notify target
             continue ;

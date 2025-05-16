@@ -52,7 +52,7 @@ void	Server::attempRegisterClient(Client& cli){
 		return;
 	}
 	cli.setRegistrationStatus(true);
-	responseToClient(cli, rplWelcome(nick));
+	responseToClient(cli, rplWelcome(nick, cli.getPrefix()));
 	responseToClient(cli,rplYourHost(nick));
 	responseToClient(cli,rplCreated(nick));
 	responseToClient(cli,rplMyInfo(nick));
@@ -125,7 +125,6 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	}
 	const std::string&	old_prefix = cli.getPrefix();
 	cli.setNick(nick);
-	// std::cout << "new nick=" << cli.getNick() << std::endl; // for testing
 	if (cli.isRegistered() == false){ // first time registeration
 		attempRegisterClient(cli);
 	} else{ // reset nickname
@@ -945,43 +944,48 @@ void Server::privmsgCommand(Message& msg, Client& cli){
     std::vector<std::string> channels = msg.getChannels();
     std::vector<std::string> users = msg.getUsers();
 	std::vector<std::string> params_list = msg.getParameters();
-
-    std::string message = msg.getTrailing() + "\r\n";
+	const std::string& message = msg.getTrailing();
 
     if (channels.empty() && users.empty()){
-        	responseToClient(cli, needMoreParams("PRIVMSG"));
-        	return;
+		responseToClient(cli, needMoreParams("PRIVMSG"));
+		Logger::log(Logger::ERROR, "No user/channel in the arguments");
+		return;
 	}
-    if (msg.getTrailingEmpty() == true || message == "\r\n"){
+    if (msg.getTrailingEmpty() == true /*|| message == "\r\n"*/){
 		responseToClient(cli, "No text to send\r\n");
+		Logger::log(Logger::ERROR, "there is no message to be sent");
 		return;
 	}
     //if (channels.size() + users.size() > TARGET_LIM_IN_ONE_CMD){
 	if (params_list.size() > TARGET_LIM_IN_ONE_CMD) {
 		responseToClient(cli, tooManyTargets(cli.getNick(), params_list.at(TARGET_LIM_IN_ONE_CMD), TARGET_LIM_IN_ONE_CMD));
+		Logger::log(Logger::ERROR, "too many target");
 		return;
 	}
     for (const auto& channel_name : channels){
         std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
         if (!channel_ptr) {
             responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name));
+			Logger::log(Logger::ERROR, "No such channel");
             continue;
         }
         if (!channel_ptr->isChannelUser(cli)){
             responseToClient(cli, notOnChannel(cli.getNick(), channel_name));
+			Logger::log(Logger::ERROR, "User isn't on the channel");
             continue;
         }
-		std::string full_message = cli.getPrefix() + " PRIVMSG #" + channel_name + " :" + message;
-        channel_ptr->notifyChannelUsers(cli, full_message);
+		channel_ptr->notifyChannelUsers(cli, rplPrivMsg(cli.getNick(), channel_name, message));
+		Logger::log(Logger::INFO, "send message to channel users");
     }
     for (const auto& target_nick : users){
         std::shared_ptr<Client> target_client = getUserByNick(target_nick);
         if (!target_client){
             responseToClient(cli, errNoSuchNick(cli.getNick(), target_nick));
+			Logger::log(Logger::ERROR, "no such nick");
             continue;
         }
-		std::string full_message = cli.getPrefix() + " PRIVMSG :" + message;
-        responseToClient(*target_client, full_message);
+		responseToClient(*target_client, rplPrivMsg(cli.getNick(), target_client->getNick(), message));
+		Logger::log(Logger::INFO, "send message to a user");
     }
 }
 
