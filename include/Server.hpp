@@ -111,6 +111,7 @@ class Server{
 		void		executeCommand(Message& msg, Client& cli);
 		void		cleanServer();
 
+		std::string 				getChannelsOfUser(Client& client);
 		std::shared_ptr<Channel>		getChannelByName(const std::string& channel_name) const;
 		std::shared_ptr<Client>			getUserByNick(const std::string& user_nick) const;
 		// Client* getClientByNick(const std::string& nick) const;
