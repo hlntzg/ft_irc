@@ -295,7 +295,7 @@ const std::string& channel){
 	if (target != "")
 		return (":" + std::string(SERVER) + " 443 " + nick  + " " + target + " " + channel
 		     + " :is already on channel\r\n");
-	return (std::string(SERVER) + " 443 " + nick  + " " + channel
+	return (":" + std::string(SERVER) + " 443 " + nick  + " " + channel
 		     + " :is already on channel\r\n");
 }
 
