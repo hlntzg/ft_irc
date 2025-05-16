@@ -53,6 +53,7 @@ enum COMMANDTYPE{
 	QUIT,
 	CAP,
 	PING,
+	WHOIS,
 	INVALID
 };
 
@@ -121,6 +122,7 @@ class Server{
 		void		quitCommand(Message& msg, Client& cli);
 		void		capCommand(Message& msg, Client& cli);
 		void		pingCommand(Message& msg, Client& cli);
+		void		whoisCommand(Message& msg, Client& cli);
 
 		// Commands specific to channel operators:
 		void		kickUser(Message& msg, Client& cli);

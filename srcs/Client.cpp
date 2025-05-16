@@ -44,6 +44,10 @@ const std::string&	Client::getUsername() const{
 	return username_;
 }
 
+const std::string&	Client::getRealname() const{
+	return realname_;
+}
+
 const std::string&	Client::getHostname() const{
     return hostname_;
 }

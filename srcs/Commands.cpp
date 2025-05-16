@@ -1030,3 +1030,22 @@ void Server::pingCommand(Message& msg, Client& cli){
 	const std::string& origin = msg.getParameters().at(0);
 	responseToClient(cli, "PONG :" + origin + "\r\n");
 }
+
+void Server::whoisCommand(Message& msg, Client& cli){
+	std::vector<std::string> params = msg.getParameters();
+	if (params.empty()){
+		responseToClient(cli, ":irc.ircserv.com 431 " + cli.getNick() + " :No nickname given\r\n");
+		return;
+	}
+	std::string targetNick = params[0];
+	std::shared_ptr<Client> target = getUserByNick(targetNick);
+	if (!target){
+		responseToClient(cli, ":irc.ircserv.com 401 " + cli.getNick() + " " + targetNick + " :No such nick\r\n");
+		responseToClient(cli, ":irc.ircserv.com 318 " + cli.getNick() + " " + targetNick + " :End of WHOIS list\r\n");
+		return;
+	}
+	std::string r311 = ":irc.ircserv.com 311 " + cli.getNick() + " " + target->getNick() + " " + target->getUsername() + " " + target->getHostname() + " * :" + target->getRealname() + "\r\n";
+	responseToClient(cli, r311);
+	std::string r318 = ":irc.ircserv.com 318 " + cli.getNick() + " " + target->getNick() + " :End of WHOIS list\r\n";
+	responseToClient(cli, r318);
+}
