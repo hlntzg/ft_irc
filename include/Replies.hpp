@@ -49,7 +49,7 @@ inline std::string noticeToUser(const std::string& nick, const std::string& mess
 
 inline std::string rplWelcome(const std::string& nick, const std::string& prefix){
 	return ":" + std::string(SERVER) + " 001 " + nick + " :Welcome to the Internet Relay Network "
-				+ prefix + "\r\n";
+				+ prefix + CRLF;
 }
 
 // 002 RPL_YOURHOST
@@ -199,7 +199,7 @@ inline std::string rplResetNick(const std::string& prefix, const std::string& ne
  */
 inline std::string rplPrivMsg(const std::string& source, const std::string& target,
 const std::string& message){
-	return ":" + source + " PRIVMSG " + target + " :" + message + "\r\n";
+	return ":" + source + " PRIVMSG " + target + " :" + message + CRLF;
 }
 
 
@@ -246,8 +246,8 @@ inline std::string tooManyChannels(const std::string& nick, const std::string& c
  * @brief Sent when a command is given with too many targets (e.g., multiple channels or users),
  *        but only one is allowed (like in MODE or PRIVMSG).
  */
-inline std::string tooManyTargets(const std::string& nick, const std::string& message) {
-	return (":" + std::string(SERVER) + " 407 " + nick + " :" + message + CRLF);
+inline std::string tooManyTargets(const std::string& nick) {
+	return (":" + std::string(SERVER) + " 407 " + nick + " :Too many targets" + CRLF);
 }
 
 // inline std::string tooManyTargets(const std::string& nick, const std::string& target, int max) {
@@ -422,7 +422,7 @@ inline std::string ChanoPrivsNeeded(const std::string& nick, const std::string& 
 
 // 501 ERR_UMODEUNKNOWNFLAG
 inline std::string umodeUnknownFlag(const std::string& nick) {
-    return (":" + std::string(SERVER) + " 501 " + nick + " :Unknown MODE flag\r\n");
+    return (":" + std::string(SERVER) + " 501 " + nick + " :Unknown MODE flag" + CRLF);
 }
 
 // 502 ERR_USERSDONTMATCH
