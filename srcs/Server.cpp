@@ -68,6 +68,7 @@ const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
 	USER,
 	CAP,
 	PING,
+	WHOIS,
 	QUIT
 };
 
@@ -97,6 +98,7 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{MODE, &Server::mode},
 	{CAP, &Server::capCommand},
 	{PING, &Server::pingCommand},
+	{WHOIS, &Server::whoisCommand},
 	{QUIT, &Server::quitCommand}
 };
 
@@ -387,7 +389,7 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	}
 	// Before the user sends the correct password, he/she can't execute any commands
 	if (cli.getPassword().empty()) {
-		if (cmd_type != PASS && cmd_type != CAP && cmd_type != PING) {
+		if (cmd_type != PASS && cmd_type != CAP && cmd_type != PING && cmd_type != WHOIS) {
 			Logger::log(Logger::INFO, "User hasn't sent correct password yet");
 			responseToClient(cli, passwdMismatch(cli.getNick()));
 			return;
