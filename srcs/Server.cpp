@@ -446,6 +446,22 @@ int	Server::responseToClient(Client& cli, const std::string& response){
 }
 
 /**
+ * @brief Get a string of channels the user belongs to. Used to reply to irssi in
+ * this format.
+ */
+std::string Server::getChannelsOfUser(Client& client){
+	std::string result;
+	for (const auto& [channelName, channelPtr] : channels_){
+		if (channelPtr && channelPtr->isChannelUser(client)){
+			if (!result.empty())
+				result += " ";
+			result += channelName;
+		}
+	}
+	return result;
+}
+
+/**
  * @brief Finds a client by their nickname.
  *
  * @param nick: The nickname of the client to search for.
