@@ -844,6 +844,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 		responseToClient(cli, tooManyTargets(nick, channels.at(TARGET_LIM_IN_ONE_CMD), TARGET_LIM_IN_ONE_CMD));
 		return;
 	}
+	size_t passwds_index = 0;
 	for (const auto& chan_name : channels){
 		std::shared_ptr<Channel> channel = getChannelByName(chan_name);
 		if (channel == nullptr){
@@ -851,7 +852,19 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				responseToClient(cli, badChannelName(nick, chan_name));
 				continue;
 			}
-			channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
+			//channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
+			// Create the new channel and add the user as operator
+			channel = std::make_shared<Channel>(chan_name, cli);
+			channels_[chan_name] = channel;
+			if (passwds_index < passwds.size()){
+				const std::string& passwd = passwds[passwds_index++];
+				if (!isValidModePassword(passwd)){
+					responseToClient(cli, InvalidModeParamErr(nick, chan_name, 'k', passwd, "Invalid channel key"));
+					continue ;
+				}
+				channel->addNewPassword(passwd);
+				channel->setPassword();
+			}
 			responseToClient(cli, rplJoin(cli.getPrefix(), chan_name));
 			std::cout << "call from joincommand\n";// for testing only
 			printChannels(); // for testing only
