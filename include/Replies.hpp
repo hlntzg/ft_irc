@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 13:00:11 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 13:21:37 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,11 +246,14 @@ inline std::string tooManyChannels(const std::string& nick, const std::string& c
  * @brief Sent when a command is given with too many targets (e.g., multiple channels or users),
  *        but only one is allowed (like in MODE or PRIVMSG).
  */
-inline std::string tooManyTargets(const std::string& nick, const std::string& target, int max) {
-	return (":" + std::string(SERVER) + " 407 " + nick + " " + target
-			+ " :Too many targets. Only " + std::to_string(max) + " is allowed." + CRLF);
+inline std::string tooManyTargets(const std::string& nick, const std::string& message) {
+	return (":" + std::string(SERVER) + " 407 " + nick + " :" + message + CRLF);
 }
 
+// inline std::string tooManyTargets(const std::string& nick, const std::string& target, int max) {
+// 	return (":" + std::string(SERVER) + " 407 " + nick + " " + target
+// 			+ " :Too many targets. Only " + std::to_string(max) + " is allowed." + CRLF);
+// }
 
 // 409 ERR_NOORIGIN
 inline std::string noOrigin(const std::string& nick){
