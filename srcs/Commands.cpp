@@ -228,7 +228,7 @@ void	Server::partCommand(Message& msg, Client& cli){
 		responseToClient(cli, needMoreParams("PART"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(cli, tooManyTargets(cli.getNick(), "too many channels, max 4 channels"));
+		responseToClient(cli, tooManyTargets(cli.getNick()));
 		return;
 	}
 
@@ -300,7 +300,7 @@ void	Server::kickUser(Message& msg, Client& user){
 		responseToClient(user, needMoreParams("KICK"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(user, tooManyTargets(user.getNick(), "too many channels, max 4 channels"));
+		responseToClient(user, tooManyTargets(user.getNick()));
 		return;
 	}
 
@@ -456,7 +456,7 @@ void    Server::inviteUser(Message& msg, Client& user){
 		responseToClient(user, needMoreParams("INVITE"));
 		return;
 	} else if (channel_list.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(user, tooManyTargets(user.getNick(), "too many channels, max 4 channels"));
+		responseToClient(user, tooManyTargets(user.getNick()));
 		return;
 	}
 
@@ -666,7 +666,7 @@ void	Server::mode(Message& msg, Client& user){
 		return;
 	}
 	if (channel_list.size() > 1){
-		responseToClient(user, tooManyTargets(user.getNick(), "too many channels, max 4 channels"));
+		responseToClient(user, tooManyTargets(user.getNick()));
 		return;
 	}
 
@@ -840,8 +840,8 @@ void	Server::joinCommand(Message& msg, Client& cli){
 		responseToClient(cli, needMoreParams("JOIN"));
 		return;
 	} if (channels.size() > TARGET_LIM_IN_ONE_CMD){
-		responseToClient(cli, tooManyTargets(nick, "too many channels, max 4 channels"));
-		Logger::log(Logger::ERROR, "too many channels");
+		responseToClient(cli, tooManyTargets(nick));
+		Logger::log(Logger::ERROR, "too many target");
 		return;
 	}
 	size_t passwds_index = 0;
@@ -979,7 +979,7 @@ void Server::privmsgCommand(Message& msg, Client& cli){
 	}
     //if (channels.size() + users.size() > TARGET_LIM_IN_ONE_CMD){
 	if (params_list.size() > TARGET_LIM_IN_ONE_CMD) {
-		responseToClient(cli, tooManyTargets(cli.getNick(), "too many targets, max 4 targets"));
+		responseToClient(cli, tooManyTargets(cli.getNick()));
 		Logger::log(Logger::ERROR, "too many target");
 		return;
 	}
