@@ -96,6 +96,7 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{TOPIC, &Server::topic},
 	{MODE, &Server::mode},
 	{CAP, &Server::capCommand},
+	{PING, &Server::pingCommand},
 	{QUIT, &Server::quitCommand}
 };
 
@@ -384,13 +385,9 @@ void	Server::executeCommand(Message& msg, Client& cli){
 		responseToClient(cli, unknowCommand(cli.getNick(), cmd_str_type));
 		return;
 	}
-	if (cmd_type == PING){
-		pingCommand(msg, cli);
-		return;
-	}
 	// Before the user sends the correct password, he/she can't execute any commands
 	if (cli.getPassword().empty()) {
-		if (cmd_type != PASS && cmd_type != CAP) {
+		if (cmd_type != PASS && cmd_type != CAP && cmd_type != PING) {
 			Logger::log(Logger::INFO, "User hasn't sent correct password yet");
 			responseToClient(cli, passwdMismatch(cli.getNick()));
 			return;

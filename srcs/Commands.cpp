@@ -1022,7 +1022,7 @@ bool Server::isPositiveInteger(const std::string& s) {
     return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
 }
 
-void Server::pingCommand(const Message& msg, Client& cli){
+void Server::pingCommand(Message& msg, Client& cli){
 	if (msg.getParameters().empty()){
 		responseToClient(cli, ":" + std::string(SERVER) + " 409 " + cli.getNick() + " :No origin specified\r\n");
 		return;

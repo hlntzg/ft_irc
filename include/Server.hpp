@@ -120,7 +120,7 @@ class Server{
 		void		partCommand(Message& msg, Client& cli);
 		void		quitCommand(Message& msg, Client& cli);
 		void		capCommand(Message& msg, Client& cli);
-		void		pingCommand(const Message& msg, Client& cli);
+		void		pingCommand(Message& msg, Client& cli);
 
 		// Commands specific to channel operators:
 		void		kickUser(Message& msg, Client& cli);
