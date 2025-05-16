@@ -6,16 +6,16 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 09:58:00 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 14:19:52 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : socket_fd_(0), isRegistered_(0){}
+Client::Client() : socket_fd_(0), isRegistered_(0), n_usr_channel_(0){}
 
 Client::Client(int fd, std::string host) : socket_fd_(fd), hostname_(host),
-isRegistered_(0){
+isRegistered_(0), n_usr_channel_(0){
 }
 
 Client&	Client::operator=(const Client& other){
@@ -29,6 +29,7 @@ Client&	Client::operator=(const Client& other){
         password_ = other.password_;
         raw_data_ = other.raw_data_;
         isRegistered_ = other.isRegistered_;
+        n_usr_channel_ = other.n_usr_channel_;
 	}
 	return *this;
 }
@@ -64,6 +65,9 @@ const std::string&	Client::getUserMode() const{
     return user_mode_;
 }
 
+int	Client::getUserNChannel() const{
+    return n_usr_channel_;
+}
 
 /**
  * @brief Used when the server responding to a command issued by client.
@@ -109,6 +113,11 @@ void	Client::setRegistrationStatus(bool	status){
 void	Client::setUserMode(const std::string& mode){
     user_mode_ = mode;
 }
+
+void	Client::increaseUserNchannel(){
+    n_usr_channel_++;
+}
+
 
 /**
  * @brief Receive the raw data from socket, filling/saving into receive buffer.

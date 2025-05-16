@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 08:34:03 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 14:18:44 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class Client{
 		bool				getNextMessage(std::string& buffer);
 		std::string			getPrefix() const;
 		const std::string&	getUserMode() const;
+		int					getUserNChannel() const;
 
 		// setters
 		void	setNick(const std::string& nick);
@@ -45,6 +46,7 @@ class Client{
 		void	setPassword(const std::string& passwd);
 		void	setRegistrationStatus(bool	status);
 		void	setUserMode(const std::string& mode);
+		void	increaseUserNchannel();
 
 		bool	receiveRawData();
 		bool	isRegistered();
@@ -63,7 +65,8 @@ class Client{
 		std::string password_;
 		std::string	raw_data_;
 		std::string	user_mode_;
-		bool	isRegistered_;
+		bool		isRegistered_;
+		int			n_usr_channel_;
 
 		Client(const Client&) = delete;
 };

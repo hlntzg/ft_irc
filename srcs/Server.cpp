@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 10:38:44 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 14:42:44 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ Server::Server(std::string port, std::string password){
 	if (epoll_fd_ == -1){
 		throw std::runtime_error("Error: epoll_create1 failed");
 	}
+	n_channel_ = 0;
+	n_user_ = 0;
 }
 
 Server*	Server::server_ = nullptr;
@@ -224,6 +226,11 @@ void	Server::startServer(){
 			}
 		}
 	}
+	cleanServer();
+	return;
+}
+
+void	Server::cleanServer(){
 	Logger::log(Logger::INFO, "Shutting down Server");
 	for (auto const& [fd, cli] : clients_) {
 		epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
@@ -232,7 +239,6 @@ void	Server::startServer(){
 	clients_.clear();
 	close(epoll_fd_);
 	close(serv_fd_);
-	return;
 }
 
 /**
@@ -241,6 +247,11 @@ void	Server::startServer(){
 void	Server::acceptNewClient(){
 	// Process all pending connections at once before processing other events
 	while (true) {
+		// checking if the server has reached its user maximum
+		if (n_user_ >= SERVER_USER_LIMIT){
+			Logger::log(Logger::ERROR, "Server has reached its user maximum");
+			return;
+		}
         sockaddr_in client_addr;
         socklen_t  clientLen = sizeof(client_addr);
         int client_fd = accept(serv_fd_,
@@ -269,12 +280,14 @@ void	Server::acceptNewClient(){
         ev.data.fd = client_fd;
         if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, client_fd, &ev) == -1) {
             close(client_fd);
+			cleanServer();
             throw std::runtime_error("epoll_ctl ADD client failed");
         }
 		// Because the Client(client_fd) will return client&, but in Clients_
 		// the key value is std::shared_ptr type. So need use "std::make_shared"
 		// to match the return value
         clients_[client_fd] = std::make_shared<Client>(client_fd, host);
+		n_user_++;
         Logger::log(Logger::INFO, "New client " + std::to_string(client_fd));
     }
 }

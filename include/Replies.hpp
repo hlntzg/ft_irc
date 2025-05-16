@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 13:21:37 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 14:08:12 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,6 +204,18 @@ const std::string& message){
 
 
 /*...................................Error Replies.................................*/
+
+// 400 ERR_UNKNOWNERROR
+/**
+ * @brief Using for the errors haven't defined in IRC doucuments
+ *
+ * @param nick: the nickname of the user you're sending the error to
+ * @param cmd:  the command that triggered the error (e.g., JOIN, MODE)
+ * @param err_msg: a human-readable error message
+ */
+inline std::string unknowError(const std::string& nick, const std::string& cmd, const std::string& err_msg){
+	return (":" + std::string(SERVER) + " 400 " + nick + " " + cmd + " :" + err_msg + CRLF);
+}
 
 // 401 ERR_NOSUCHNICK
 /**

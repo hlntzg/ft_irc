@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 11:44:30 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/16 14:48:47 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,9 @@ class Message;
 #define PASSWORD_RULE "Allow contain:\n1.Letters\n2.Digits\n3.Characters in\"!@#$%^&*()-_=+[]{}|;:'\",.<>?/\\~`\""
 #define TARGET_LIM_IN_ONE_CMD (4)
 #define SUPPORTCHANNELPREFIX "#+!&"
-#define	SERVER_CHANNEL_LIMIT (50)
-#define USER_CHANNEL_LIMIT (20)
+#define	SERVER_CHANNEL_LIMIT (3)
+#define USER_CHANNEL_LIMIT (2)
+#define SERVER_USER_LIMIT (3)
 
 enum COMMANDTYPE{
 	PASS,
@@ -57,7 +58,6 @@ enum COMMANDTYPE{
 	INVALID
 };
 
-
 class Server{
 	public:
 		Server(std::string port, std::string password);
@@ -73,6 +73,8 @@ class Server{
 		int					serv_fd_;
 		int					epoll_fd_;
 		struct sockaddr_in	serv_addr_;
+		int					n_channel_;
+		int					n_user_;
 
 		static constexpr int			MAX_EVENTS = 1024;
 		static volatile sig_atomic_t	keep_running_; // internal flag
@@ -107,6 +109,7 @@ class Server{
 		void		removeClient(Client& usr, std::string reason);
 		void		removeChannel(const std::string& channel_name);
 		void		executeCommand(Message& msg, Client& cli);
+		void		cleanServer();
 
 		std::shared_ptr<Channel>		getChannelByName(const std::string& channel_name) const;
 		std::shared_ptr<Client>			getUserByNick(const std::string& user_nick) const;
@@ -123,7 +126,6 @@ class Server{
 		void		capCommand(Message& msg, Client& cli);
 		void		pingCommand(Message& msg, Client& cli);
 		void		whoisCommand(Message& msg, Client& cli);
-
 		// Commands specific to channel operators:
 		void		kickUser(Message& msg, Client& cli);
 		void		inviteUser(Message& msg, Client& cli);
@@ -140,8 +142,8 @@ class Server{
 		bool		isChannelValid(const std::string& channel_name);
 
 		// for testing
-		void	printUsers() const;
-		void	printChannels() const;
+		void		printUsers() const;
+		void		printChannels() const;
 };
 
 #include "Logger.hpp"

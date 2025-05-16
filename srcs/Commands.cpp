@@ -841,21 +841,38 @@ void	Server::joinCommand(Message& msg, Client& cli){
 		return;
 	} if (channels.size() > TARGET_LIM_IN_ONE_CMD){
 		responseToClient(cli, tooManyTargets(nick, "too many channels, max 4 channels"));
-		Logger::log(Logger::ERROR, "too many target");
+		Logger::log(Logger::ERROR, "too many channels");
 		return;
 	}
 	size_t passwds_index = 0;
 	for (const auto& chan_name : channels){
 		std::shared_ptr<Channel> channel = getChannelByName(chan_name);
 		if (channel == nullptr){
+			// Checking if server has reached its maximum channel
+			if (n_channel_ >= SERVER_CHANNEL_LIMIT){
+				responseToClient(cli, unknowError(nick, "JOIN", "Cannot create new channel — server has reached its maximum"));
+				Logger::log(Logger::WARNING, "the server has reached its maximum number of allowed channels");
+				continue;
+			}
+			// checking if the channel name is valid
 			if (chan_name.size() > 50 || !isChannelValid(chan_name)){
 				responseToClient(cli, badChannelName(nick, chan_name));
+				Logger::log(Logger::ERROR, "Channel name is invalid");
 				continue;
+			}
+			// checking if the ammout of channels that user joined has reached its maximum
+			if (cli.getUserNChannel() >= USER_CHANNEL_LIMIT){
+				responseToClient(cli, unknowError(nick, "JOIN", "The user has reached its maximum channel"));
+				Logger::log(Logger::WARNING, "the user has reached its maximum number of allowed channels");
+				return;
 			}
 			//channels_[chan_name] = std::make_shared<Channel>(chan_name, cli);
 			// Create the new channel and add the user as operator
 			channel = std::make_shared<Channel>(chan_name, cli);
 			channels_[chan_name] = channel;
+			n_channel_++;
+			std::cout << "n_channel=" << n_channel_ << std::endl; // for testing
+			cli.increaseUserNchannel();
 			if (passwds_index < passwds.size()){
 				const std::string& passwd = passwds[passwds_index++];
 				if (!isValidModePassword(passwd)){
@@ -866,8 +883,10 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				channel->setPassword();
 			}
 			responseToClient(cli, rplJoin(cli.getPrefix(), chan_name));
-			std::cout << "call from joincommand\n";// for testing only
-			printChannels(); // for testing only
+			std::string	message = chan_name + " has been created. Now server has " + std::to_string(n_channel_) + " channels";
+			Logger::log(Logger::INFO, message);
+			// std::cout << "call from joincommand\n";// for testing only
+			// printChannels(); // for testing only
 		} else {
 			// checking if the user is in the channel already. If yes, then return without
 			// doing anything
@@ -898,6 +917,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				continue ;
 			}
 			channel->addNewUser(cli);
+			cli.increaseUserNchannel(); // increase the channel number that the user joined
 			std::string	message = rplJoin(cli.getPrefix(), chan_name);
 			channel->notifyChannelUsers(cli, message);
 			responseToClient(cli, message);
