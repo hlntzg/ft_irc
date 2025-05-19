@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/19 09:23:07 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 09:57:59 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,6 +211,7 @@ void	Server::startServer(){
 			}
 			// 2) check for error or hang-up
 			else if (evs & (EPOLLERR | EPOLLHUP)){
+				std::cout << "Noticed client is disoneccted\n"; // for testing
 				removeClient(*(clients_.find(fd)->second), "disconnected");
 				continue;
 			}
@@ -351,11 +352,17 @@ void	Server::removeClient(Client& usr, std::string reason){
 			// After remove the user, if the channel become an empty channel, then
 			// remove it from channels map
 			if (channel_ptr->isEmptyChannel()){
+				std::cout << "Before:\n"; // for testing
+				printChannels(); // for testing
 				it = channels_.erase(it); // erase returns the next valid iterator
+				Logger::log(Logger::INFO, "Channel is empty, remove it");
+				std::cout << "After:\n"; // for testing
+				printChannels(); // for testing only
 				continue;
 			} else { // if the channel is not empty, then send QUIT information to all other users
 				std::string message = rplQuit(usr.getPrefix(), reason);
 				channel_ptr->notifyChannelUsers(usr, message);
+				Logger::log(Logger::INFO, "Notify channel users that one member left");
 			}
 		}
 		++it;

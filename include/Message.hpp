@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 12:36:39 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/15 08:29:05 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 10:09:36 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ class Message{
 		Message(std::string& message);
 		~Message();
 
-		bool				parseMessage();
+		bool					parseMessage();
 		const std::string& 		getWholeMessage() const;
-		int 				getNumberOfParameters() const;
+		int 					getNumberOfParameters() const;
 		const std::string&		getTrailing() const;
 		const std::vector<std::string>&	getParameters() const;
 		const std::vector<std::string>&	getUsers() const;
@@ -54,7 +54,7 @@ class Message{
 		bool				handlePING();
 		bool 				validateParameters(const std::string& command);
 		std::string			whole_msg_;
-		int				number_of_parameters_;
+		int					number_of_parameters_;
 		std::string			msg_trailing_;//everything found after :
 		std::vector<std::string>	parameters_;//All the parameters, except commandtype or trailing message
 		std::vector<std::string>	msg_users_;//parameters that should be users in the message
@@ -62,7 +62,7 @@ class Message{
 		COMMANDTYPE			cmd_type_;//type of the command as defined in the server.hpp
 		std::string			cmd_string_;//string version of the given command
 		std::vector<std::string>	passwords_;//passwords for the JOIN command if it exists
-		bool			msg_trailing_empty_;//set to true only if the msg_trailing_ was ":"
+		bool				msg_trailing_empty_;//set to true only if the msg_trailing_ was ":"
 };
 
 #include "Client.hpp"

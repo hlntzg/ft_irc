@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:55:41 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 14:18:44 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 10:18:56 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <string>
 #include <iostream>
 #include <sys/socket.h> // for recv()
+#include <cstring> // for std::memset
 
 #define BUFFER_SIZE (5000)
 

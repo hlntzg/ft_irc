@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 14:19:52 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 10:17:15 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,10 +131,12 @@ bool	Client::receiveRawData(){
 	char buffer[BUFFER_SIZE + 1];
     ssize_t bytes_read;
 
+    std::memset(buffer, 0, sizeof(buffer));
     while (true) {
         bytes_read = recv(socket_fd_, buffer, BUFFER_SIZE, 0);
 
         if (bytes_read > 0) {
+            std::cout << "Received data:" << buffer << std::endl;
             raw_data_.append(buffer, bytes_read);
         } else if (bytes_read == 0) {
             // Connection closed
