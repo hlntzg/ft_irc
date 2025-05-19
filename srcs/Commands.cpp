@@ -1154,3 +1154,38 @@ void Server::whoisCommand(Message& msg, Client& cli){
 	responseToClient(cli, r318);
 }
 
+inline std::string rplWhoReply(const std::string& requester, const std::string& channel,
+	const std::string& user, const std::string& host, const std::string& nick,
+	const std::string& status, const std::string& hopcount,
+	const std::string& realname){
+	return ":" + std::string(SERVER) + " 352 " + requester + " " + channel + " " +
+		user + " " + host + " " + std::string(SERVER) + " " + nick + " " + status + " :" +
+		hopcount + " " + realname + CRLF;
+}
+
+inline std::string rplEndOfWho(const std::string& requester, const std::string& target) {
+	return ":" + std::string(SERVER) + " 315 " + requester + " " + target +
+		" :End of /WHO list.\r\n";
+}
+
+void Server::whoCommand(Message& msg, Client& cli){
+    std::vector<std::string> params = msg.getParameters();
+    if (params.empty()){
+        responseToClient(cli, needMoreParams("WHO"));
+        return;
+    }
+    std::string target = params[0];
+    std::shared_ptr<Channel> channel = getChannelByName(target);
+    if (!channel){
+        responseToClient(cli, errNoSuchChannel(cli.getNick(), target));
+        return;
+    }
+    const std::unordered_set<Client*>& users = channel->getChannelUsers();
+    for (const auto& user : users){
+        std::string status = "H";
+        if (channel->isChannelOperator(*user)) status += "@";
+        std::string reply = rplWhoReply(cli.getNick(), channel->getName(), user->getUsername(), user->getHostname(), user->getNick(), status, "0", user->getRealname());
+        responseToClient(cli, reply);
+    }
+    responseToClient(cli, rplEndOfWho(cli.getNick(), target));
+}
