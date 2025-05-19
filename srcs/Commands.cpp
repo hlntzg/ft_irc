@@ -901,25 +901,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			std::string	message = chan_name + " has been created. Now server has " + std::to_string(n_channel_) + " channels";
 			Logger::log(Logger::INFO, message);
 
-			// if the channel topic is set, send TOPIC to the joiner
-			if (channel->getTopic().empty() == false){
-				responseToClient(cli, Topic(nick, chan_name, channel->getTopic()));
-			}
 
-			//Handle sending 353 353 RPL_NAMREPLY and 366 RPL_ENDOFNAMES
-			// Add "@" prefix to operator names
-			std::string	names;
-			for (const auto& usr_prt : channel->getChannelUsers()){
-				if (channel->isChannelOperator(*usr_prt) == true){
-					names += '@';
-				}
-				names += usr_prt->getNick() + " ";
-			}
-			if (names.empty() == false){
-				names.pop_back();
-			}
-			responseToClient(cli, rplNamReply(nick, chan_name, names));
-			responseToClient(cli, rplEndOfNames(nick, chan_name));
 
 			// std::cout << "call from joincommand\n";// for testing only
 			// printChannels(); // for testing only
@@ -958,6 +940,25 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			channel->notifyChannelUsers(cli, message);
 			responseToClient(cli, message);
 		}
+		// if the channel topic is set, send TOPIC to the joiner
+		if (channel->getTopic().empty() == false){
+			responseToClient(cli, Topic(nick, chan_name, channel->getTopic()));
+		}
+
+		//Handle sending 353 353 RPL_NAMREPLY and 366 RPL_ENDOFNAMES
+		// Add "@" prefix to operator names
+		std::string	names;
+		for (const auto& usr_prt : channel->getChannelUsers()){
+			if (channel->isChannelOperator(*usr_prt) == true){
+				names += '@';
+			}
+			names += usr_prt->getNick() + " ";
+		}
+		if (names.empty() == false){
+			names.pop_back();
+		}
+		responseToClient(cli, rplNamReply(nick, chan_name, names));
+		responseToClient(cli, rplEndOfNames(nick, chan_name));
 	}
 }
 
