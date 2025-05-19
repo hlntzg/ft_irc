@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 14:42:44 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 09:23:07 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,11 +247,6 @@ void	Server::cleanServer(){
 void	Server::acceptNewClient(){
 	// Process all pending connections at once before processing other events
 	while (true) {
-		// checking if the server has reached its user maximum
-		if (n_user_ >= SERVER_USER_LIMIT){
-			Logger::log(Logger::ERROR, "Server has reached its user maximum");
-			return;
-		}
         sockaddr_in client_addr;
         socklen_t  clientLen = sizeof(client_addr);
         int client_fd = accept(serv_fd_,
@@ -283,6 +278,22 @@ void	Server::acceptNewClient(){
 			cleanServer();
             throw std::runtime_error("epoll_ctl ADD client failed");
         }
+		// checking if the server has reached its user maximum
+		if (n_user_ >= SERVER_USER_LIMIT){
+			std::string response = "Server has reached its user maximum";
+			// send the error response to the fd
+			int	n_bytes = send(client_fd, response.c_str(), response.length(), MSG_DONTWAIT);
+			if (n_bytes < 0){
+				Logger::log(Logger::WARNING, "Failed to send data to user " + std::to_string(client_fd) +
+				": " + response);
+			} else {
+				Logger::log(Logger::DEBUG, "Sent successfully "+ std::to_string(client_fd) + ": " + response);
+			}
+			Logger::log(Logger::ERROR, "Server has reached its user maximum");
+			close(client_fd);
+			return;
+		}
+
 		// Because the Client(client_fd) will return client&, but in Clients_
 		// the key value is std::shared_ptr type. So need use "std::make_shared"
 		// to match the return value

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 14:08:12 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 09:18:31 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,7 +305,7 @@ inline std::string erroneusNickName(const std::string& nick){
  * to a currently existing nickname.
  */
 inline std::string nickNameInUse(const std::string& nick){
-	return (":" + std::string(SERVER) + " 433 " + nick + " :Nickname is already in use" + CRLF);
+	return (":" + std::string(SERVER) + " 433 " + nick + " " + nick +" :Nickname is already in use" + CRLF);
 }
 
 

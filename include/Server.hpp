@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/16 14:54:53 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 09:08:30 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ class Message;
 #define SUPPORTCHANNELPREFIX "#+!&"
 #define	SERVER_CHANNEL_LIMIT (50)
 #define USER_CHANNEL_LIMIT (20)
-#define SERVER_USER_LIMIT (2)
+#define SERVER_USER_LIMIT (5000)
 
 enum COMMANDTYPE{
 	PASS,

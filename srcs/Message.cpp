@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/16 11:45:36 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 08:38:58 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,8 +197,10 @@ bool Message::parseMessage(){
         printMsgInfo(); // for testing
         return false;
     }
-    std::cout << "From parseMessage\n"; // for testing
-    printMsgInfo(); // for testing
+    if (this->cmd_type_ != PING){
+        std::cout << "From parseMessage\n"; // for testing
+        printMsgInfo(); // for testing
+    }
     return true;
 }
 
@@ -243,19 +245,17 @@ bool Message::getTrailingEmpty() const{
 }
 
 void	Message::printMsgInfo() const{
-    if (this->cmd_type_ != PING){
-        std::cout << "Message Info:\n";
-        std::cout << "  whole_msg=" << whole_msg_ << std::endl;
-        // std::cout << "  msg_trailing=" << msg_trailing_ << std::endl;
-        // std::cout << "  cmd_string_=" << cmd_string_ << std::endl;
-        // std::cout << "  number_of_parameters_=" << std::to_string(number_of_parameters_) << std::endl;
-        // std::cout << "  number_of_user=" << msg_users_.size() << std::endl;
-        // std::cout << "  number_of_channel=" << msg_channels_.size() << std::endl;
-        // std::cout << "  number_of_password=" << passwords_.size() << std::endl;
-        // if (msg_users_.size() > 0){
-        //     printUserList();
-        // }
-    }
+    std::cout << "Message Info:\n";
+    std::cout << "  whole_msg=" << whole_msg_ << std::endl;
+    // std::cout << "  msg_trailing=" << msg_trailing_ << std::endl;
+    // std::cout << "  cmd_string_=" << cmd_string_ << std::endl;
+    // std::cout << "  number_of_parameters_=" << std::to_string(number_of_parameters_) << std::endl;
+    // std::cout << "  number_of_user=" << msg_users_.size() << std::endl;
+    // std::cout << "  number_of_channel=" << msg_channels_.size() << std::endl;
+    // std::cout << "  number_of_password=" << passwords_.size() << std::endl;
+    // if (msg_users_.size() > 0){
+    //     printUserList();
+    // }
 }
 
 void	Message::printUserList() const{

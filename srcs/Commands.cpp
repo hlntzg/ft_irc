@@ -25,7 +25,7 @@ void	Server::passCommand(Message& msg, Client& cli){
 	// at() will do the bounds checking
 	std::string	password = msg.getParameters().at(0);
 	if (isPasswordMatch(password) == false){
-		Logger::log(Logger::INFO, "Password doesn't match");
+		Logger::log(Logger::ERROR, "Password doesn't match");
 		responseToClient(cli, passwdMismatch(nick));
 	}
 	cli.setPassword(password);
@@ -90,27 +90,27 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	std::vector<std::string>	params = msg.getParameters();
 	// 1. should contain at least one parameter
 	if (params.size() == 0){
-		responseToClient(cli, nonNickNameGiven(""));
+		responseToClient(cli, nonNickNameGiven(cli.getNick()));
 		Logger::log(Logger::ERROR, "no nickname is given");
 		return;
 	}
 	const std::string& nick = params.at(0);
 	// 2. nickname length checking (between 1~9 characters)
 	if (nick.size() > 20 || nick.size() < 1){
-		responseToClient(cli, erroneusNickName(""));
+		responseToClient(cli, erroneusNickName(cli.getNick()));
 		Logger::log(Logger::ERROR, "nickname is too long");
 		return;
 	}
 	// 3. nickname inuse checking
 	if (isNickInUse(nick, &cli) == true){
-		responseToClient(cli, nickNameInUse(""));
+		responseToClient(cli, nickNameInUse(cli.getNick()));
 		Logger::log(Logger::ERROR, "nickname is in use");
 		return;
 	}
 	// 4. first letter checking, should be just letter or special character
 	if (!isalpha(static_cast<unsigned char>(nick.at(0)))
 			&& std::string(SPECIAL_CHARS_NAMES).find(nick.at(0)) == std::string::npos){
-		responseToClient(cli, erroneusNickName(""));
+		responseToClient(cli, erroneusNickName(cli.getNick()));
 		Logger::log(Logger::ERROR, "nickname's first letter is invalid");
 		return;
 	}
@@ -118,7 +118,7 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	for (auto c : nick){
 		if (!isalnum(static_cast<unsigned char>(c))
 			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
-			responseToClient(cli, erroneusNickName(""));
+			responseToClient(cli, erroneusNickName(cli.getNick()));
 			Logger::log(Logger::ERROR, "nickname contains invalid characters");
 			return;
 		}
