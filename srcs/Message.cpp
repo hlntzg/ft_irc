@@ -35,13 +35,14 @@ void Message::initCommandHandlers(){
         {"INVITE", [this](){ cmd_type_ = INVITE; return handleGeneric(); }},
         {"MODE",   [this](){ cmd_type_ = MODE; return handleMODE(); }},
         {"CAP",   [this](){ cmd_type_ = CAP; return handleCAP(); }},
-	{"PING",   [this](){ cmd_type_ = PING; return handlePING(); }},
+	{"PING",   [this](){ cmd_type_ = PING; return handleNoParse(); }},
 	{"WHOIS",   [this](){ cmd_type_ = WHOIS; return handleGeneric(); }},
+        {"WHO",   [this](){ cmd_type_ = WHO; return handleNoParse(); }},
         {"KICK",   [this](){ cmd_type_ = KICK; return handleKICK(); }}
     };
 }
 
-bool Message::handlePING(){
+bool Message::handleNoParse(){
     return true;
 }
 

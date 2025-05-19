@@ -71,6 +71,7 @@ const std::set<COMMANDTYPE> Server::pre_registration_allowed_commands_ = {
 	CAP,
 	PING,
 	WHOIS,
+	WHO,
 	QUIT
 };
 
@@ -101,6 +102,7 @@ const std::unordered_map<COMMANDTYPE, Server::executeFunc> Server::execute_map_ 
 	{CAP, &Server::capCommand},
 	{PING, &Server::pingCommand},
 	{WHOIS, &Server::whoisCommand},
+	{WHO, &Server::whoCommand},
 	{QUIT, &Server::quitCommand}
 };
 
