@@ -1119,10 +1119,6 @@ void Server::pingCommand(Message& msg, Client& cli){
 	responseToClient(cli, "PONG :" + origin + "\r\n");
 }
 
-std::string rplWhoisChannels(const std::string& requesterNick, const std::string& targetNick, const std::string& channels){
-	return ":irc.ircserv.com 319 " + requesterNick + " " + targetNick + " :" + channels + "\r\n";
-}
-
 /**
  * @brief Used by irssi when multiple users try to connect with the same information.
  * Confirms whether the user information is the exact same or not
@@ -1142,30 +1138,12 @@ void Server::whoisCommand(Message& msg, Client& cli){
 	}
 	std::string channels = getChannelsOfUser(*target);
 	if (!channels.empty()){
-		std::string r319 = rplWhoisChannels(cli.getNick(), target->getNick(), channels);
+		std::string r319 = rplWhoIsChannels(cli.getNick(), target->getNick(), channels);
 		responseToClient(cli, r319);
 	}
-	//if there are weird issues, try removing this r312
-	std::string	r312 = ":irc.ircserv.com 312 " + cli.getNick() + " " + target->getNick() + " irc.ircserv.com :Your IRC Server\r\n";
-	responseToClient(cli, r312);
-	std::string r311 = rplWhoisUser(cli.getNick(), target->getNick(), target->getUsername(), target->getHostname(), target->getRealname());
-	responseToClient(cli, r311);
-	std::string r318 = rplEndOfWhois(cli.getNick(), targetNick);
-	responseToClient(cli, r318);
-}
-
-inline std::string rplWhoReply(const std::string& requester, const std::string& channel,
-	const std::string& user, const std::string& host, const std::string& nick,
-	const std::string& status, const std::string& hopcount,
-	const std::string& realname){
-	return ":" + std::string(SERVER) + " 352 " + requester + " " + channel + " " +
-		user + " " + host + " " + std::string(SERVER) + " " + nick + " " + status + " :" +
-		hopcount + " " + realname + CRLF;
-}
-
-inline std::string rplEndOfWho(const std::string& requester, const std::string& target) {
-	return ":" + std::string(SERVER) + " 315 " + requester + " " + target +
-		" :End of /WHO list.\r\n";
+	responseToClient(cli, rplWhoIsServer(cli.getNick(), target->getNick()));
+	responseToClient(cli, rplWhoisUser(cli.getNick(), target->getNick(), target->getUsername(), target->getHostname(), target->getRealname()));
+	responseToClient(cli, rplEndOfWhois(cli.getNick(), targetNick));
 }
 
 void Server::whoCommand(Message& msg, Client& cli){
@@ -1184,8 +1162,7 @@ void Server::whoCommand(Message& msg, Client& cli){
     for (const auto& user : users){
         std::string status = "H";
         if (channel->isChannelOperator(*user)) status += "@";
-        std::string reply = rplWhoReply(cli.getNick(), channel->getName(), user->getUsername(), user->getHostname(), user->getNick(), status, "0", user->getRealname());
-        responseToClient(cli, reply);
+        responseToClient(cli, rplWhoReply(cli.getNick(), channel->getName(), user->getUsername(), user->getHostname(), user->getNick(), status, user->getRealname()));
     }
     responseToClient(cli, rplEndOfWho(cli.getNick(), target));
 }

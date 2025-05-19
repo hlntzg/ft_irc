@@ -101,7 +101,7 @@ inline std::string rplWhoIsServer(const std::string& requestorNick,
 							   const std::string& targetNick)
 {
 	return ":" + std::string(SERVER) + " 312 " + requestorNick + " " + targetNick + std::string(SERVER) +
-		   " :Your IRC Server" + CRLF;
+		   " :Your IRC Server :)" + CRLF;
 }
 
 /*Sent as a reply to the WHO command, this numeric indicates the end of a WHO response for the mask <mask>.
@@ -113,18 +113,17 @@ This numeric is sent after all other WHO response numerics have been sent to the
 "<client> <mask> :End of WHO list"
 */
 // 315 RPL_ENDOFWHO
-inline std::string rplEndOfWho(const std::string& requestorNick,
-							   const std::string& mask)
-{
-	return ":" + std::string(SERVER) + " 315 " + requestorNick + " " + mask +
-		   " :End of /WHO list" + CRLF;
+inline std::string rplEndOfWho(const std::string& requester, const std::string& target) {
+	return ":" + std::string(SERVER) + " 315 " + requester + " " + target +
+		" :End of /WHO list." + CRLF;
 }
+
 
 // 319 RPL_WHOISCHANNELS
 inline std::string rplWhoIsChannels(const std::string& requesterNick, 
 									const std::string& targetNick,
 									const std::string& channels){
-	return ":" + std::string(SERVER) + " 319 " + requesterNick + " " + targetNick + " :" + channels + "\r\n";
+	return ":" + std::string(SERVER) + " 319 " + requesterNick + " " + targetNick + " :" + channels + CRLF;
 }
 
 // 324 RPL_CHANNELMODEIS
@@ -171,15 +170,15 @@ Optionally, one or more user mode characters and other arbitrary server-specific
 "<client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>"
 */
 // 352 RPL_WHOREPLY
-inline std::string rplWhoReply(const std::string& requestorNick,
-							   const std::string& mask, const std::string& user,
-							   const std::string& host, const std::string& server,
-							   const std::string& nick, char status,
-							   const std::string& realName)
-{
-	return ":" + std::string(SERVER) + " 352 " + requestorNick + " " + mask + " " +
-		   user + " " + host + " " + server + " " + nick + " " + status +
-		   " :0 " + realName + CRLF;
+inline std::string rplWhoReply(const std::string& requester, 
+							const std::string& channel,
+							const std::string& user, 
+							const std::string& host, 
+							const std::string& nick,
+							const std::string& status,
+							const std::string& realname){
+	return ":" + std::string(SERVER) + " 352 " + requester + " " + channel + " " +
+		user + " " + host + " " + std::string(SERVER) + " " + nick + " " + status + " :0 " + " " + realname + CRLF;
 }
 
 /**
