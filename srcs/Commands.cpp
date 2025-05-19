@@ -13,24 +13,26 @@
  *  ERR_NEEDMOREPARAMS(461)     ERR_ALREADYREGISTRED(462)
  */
 void	Server::passCommand(Message& msg, Client& cli){
-	std::string	nick = cli.getNick();
+	std::string	nick = cli.getNick().empty() ? "*" : cli.getNick();
 	if (msg.getParameters().empty()){
 		responseToClient(cli, needMoreParams("PASS"));
+		Logger::log(Logger::WARNING, "no password is provided");
 		return;
 	} else if (cli.isRegistered()){
 		responseToClient(cli, alreadyRegistred(nick));
+		Logger::log(Logger::INFO, "no password is provided");
 		return ;
 	}
 	// vector.at() is safer than vector.at[0] to access the element.
 	// at() will do the bounds checking
 	std::string	password = msg.getParameters().at(0);
 	if (isPasswordMatch(password) == false){
-		Logger::log(Logger::ERROR, "Password doesn't match");
+		Logger::log(Logger::WARNING, "Password doesn't match");
 		responseToClient(cli, passwdMismatch(nick));
 	}
 	cli.setPassword(password);
 	attempRegisterClient(cli);
-	Logger::log(Logger::DEBUG, "Set " + nick + "'s password to " + password);
+	Logger::log(Logger::INFO, "Password asccepted for client " + nick);
 }
 
 bool	Server::isPasswordMatch(const std::string& password){
@@ -233,7 +235,9 @@ void	Server::partCommand(Message& msg, Client& cli){
 		return;
 	}
 
+	bool	is_operator;
 	for(const auto& channel_name : channel_list){
+		is_operator = false;
 		std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
 		if (!channel_ptr) {
 			responseToClient(cli, errNoSuchChannel(cli.getNick(), channel_name));
@@ -243,18 +247,28 @@ void	Server::partCommand(Message& msg, Client& cli){
 			responseToClient(cli, notOnChannel(cli.getNick(), channel_name));
 			continue;
 		}
-
+		if (channel_ptr->isChannelOperator(cli)){
+			is_operator = true;
+		}
 		std::string message = rplPart(cli.getPrefix(), channel_name, msg.getTrailing());
-
 		channel_ptr->notifyChannelUsers(cli, message);
 		responseToClient(cli, message);
-
 		channel_ptr->removeUser(cli);
-
-		Logger::log(Logger::INFO, "User " + cli.getNick() + " left channel " + channel_name);
-
-		if (channel_ptr->isEmptyChannel()) {
+		Logger::log(Logger::INFO, "A member left channel:" + channel_name);
+		if (channel_ptr->isEmptyChannel()) { // channel is empty, remove it
 			removeChannel(channel_name);
+		} else { // channe is not empty, checking if there is still operators there
+			if (channel_ptr->isThereOperatorInChannel() == false){
+				// no operator left in the channel, then need grand the privilege to
+				// another user
+				Client*	user = channel_ptr->getTheFirstUser();
+				channel_ptr->addNewOperator(*user);
+				std::string	update_mode = "+o";
+				std::string	message = rplMode(cli.getNick(), channel_name, update_mode, user->getNick());// the last one is a nick???
+				channel_ptr->notifyChannelUsers(*user, message);
+				responseToClient(*user, message);
+				channel_ptr->printUsers(USERTYPE::OPERATOR); // for testing
+			}
 		}
 	}
 }

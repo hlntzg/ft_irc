@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/16 12:46:15 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 12:51:11 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,21 @@ bool    Channel::isInvitedUser(Client& user){
     return invited_users_.find(&user) != invited_users_.end();
 }
 
+/**
+ * @brief Check if channel has operators. Using when a member leave
+ * or remove from a channel, if there is no operator in the channel,
+ * the server needs to grand the operator privilege to the user who joined
+ * channel earliest
+ */
+bool    Channel::isThereOperatorInChannel(){
+    if (operators_.empty() == true){
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
 // General:
 
 /**
@@ -253,6 +268,20 @@ bool    Channel::isUserInList(Client& user, USERTYPE type){
     }
     return (false);
 }
+
+/**
+ * @brief using to get the firt user saving in the user container. Used when
+ * the last operator is removed from the channel, tranfer the operator
+ * role to the first user
+ */
+Client*     Channel::getTheFirstUser() const{
+    if (users_.empty() == false){
+        return *(users_.begin());
+    } else {
+        return nullptr;
+    }
+}
+
 
 // for testing only
 void    Channel::printChannelInfo() const{
