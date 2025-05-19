@@ -29,6 +29,7 @@ void	Server::passCommand(Message& msg, Client& cli){
 	if (isPasswordMatch(password) == false){
 		Logger::log(Logger::WARNING, "Password doesn't match");
 		responseToClient(cli, passwdMismatch(nick));
+		return;
 	}
 	cli.setPassword(password);
 	attempRegisterClient(cli);
@@ -58,8 +59,8 @@ void	Server::attempRegisterClient(Client& cli){
 	responseToClient(cli,rplYourHost(nick));
 	responseToClient(cli,rplCreated(nick));
 	responseToClient(cli,rplMyInfo(nick));
-	std::cout << "Print from attempRegiser function\n";
-	cli.printInfo(); // for testing only
+	// std::cout << "Print from attempRegiser function\n";
+	// cli.printInfo(); // for testing only
 }
 
 /**
@@ -267,7 +268,7 @@ void	Server::partCommand(Message& msg, Client& cli){
 				std::string	message = rplMode(cli.getNick(), channel_name, update_mode, user->getNick());// the last one is a nick???
 				channel_ptr->notifyChannelUsers(*user, message);
 				responseToClient(*user, message);
-				channel_ptr->printUsers(USERTYPE::OPERATOR); // for testing
+				// channel_ptr->printUsers(USERTYPE::OPERATOR); // for testing
 			}
 		}
 	}
@@ -886,7 +887,6 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			channel = std::make_shared<Channel>(chan_name, cli);
 			channels_[chan_name] = channel;
 			n_channel_++;
-			std::cout << "n_channel=" << n_channel_ << std::endl; // for testing
 			cli.increaseUserNchannel();
 			if (passwds_index < passwds.size()){
 				const std::string& passwd = passwds[passwds_index++];

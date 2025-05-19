@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/19 08:38:58 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 13:22:34 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,14 +193,14 @@ bool Message::parseMessage(){
     }
     if (validateParameters(command) == false){
         Logger::log(Logger::ERROR, "Validation failed");
-        std::cout << "From parseMessage\n"; // for testing
-        printMsgInfo(); // for testing
+        // std::cout << "From parseMessage\n"; // for testing
+        // printMsgInfo(); // for testing
         return false;
     }
-    if (this->cmd_type_ != PING){
-        std::cout << "From parseMessage\n"; // for testing
-        printMsgInfo(); // for testing
-    }
+    // if (this->cmd_type_ != PING){
+    //     std::cout << "From parseMessage\n"; // for testing
+    //     printMsgInfo(); // for testing
+    // }
     return true;
 }
 

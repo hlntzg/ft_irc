@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/19 13:11:02 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 13:25:42 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,8 +211,8 @@ void	Server::startServer(){
 			}
 			// 2) check for error or hang-up
 			else if (evs & (EPOLLERR | EPOLLHUP)){
-				std::cout << "Noticed client is disoneccted\n"; // for testing
 				removeClient(*(clients_.find(fd)->second), "disconnected");
+				Logger::log(Logger::INFO, "one client is disoneccted:" + std::to_string(fd));
 				continue;
 			}
 			// 3) date to read
@@ -369,7 +369,7 @@ void	Server::removeClient(Client& usr, std::string reason){
 					std::string	message = rplMode(usr.getNick(), it->first, update_mode, first_user->getNick());// the last one is a nick???
 					channel_ptr->notifyChannelUsers(*first_user, message);
 					responseToClient(*first_user, message);
-					channel_ptr->printUsers(USERTYPE::OPERATOR); // for testing
+					// channel_ptr->printUsers(USERTYPE::OPERATOR); // for testing
 				}
 			}
 		}
