@@ -1082,6 +1082,10 @@ void Server::pingCommand(Message& msg, Client& cli){
 	responseToClient(cli, "PONG :" + origin + "\r\n");
 }
 
+std::string rplWhoisChannels(const std::string& requesterNick, const std::string& targetNick, const std::string& channels){
+	return ":irc.ircserv.com 319 " + requesterNick + " " + targetNick + " :" + channels + "\r\n";
+}
+
 /**
  * @brief Used by irssi when multiple users try to connect with the same information.
  * Confirms whether the user information is the exact same or not
@@ -1089,7 +1093,7 @@ void Server::pingCommand(Message& msg, Client& cli){
 void Server::whoisCommand(Message& msg, Client& cli){
 	std::vector<std::string> params = msg.getParameters();
 	if (params.empty()){
-		responseToClient(cli, nonNickNameGiven(cli.getNick() ));
+		responseToClient(cli, nonNickNameGiven(cli.getNick()));
 		return;
 	}
 	std::string targetNick = params[0];
@@ -1099,6 +1103,14 @@ void Server::whoisCommand(Message& msg, Client& cli){
 		responseToClient(cli, rplEndOfWhois(cli.getNick(), targetNick));
 		return;
 	}
+	std::string channels = getChannelsOfUser(*target);
+	if (!channels.empty()){
+		std::string r319 = rplWhoisChannels(cli.getNick(), target->getNick(), channels);
+		responseToClient(cli, r319);
+	}
+	//if there are weird issues, try removing this r312
+	std::string	r312 = ":irc.ircserv.com 312 " + cli.getNick() + " " + target->getNick() + " irc.ircserv.com :Your IRC Server\r\n";
+	responseToClient(cli, r312);
 	std::string r311 = rplWhoisUser(cli.getNick(), target->getNick(), target->getUsername(), target->getHostname(), target->getRealname());
 	responseToClient(cli, r311);
 	std::string r318 = rplEndOfWhois(cli.getNick(), targetNick);
