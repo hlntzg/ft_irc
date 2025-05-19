@@ -90,6 +90,43 @@ inline std::string rplWhoisUser(const std::string& requestorNick,
 		   user + " " + host + " * :" + realName + CRLF;
 }
 
+/*"<nick> <server> :<server info>"
+  "<client> <nick> <server> :<server info>"
+ Sent as a reply to the WHOIS command, this numeric shows which server
+ the client with the nickname <nick> is connected to. <server> is the name of 
+ the server (as used in message prefixes). <server info> is a string containing a description of that server.
+  */
+// 312 RPL_WHOISSERVER
+inline std::string rplWhoIsServer(const std::string& requestorNick,
+							   const std::string& targetNick)
+{
+	return ":" + std::string(SERVER) + " 312 " + requestorNick + " " + targetNick + std::string(SERVER) +
+		   " :Your IRC Server" + CRLF;
+}
+
+/*Sent as a reply to the WHO command, this numeric indicates the end of a WHO response for the mask <mask>.
+
+<mask> MUST be the same <mask> parameter sent by the client in its WHO message, but MAY be casefolded.
+
+This numeric is sent after all other WHO response numerics have been sent to the client.
+
+"<client> <mask> :End of WHO list"
+*/
+// 315 RPL_ENDOFWHO
+inline std::string rplEndOfWho(const std::string& requestorNick,
+							   const std::string& mask)
+{
+	return ":" + std::string(SERVER) + " 315 " + requestorNick + " " + mask +
+		   " :End of /WHO list" + CRLF;
+}
+
+// 319 RPL_WHOISCHANNELS
+inline std::string rplWhoIsChannels(const std::string& requesterNick, 
+									const std::string& targetNick,
+									const std::string& channels){
+	return ":" + std::string(SERVER) + " 319 " + requesterNick + " " + targetNick + " :" + channels + "\r\n";
+}
+
 // 324 RPL_CHANNELMODEIS
 inline std::string ChannelModeIs(const std::string& nick, const std::string& channel,
 const std::string& mode){
@@ -115,6 +152,34 @@ const std::string& topic){
 inline std::string Inviting(const std::string& nick, const std::string& channel,
 const std::string& target){
 	return (":" + std::string(SERVER) + " 341 " + nick + " " + target + " " + channel + CRLF);
+}
+
+/*
+Sent as a reply to the WHO command, this numeric gives information about the client with the nickname <nick>.
+If the WHO command was given a channel as the <mask> parameter, then the same channel MUST be returned in <channel>. 
+Otherwise <channel> is an arbitrary channel the client is joined to or a literal asterisk character ('*', 0x2A) 
+if no channel is returned. <hopcount> is the number of intermediate servers between the client issuing
+the WHO command and the client <nick>, it might be unreliable so clients SHOULD ignore it.
+
+<flags> contains the following characters, in this order:
+
+Away status: the letter H ('H', 0x48) to indicate that the user is here, or the letter G ('G', 0x47) to indicate that the user is gone.
+Optionally, a literal asterisk character ('*', 0x2A) to indicate that the user is a server operator.
+Optionally, the highest channel membership prefix that the client has in <channel>, if the client has one.
+Optionally, one or more user mode characters and other arbitrary server-specific flags.
+
+"<client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>"
+*/
+// 352 RPL_WHOREPLY
+inline std::string rplWhoReply(const std::string& requestorNick,
+							   const std::string& mask, const std::string& user,
+							   const std::string& host, const std::string& server,
+							   const std::string& nick, char status,
+							   const std::string& realName)
+{
+	return ":" + std::string(SERVER) + " 352 " + requestorNick + " " + mask + " " +
+		   user + " " + host + " " + server + " " + nick + " " + status +
+		   " :0 " + realName + CRLF;
 }
 
 /**
