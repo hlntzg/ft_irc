@@ -51,7 +51,7 @@ class Message{
 		bool				handleKICK();
 		bool				handleJOIN();
 		bool				handleMODE();
-		bool				handlePING();
+		bool				handleNoParse();
 		bool 				validateParameters(const std::string& command);
 		std::string			whole_msg_;
 		int					number_of_parameters_;
