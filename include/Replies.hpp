@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/19 10:49:53 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/19 13:43:09 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,6 +354,18 @@ const std::string& channel){
  */
 inline std::string NotRegistered(const std::string& command){
 	return (":" + std::string(SERVER) + " 451 " + command  + " :You have not registered" + CRLF);
+}
+
+// 353 RPL_NAMREPLY
+inline std::string	rplNamReply(const std::string &nick, const std::string &channel, const std::string &namesList)
+{
+	return (":" + std::string(SERVER) + " 353 " + nick + " = " + channel + " :" + namesList + CRLF);
+}
+
+// 366 RPL_ENDOFNAMES
+inline std::string	rplEndOfNames(const std::string &nick, const std::string &channel)
+{
+	return (":" + std::string(SERVER) + " 366 " + nick + " " + channel + " :End of /NAMES list." + + CRLF);
 }
 
 // 461 ERR_NEEDMOREPARAMS
