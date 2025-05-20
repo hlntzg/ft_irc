@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/20 15:27:39 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 17:20:44 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -418,7 +418,7 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	}
 	// Before the user sends the correct password, he/she can't execute any commands
 	if (cli.getPassword().empty()){
-		if (cmd_type != PASS && cmd_type != NICK && cmd_type != USER && cmd_type != CAP && cmd_type != PING && cmd_type != WHOIS){
+		if (cmd_type != PASS && cmd_type != CAP && cmd_type != PING && cmd_type != WHOIS){
 			responseToClient(cli, passwdMismatch(cli.getNick()));
 			Logger::log(Logger::WARNING, "User hasn't sent correct password yet, can't execute the command");
 			return;
