@@ -417,12 +417,10 @@ void	Server::executeCommand(Message& msg, Client& cli){
 		return;
 	}
 	// Before the user sends the correct password, he/she can't execute any commands
-	if (cli.getPassword().empty()) {
-		if (cmd_type != PASS && cmd_type != CAP && cmd_type != PING && cmd_type != WHOIS) {
+	if (cli.getPassword().empty()){
+		if (cmd_type != PASS && cmd_type != NICK && cmd_type != USER && cmd_type != CAP && cmd_type != PING && cmd_type != WHOIS){
 			responseToClient(cli, passwdMismatch(cli.getNick()));
 			Logger::log(Logger::WARNING, "User hasn't sent correct password yet, can't execute the command");
-			removeClient(cli, "wrong password");
-			Logger::log(Logger::INFO, "Remove the client");
 			return;
 		}
 	}
