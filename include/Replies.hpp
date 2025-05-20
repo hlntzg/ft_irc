@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/20 14:37:31 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 14:40:23 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -429,7 +429,11 @@ inline std::string	rplNamReply(const std::string &nick, const std::string &chann
 // 366 RPL_ENDOFNAMES
 inline std::string	rplEndOfNames(const std::string &nick, const std::string &channel)
 {
-	return (":" + std::string(SERVER) + " 366 " + nick + " " + channel + " :End of /NAMES list." + + CRLF);
+	return (":" + std::string(SERVER) + " 366 " + nick + " " + channel + " :End of /NAMES list." + CRLF);
+}
+// 368 RPL_ENDOFBANLIST
+inline std::string rplEndOfBanList(const std::string& nick, const std::string& channel) {
+    return ":" + std::string(SERVER) + " 368 " + nick + " " + channel + " :End of channel ban list" + CRLF;
 }
 
 // 461 ERR_NEEDMOREPARAMS

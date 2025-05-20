@@ -693,6 +693,11 @@ void	Server::mode(Message& msg, Client& user){
 	if (params_list.size() > 2)
     	args.assign(params_list.begin() + 2, params_list.end());
 
+	// response to ban list
+	if (mode_flags == "b"){
+		responseToClient(user, rplEndOfBanList(user.getNick(), channel_name));
+        return;
+	}
 	if (mode_flags.empty()){ // display only active modes
         std::string status = "";
         if (channel_ptr->getInviteMode()) status += "i";
@@ -793,6 +798,7 @@ void	Server::mode(Message& msg, Client& user){
 		}
 		else{
 			responseToClient(user, unknownMode(user.getNick(), std::string(1, c), channel_name));
+			continue ;
 		}
 	}
 	// Notify all users in the channel about the mode change
