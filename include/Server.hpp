@@ -143,6 +143,7 @@ class Server{
 		bool		isValidModePassword(const std::string& password);
 		bool 		isPositiveInteger(const std::string& s);
 		bool		isChannelValid(const std::string& channel_name);
+		std::string	trim(const std::string& str);
 
 		// for testing
 		// void		printUsers() const;
