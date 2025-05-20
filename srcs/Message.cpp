@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/20 12:59:25 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 14:56:11 by arissane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,18 @@
 #include <string>
 #include <sstream>
 
-Message::Message(std::string& message) : whole_msg_(message), number_of_parameters_(0){
+Message::Message(std::string& message) :
+      whole_msg_(message),
+      number_of_parameters_(0),
+      msg_trailing_(""),
+      parameters_(),
+      msg_users_(),
+      msg_channels_(),
+      cmd_type_(INVALID),
+      cmd_string_(""),
+      passwords_(),
+      msg_trailing_empty_(false)
+{
     initCommandHandlers();
 }
 
@@ -35,8 +46,8 @@ void Message::initCommandHandlers(){
         {"INVITE", [this](){ cmd_type_ = INVITE; return handleGeneric(); }},
         {"MODE",   [this](){ cmd_type_ = MODE; return handleMODE(); }},
         {"CAP",   [this](){ cmd_type_ = CAP; return handleCAP(); }},
-	{"PING",   [this](){ cmd_type_ = PING; return handleNoParse(); }},
-	{"WHOIS",   [this](){ cmd_type_ = WHOIS; return handleGeneric(); }},
+        {"PING",   [this](){ cmd_type_ = PING; return handleNoParse(); }},
+        {"WHOIS",   [this](){ cmd_type_ = WHOIS; return handleGeneric(); }},
         {"WHO",   [this](){ cmd_type_ = WHO; return handleNoParse(); }},
         {"KICK",   [this](){ cmd_type_ = KICK; return handleKICK(); }}
     };
@@ -57,8 +68,8 @@ bool Message::handlePASS(){
     return true;
 }
 
-bool Message::handleCAP() {
-    if (parameters_.empty()) {
+bool Message::handleCAP(){
+    if (parameters_.empty()){
         Logger::log(Logger::ERROR, "CAP command missing subcommand");
         return false;
     }
@@ -105,7 +116,7 @@ bool Message::handleKICK(){
         msg_users_.push_back(parameters_[1]);
     }
     for (size_t i = 2; i < parameters_.size(); ++i){
-        if (parameters_[i][0] == '#') {
+        if (parameters_[i][0] == '#'){
             msg_channels_.push_back(parameters_[i]);
         } else{
             msg_users_.push_back(parameters_[i]);
@@ -157,8 +168,6 @@ bool Message::parseMessage(){
 
     input_stream >> command;
     cmd_string_ = command;
-    cmd_type_ = INVALID;
-    msg_trailing_empty_ = false;
     while (input_stream >> word){
         if (!word.empty() && word[0] == ':'){
             std::string rest_of_line;
@@ -207,19 +216,19 @@ int Message::getNumberOfParameters() const{
 }
 
 const std::string& Message::getTrailing() const{
-	return msg_trailing_;
+    return msg_trailing_;
 }
 
 const std::vector<std::string>& Message::getParameters() const{
-	return parameters_;
+    return parameters_;
 }
 
 const std::vector<std::string>& Message::getUsers() const{
-	return msg_users_;
+    return msg_users_;
 }
 
 const std::vector<std::string>& Message::getChannels() const{
-	return msg_channels_;
+    return msg_channels_;
 }
 
 COMMANDTYPE Message::getCommandType() const{
@@ -227,18 +236,18 @@ COMMANDTYPE Message::getCommandType() const{
 }
 
 const std::string& Message::getCommandString() const{
-	return cmd_string_;
+    return cmd_string_;
 }
 
 const std::vector<std::string>& Message::getPasswords() const{
-	return passwords_;
+    return passwords_;
 }
 
 bool Message::getTrailingEmpty() const{
-	return msg_trailing_empty_;
+    return msg_trailing_empty_;
 }
 
-#if 0
+/*
 // for testing only
 void	Message::printMsgInfo() const{
     std::cout << "Message Info:\n";
@@ -260,5 +269,4 @@ void	Message::printUserList() const{
         std::cout << name << ", ";
     }
     std::cout << std::endl;
-}
-#endif
+}*/
