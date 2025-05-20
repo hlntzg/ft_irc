@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:17:32 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/19 13:57:35 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 12:59:34 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,8 +145,8 @@ class Server{
 		bool		isChannelValid(const std::string& channel_name);
 
 		// for testing
-		void		printUsers() const;
-		void		printChannels() const;
+		// void		printUsers() const;
+		// void		printChannels() const;
 };
 
 #include "Logger.hpp"

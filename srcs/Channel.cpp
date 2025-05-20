@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/19 12:51:11 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 12:58:36 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,19 +133,8 @@ void    Channel::addNewUser(Client& user){
     if (channel_invite_only_) {
         invited_users_.erase(&user);
     }
-    // if (channel_user_limit_ && channelSize() >= user_limit_) {
-    //     Logger::log(Logger::WARNING, "User " + std::to_string(fd) + " cannot join " + channel_name_ + ": channel is full");
-    //     // 471 ERR_CHANNELISFULL
-    //     Server::responseToClient(user, channelIsFull(user.getNick(), channel_name_));
-    //     return (false);
-    // }
-	// if (users_.find(&user) == users_.end()){
-		users_.insert(&user);
-		Logger::log(Logger::INFO, "User " + std::to_string(fd) + " joined " + channel_name_);
-	// }
-	// else {
-	// 	Logger::log(Logger::INFO, "User " + std::to_string(fd) + " is already in " + channel_name_);
-    // }
+    users_.insert(&user);
+    Logger::log(Logger::INFO, "User " + std::to_string(fd) + " joined " + channel_name_);
 }
 
 /**
@@ -284,6 +273,7 @@ Client*     Channel::getTheFirstUser() const{
 
 
 // for testing only
+#if 0
 void    Channel::printChannelInfo() const{
     std::cout << "Channel Info:\n";
     std::cout << "  name:" << channel_name_ << std::endl;
@@ -317,3 +307,4 @@ void    Channel::printUsers(USERTYPE type) const{
     }
     std::cout << std::endl;
 }
+#endif

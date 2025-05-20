@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 12:59:33 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/19 10:17:15 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 12:59:03 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,6 +188,7 @@ bool	Client::isRegistered(){
 	return isRegistered_;
 }
 
+#if 0
 // for testing only
 void	Client::printInfo() const{
     std::cout << "User info:\n";
@@ -204,3 +205,4 @@ void	Client::printInfo() const{
 void    Client::printRawData() const{
     std::cout << "rawdata:" << raw_data_ << std::endl;
 }
+#endif

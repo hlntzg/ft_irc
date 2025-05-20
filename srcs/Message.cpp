@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 09:15:08 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/19 13:22:34 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 12:59:25 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,6 @@ bool Message::parseMessage(){
         if (!word.empty() && word[0] == ':'){
             std::string rest_of_line;
             std::getline(input_stream, rest_of_line);
-            //rest_of_line.erase(0, rest_of_line.find_first_not_of(" \t\r\n"));
             // trim the end '\n' and '\r' out
             while (rest_of_line.back() == '\n' || rest_of_line.back() == '\r'){
                 rest_of_line.pop_back();
@@ -194,14 +193,8 @@ bool Message::parseMessage(){
     }
     if (validateParameters(command) == false){
         Logger::log(Logger::ERROR, "Validation failed");
-        // std::cout << "From parseMessage\n"; // for testing
-        // printMsgInfo(); // for testing
         return false;
     }
-    // if (this->cmd_type_ != PING){
-    //     std::cout << "From parseMessage\n"; // for testing
-    //     printMsgInfo(); // for testing
-    // }
     return true;
 }
 
@@ -245,6 +238,8 @@ bool Message::getTrailingEmpty() const{
 	return msg_trailing_empty_;
 }
 
+#if 0
+// for testing only
 void	Message::printMsgInfo() const{
     std::cout << "Message Info:\n";
     std::cout << "  whole_msg=" << whole_msg_ << std::endl;
@@ -266,3 +261,4 @@ void	Message::printUserList() const{
     }
     std::cout << std::endl;
 }
+#endif

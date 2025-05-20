@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 12:36:39 by arissane          #+#    #+#             */
-/*   Updated: 2025/05/19 10:09:36 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 12:59:12 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,8 @@ class Message{
 		bool getTrailingEmpty() const;
 
 		// for testing only
-		void	printMsgInfo() const;
-		void	printUserList() const;
+		// void	printMsgInfo() const;
+		// void	printUserList() const;
 
 	private:
 		using CommandHandler = std::function<bool()>;

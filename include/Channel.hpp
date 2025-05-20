@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:41:40 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/19 12:47:27 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 12:58:20 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ class Channel{
         bool        isChannelUser(Client& user);
         bool        isChannelOperator(Client& user);
         bool        isInvitedUser(Client& user);
-        bool        isThereOperatorInChannel(); // finish this function
+        bool        isThereOperatorInChannel();
 
         // General:
         void        notifyChannelUsers(Client& target, const std::string& msg);
@@ -82,8 +82,8 @@ class Channel{
         Client*     getTheFirstUser() const;
 
         // for testing only
-        void    printChannelInfo() const;
-        void    printUsers(USERTYPE type) const;
+        // void    printChannelInfo() const;
+        // void    printUsers(USERTYPE type) const;
 
     private:
         std::string channel_name_;
