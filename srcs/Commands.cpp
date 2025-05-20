@@ -95,27 +95,27 @@ void	Server::nickCommand(Message& msg, Client& cli){
 	// 1. should contain at least one parameter
 	if (params.size() == 0){
 		responseToClient(cli, nonNickNameGiven(usr_nick));
-		Logger::log(Logger::ERROR, "no nickname is given");
+		Logger::log(Logger::WARNING, "no nickname is given");
 		return;
 	}
 	const std::string& nick = params.at(0);
 	// 2. nickname length checking (between 1~9 characters)
 	if (nick.size() > 20 || nick.size() < 1){
 		responseToClient(cli, erroneusNickName(usr_nick));
-		Logger::log(Logger::ERROR, "nickname is too long");
+		Logger::log(Logger::WARNING, "nickname is too long");
 		return;
 	}
 	// 3. nickname inuse checking
 	if (isNickInUse(nick, &cli) == true){
 		responseToClient(cli, nickNameInUse(usr_nick, nick));
-		Logger::log(Logger::ERROR, "nickname is in use");
+		Logger::log(Logger::WARNING, "nickname is in use");
 		return;
 	}
 	// 4. first letter checking, should be just letter or special character
 	if (!isalpha(static_cast<unsigned char>(nick.at(0)))
 			&& std::string(SPECIAL_CHARS_NAMES).find(nick.at(0)) == std::string::npos){
 		responseToClient(cli, erroneusNickName(usr_nick));
-		Logger::log(Logger::ERROR, "nickname's first letter is invalid");
+		Logger::log(Logger::WARNING, "nickname's first letter is invalid");
 		return;
 	}
 	// 5. checking invalid characters in the rest nickname
@@ -123,7 +123,7 @@ void	Server::nickCommand(Message& msg, Client& cli){
 		if (!isalnum(static_cast<unsigned char>(c))
 			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
 			responseToClient(cli, erroneusNickName(usr_nick));
-			Logger::log(Logger::ERROR, "nickname contains invalid characters");
+			Logger::log(Logger::WARNING, "nickname contains invalid characters");
 			return;
 		}
 	}
@@ -160,6 +160,7 @@ void	Server::userCommand(Message& msg, Client& cli){
 
 	if (params.size() < 3 || msg.getTrailing().empty()){
 		responseToClient(cli, needMoreParams("USER"));
+		Logger::log(Logger::WARNING, "Need more parameters");
 		return;
 	}
 	const std::string& username = params.at(0);
@@ -169,7 +170,7 @@ void	Server::userCommand(Message& msg, Client& cli){
 		if (!isalnum(static_cast<unsigned char>(c))
 			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos){
 			responseToClient(cli, erroneusNickName(""));
-			Logger::log(Logger::INFO, "username is invalid");
+			Logger::log(Logger::WARNING, "username is invalid");
 			return;
 		}
 	}
@@ -179,7 +180,7 @@ void	Server::userCommand(Message& msg, Client& cli){
 			&& std::string(SPECIAL_CHARS_NAMES).find(c) == std::string::npos &&
 			c != ' '){
 			responseToClient(cli, erroneusNickName(""));
-			Logger::log(Logger::INFO, "Realname is invalid");
+			Logger::log(Logger::WARNING, "Realname is invalid");
 			return;
 		}
 	}
@@ -892,6 +893,7 @@ void	Server::joinCommand(Message& msg, Client& cli){
 				const std::string& passwd = passwds[passwds_index++];
 				if (!isValidModePassword(passwd)){
 					responseToClient(cli, InvalidModeParamErr(nick, chan_name, 'k', passwd, "Invalid channel key"));
+					Logger::log(Logger::WARNING, "Invalid channel key");
 					continue ;
 				}
 				channel->addNewPassword(passwd);
@@ -911,27 +913,32 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			if (channel->isUserInList(cli, USERTYPE::REGULAR) == true){
 				// :server 443 hele #test3 :is already on channel
 				responseToClient(cli, userOnChannel(nick, "", chan_name));
+				Logger::log(Logger::WARNING, "User joined the channel already");
 				continue;
 			}
 			// checking if the channel is full, only if flag user_limit_ is true
 			if (channel->getLimitMode() && channel->isFullChannel() == true){
 				responseToClient(cli, channelIsFull(nick, chan_name));
+				Logger::log(Logger::WARNING, "Channel is full");
 				continue;
 			}
 			// If the channel needs a password, but the client doesn't provide it
 			if (channel->getPasswdMode() == true){
 				if (passwds.size() == 0){
 					responseToClient(cli, badChannelKey(nick,chan_name));
+					Logger::log(Logger::WARNING, "No channel key is provided");
 					continue;
 				}
 				if (channel->getPassword() != passwds.at(index++)){
 					responseToClient(cli, badChannelKey(nick,chan_name));
+					Logger::log(Logger::WARNING, "Channel key doesn't mattach");
 					continue;
 				}
 			}
 			// If the channel is invite_only but the client is not on the invitee list
 			if (channel->getInviteMode() == true && channel->isUserInList(cli, USERTYPE::INVITE) == false){
 				responseToClient(cli, inviteOnlyChan(nick, chan_name));
+				Logger::log(Logger::WARNING, "This is invite only channel");
 				continue ;
 			}
 			channel->addNewUser(cli);
@@ -939,10 +946,12 @@ void	Server::joinCommand(Message& msg, Client& cli){
 			std::string	message = rplJoin(cli.getPrefix(), chan_name);
 			channel->notifyChannelUsers(cli, message);
 			responseToClient(cli, message);
+			Logger::log(Logger::INFO, "Notify the channel user, new member joined");
 		}
 		// if the channel topic is set, send TOPIC to the joiner
 		if (channel->getTopic().empty() == false){
 			responseToClient(cli, Topic(nick, chan_name, channel->getTopic()));
+			Logger::log(Logger::INFO, "show the channel topic");
 		}
 
 		//Handle sending 353 353 RPL_NAMREPLY and 366 RPL_ENDOFNAMES
