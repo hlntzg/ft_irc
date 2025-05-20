@@ -259,18 +259,6 @@ void	Server::partCommand(Message& msg, Client& cli){
 		Logger::log(Logger::INFO, "A member left channel:" + channel_name);
 		if (channel_ptr->isEmptyChannel()) { // channel is empty, remove it
 			removeChannel(channel_name);
-		} else { // channe is not empty, checking if there is still operators there
-			if (channel_ptr->isThereOperatorInChannel() == false){
-				// no operator left in the channel, then need grand the privilege to
-				// another user
-				Client*	user = channel_ptr->getTheFirstUser();
-				channel_ptr->addNewOperator(*user);
-				std::string	update_mode = "+o";
-				std::string	message = rplMode(cli.getNick(), channel_name, update_mode, user->getNick());// the last one is a nick???
-				channel_ptr->notifyChannelUsers(*user, message);
-				responseToClient(*user, message);
-				// channel_ptr->printUsers(USERTYPE::OPERATOR); // for testing
-			}
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/20 12:59:50 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 13:24:05 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -362,17 +362,6 @@ void	Server::removeClient(Client& usr, std::string reason){
 				std::string message = rplQuit(usr.getPrefix(), reason);
 				channel_ptr->notifyChannelUsers(usr, message);
 				Logger::log(Logger::INFO, "Notify channel users that one member left");
-
-				if (channel_ptr->isThereOperatorInChannel() == false){ // no operator left in the channel
-					//need grand the privilege to another user
-					Client*	first_user = channel_ptr->getTheFirstUser();
-					channel_ptr->addNewOperator(*first_user);
-					std::string	update_mode = "+o";
-					std::string	message = rplMode(usr.getNick(), it->first, update_mode, first_user->getNick());// the last one is a nick???
-					channel_ptr->notifyChannelUsers(*first_user, message);
-					responseToClient(*first_user, message);
-					// channel_ptr->printUsers(USERTYPE::OPERATOR); // for testing
-				}
 			}
 		}
 		++it;
