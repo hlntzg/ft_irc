@@ -1,6 +1,40 @@
 # ft_irc
 
-## IRC Message
+Internet Relay Chat or IRC is a text-based communication protocol on the Internet.
+It offers real-time messaging that can be either public or private. Users can exchange
+direct messages and join group channels.
+IRC clients connect to IRC servers in order to join channels. IRC servers are connected
+together to form a network.<br>
+This project is about creating an IRC server. It will use an actual IRC client to connect to the server and test it. Internet is ruled by solid standards protocols that allow connected computers to interact with each other. It’s always a good thing to know.
+
+## Contents
+1. [IRC Message](#IRC-Messageg)<br>
+1.1 [Connection Resigstration](#Connection-Resigstration)<br>
+1.1.1 [Password message](#Password-message)<br>
+1.1.2 [NICK message](#NICK-message)<br>
+1.1.3 [USER message](#USER-message)<br>
+1.1.4 [QUIT message](#QUIT-message)<br>
+1.2 [Channel message](#Channel-message)<br>
+1.2.1 [JOIN message](#JOIN-message)<br>
+1.2.2 [KICK commend](#KICK-commend)<br>
+1.2.3 [INVITE message](#INVITE-message)<br>
+1.2.4 [TOPIC message](#TOPIC-message)<br>
+1.2.5 [MODE message](#MODE-message)<br>
+1.3 [Private message](#Private-message)<br>
+2. [Stages for Server](#Stages-for-Server)<br>
+3. [Some Functions](#some-functions)<br>
+3.1 [Socket](#socket)<br>
+3.2 [setsockopt](#setsockopt)<br>
+3.3 [bind](#bind)<br>
+3.4 [Listen](#listen)<br>
+3.5 [Accept](#accpet)<br>
+3.6 [poll](#poll)<br>
+3.7 [epoll](#epoll)<br>
+3.8 [fcntl](#fcntl)<br>
+4. [Testing](#Testing)<br>
+5. [References](#References)<br>
+
+## 1.IRC Message
 
 ### 1.1 Connection Resigstration
 
@@ -81,26 +115,7 @@ message between servers with the nickname for which the USER command belongs to
 :testnick USER guest tolmoon tolsun :Ronnie Reagan
 ```
 
-#### 1.1.4. Oper
-
-Command:   OPER <br>
-Parameter: `<user> <password>`
-
-OPER message is used by a normal user to obtain operator privileges. The combination of <user> and <password> are required to gain Operator privileges.
-
-If the client sending the OPER command supplies the correct password for the given user, the server then informs the rest of the network of the new operator by issuing a "MODE +o" for the clients nickname.
-The OPER message is client-server only.
-Numeric Replies:
-
-           ERR_NEEDMOREPARAMS              RPL_YOUREOPER
-           ERR_NOOPERHOST                  ERR_PASSWDMISMATCH
-
-Example:
-Attempt to register as an operator using a username of "foo" and "bar" as the password.
-```bash
-OPER foo bar
-```
-#### 1.1.5. Quit
+#### 1.1.4. Quit
 
 Command:   QUIT <br>
 Parameter: [`<Quit message>`]
@@ -119,7 +134,7 @@ Preferred message format.
 QUIT :Gone to have lunch
 ```
 
-### 1.2 Join message
+### 1.2 Channel message
 
 #### 1.2.1 Join message
 
@@ -316,7 +331,7 @@ PRIVMSG #*.edu :NSFNet is undergoing work, expect interruptions
                                 host which has a name matching *.edu.</pre>
 
 
-## Stages for Server
+## 2.Stages for Server
 
 The server is created using the following steps:
 
@@ -326,9 +341,9 @@ The server is created using the following steps:
 	4. Listen(using listen());
 	5. Accept(using accept());
 
-## Some Functions
+## 3.Some Functions
 
-### 1. socket()
+### 3.1. socket()
 
 🔧 Purpose:
 The socket() function is used in network programming to create a communication endpoint, known as a socket.
@@ -364,7 +379,7 @@ int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 ```
 This creates a TCP socket using IPv4 and stores the socket file descriptor in serverSocket.
 
-### 2. setsockopt()
+### 3.2. setsockopt()
 
 setsockopt() – Optional, but recommended.
 
@@ -393,7 +408,7 @@ setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 This allows the socket to reuse the port even if it's in TIME_WAIT state after being closed.
 
 
-### 3. bind()
+### 3.3. bind()
 
 🔧 Purpose:
 Bind your socket to a specific IP address and port so it can receive incoming connections.
@@ -440,7 +455,7 @@ if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
 ```
 This binds a socket to the specific IP address 192.168.3.21 on port 8080.
 
-#### 3.1 struct sockaddr_in
+#### 3.3.1 struct sockaddr_in
 ```struct sockaddr_in``` is a specialized structure used to define the IPv4 address and port when creating or connecting a socket.
 
 It's used with functions like:
@@ -479,7 +494,7 @@ inet_pton(AF_INET, "192.168.1.100", &address.sin_addr);  // Convert string IP to
 htons() = Host TO Network Short (for port)
 inet_pton() = presentation-to-network (for IP)
 
-#### 3.2 Comparison: sockaddr_in vs. sockaddr_in6
+#### 3.3.2 Comparison: sockaddr_in vs. sockaddr_in6
 ```sockaddr_in6``` is used for IPv6.
 
 	Field          | sockaddr_in (IPv4)         | sockaddr_in6 (IPv6)
@@ -508,7 +523,7 @@ inet_pton(AF_INET6, "fe80::1", &ipv6_addr.sin6_addr);
 
 ```sin6_scope_id``` can be set for link-local addresses if needed (e.g., eth0 interface).
 
-### 4. listen()
+### 3.4. listen()
 
 🔧 Purpose:
 Put the socket into passive mode, ready to accept connection requests.
@@ -527,7 +542,7 @@ int listen(int sockfd, int backlog);
 ```
 listen(server_fd, 10);  // Can queue up to 10 pending clients
 ```
-### 5. accpt()
+### 3.5. accpt()
 🔧 Purpose:
 Accept a new client connection and return a new socket for communication with that client.
 
@@ -550,7 +565,7 @@ socklen_t addrlen = sizeof(client_addr);
 
 client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &addrlen);
 ```
-### 6. poll()
+### 3.6. poll()
 
  Poll() is used for monitoring multiple file descriptors to see if I/O is possible on any
  of them. It’s especially useful in network programming and is commonly used in building
@@ -606,13 +621,13 @@ Common events/revents flags:
 
 	-1: Error (check errno)
 
-### 7. epoll()
+### 3.7. epoll()
 `epoll` is Linux’s high-performance I/O multiplexing API designed to efficiently monitor
 large numbers of file descriptors (typically sockets). It solves the O(N) scanning problem
 of `select/poll` by letting the kernel maintain an “interest list” and only reporting FDs
 that actually have events.
 
-#### 7.1 Core Concepts
+#### 3.7.1 Core Concepts
  1) Epoll Instance
  You create it with
  ```cpp
@@ -641,14 +656,14 @@ for (int i = 0; i < n; ++i) {
     // handle evs & EPOLLIN, EPOLLOUT, EPOLLERR, etc.
 }
 ```
-#### 7.2 Triggering Modes
+#### 3.7.2 Triggering Modes
  * Level-Triggered (LT) (default)
 	As long as data remains to be read or the socket stays writable, epoll_wait will keep returning that FD. Simpler to program but can cause extra wakeups.
 
  * Edge-Triggered (ET) (set via EPOLLET)<br>
  	Only notifies you once when the state changes (e.g. from no data → data available). You must set the socket to non-blocking and then loop on read()/write() until they return EAGAIN, or you’ll miss further data.
 
-#### 7.3 Common Event Flags
+#### 3.7.3 Common Event Flags
 
 * `EPOLLIN` – data to read (or new connection on listen socket)
 * `EPOLLOUT` – ready to write
@@ -658,7 +673,7 @@ for (int i = 0; i < n; ++i) {
 * `EPOLLET` – enable edge-triggered mode
 * `EPOLLONESHOT` – auto-disable after event, must rearm explicitly
 
-#### 7.4 Why Use epoll?
+#### 3.7.4 Why Use epoll?
  * Scalability: O(1) or O(active_fds) behavior → ideal for thousands of concurrent
  connections.
  * Low Overhead: Kernel only wakes your thread when there’s actual work, avoiding wasted
@@ -667,7 +682,7 @@ for (int i = 0; i < n; ++i) {
  * Flexibility: Choose LT or ET, combine flags for one-shot usage, and watch for
  half-closes via `EPOLLRDHUP`.
 
-### 8. fcntl()
+### 3.8. fcntl()
 `fcntl()` (file control) is a system call in Unix/Linux that changes the behavior of an
 already opened file descriptor.
 
@@ -694,7 +709,7 @@ int fcntl(int fd, int cmd, ... /* arg */ );
  * `cmd` is what you want to do (like F_GETFL, F_SETFL, etc.)
  * `arg` is optional, depending on the command.
 
-#### 8.1 What is Non-blocking I/O?
+#### 3.8.1 What is Non-blocking I/O?
 Normally, I/O is blocking.
 For example:
  * When you `read()` from a socket, if there is no data available, the program will block (pause) and wait until data arrives.
@@ -706,7 +721,7 @@ Non-blocking I/O changes this behavior:
 Your program doesn't get stuck anymore — it can do something else instead of waiting.
 👉 In event-driven servers (epoll, kqueue, etc.), non-blocking is critical because you don't want your server to "freeze" when talking to slow clients.
 
-#### 8.2 How to use fcntl() to set non-blocking mode
+#### 3.8.2 How to use fcntl() to set non-blocking mode
 Step 1: Get the current flags
 ```cpp
 int flags = fcntl(fd, F_GETFL, 0);
@@ -727,7 +742,7 @@ if (fcntl(fd, F_SETFL, flags) == -1) {
 ```
 After this, all `read()`, `write()` on this fd will become non-blocking.
 
-## Testing
+## 4.Testing
 
 ### Testing SIGTERM
 1. Get the program PID :
@@ -740,7 +755,7 @@ After this, all `read()`, `write()` on this fd will become non-blocking.
 ```
 
 
-## References
+## 5.References
 
 https://www.geeksforgeeks.org/socket-programming-cc/
 
