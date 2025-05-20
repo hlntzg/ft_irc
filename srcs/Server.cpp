@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/20 14:23:07 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 15:27:39 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ Server::Server(std::string port, std::string password){
 	}
 
 	// 2. paring for password
-	if (password.size() < 4){
-		throw std::overflow_error("Error: password is less than 4 characters");
+	if (password.size() < 4 || password.size() > 20){
+		throw std::overflow_error("Error: password should be 4~20 characters");
 	}
 	// if we don't cast the c to unsigned char, it can crash with UTF-8
 	for (auto c : password){
