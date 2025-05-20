@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 12:38:40 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/20 13:24:05 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 14:23:07 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -419,8 +419,10 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	// Before the user sends the correct password, he/she can't execute any commands
 	if (cli.getPassword().empty()) {
 		if (cmd_type != PASS && cmd_type != CAP && cmd_type != PING && cmd_type != WHOIS) {
-			Logger::log(Logger::INFO, "User hasn't sent correct password yet");
 			responseToClient(cli, passwdMismatch(cli.getNick()));
+			Logger::log(Logger::WARNING, "User hasn't sent correct password yet, can't execute the command");
+			removeClient(cli, "wrong password");
+			Logger::log(Logger::INFO, "Remove the client");
 			return;
 		}
 	}
@@ -428,7 +430,7 @@ void	Server::executeCommand(Message& msg, Client& cli){
 	// the commands except PASS, NICK, USER and QUIT
 	if (!cli.isRegistered() && pre_registration_allowed_commands_.find(cmd_type)
 		== pre_registration_allowed_commands_.end() ){
-		Logger::log(Logger::INFO, "Unregistered client can't execute the command");
+		Logger::log(Logger::WARNING, "Unregistered client can't execute the command");
 		responseToClient(cli, NotRegistered(cmd_str_type));
 		return;
 	}

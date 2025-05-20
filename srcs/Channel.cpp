@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 14:42:06 by hutzig            #+#    #+#             */
-/*   Updated: 2025/05/20 12:58:36 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 14:34:11 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,6 @@ bool    Channel::isThereOperatorInChannel(){
         return true;
     }
 }
-
 
 // General:
 

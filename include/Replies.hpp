@@ -6,7 +6,7 @@
 /*   By: jingwu <jingwu@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:44:37 by jingwu            #+#    #+#             */
-/*   Updated: 2025/05/19 13:43:09 by jingwu           ###   ########.fr       */
+/*   Updated: 2025/05/20 14:37:31 by jingwu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ inline std::string rplWhoisUser(const std::string& requestorNick,
 /*"<nick> <server> :<server info>"
   "<client> <nick> <server> :<server info>"
  Sent as a reply to the WHOIS command, this numeric shows which server
- the client with the nickname <nick> is connected to. <server> is the name of 
+ the client with the nickname <nick> is connected to. <server> is the name of
  the server (as used in message prefixes). <server info> is a string containing a description of that server.
   */
 // 312 RPL_WHOISSERVER
@@ -120,7 +120,7 @@ inline std::string rplEndOfWho(const std::string& requester, const std::string& 
 
 
 // 319 RPL_WHOISCHANNELS
-inline std::string rplWhoIsChannels(const std::string& requesterNick, 
+inline std::string rplWhoIsChannels(const std::string& requesterNick,
 									const std::string& targetNick,
 									const std::string& channels){
 	return ":" + std::string(SERVER) + " 319 " + requesterNick + " " + targetNick + " :" + channels + CRLF;
@@ -155,8 +155,8 @@ const std::string& target){
 
 /*
 Sent as a reply to the WHO command, this numeric gives information about the client with the nickname <nick>.
-If the WHO command was given a channel as the <mask> parameter, then the same channel MUST be returned in <channel>. 
-Otherwise <channel> is an arbitrary channel the client is joined to or a literal asterisk character ('*', 0x2A) 
+If the WHO command was given a channel as the <mask> parameter, then the same channel MUST be returned in <channel>.
+Otherwise <channel> is an arbitrary channel the client is joined to or a literal asterisk character ('*', 0x2A)
 if no channel is returned. <hopcount> is the number of intermediate servers between the client issuing
 the WHO command and the client <nick>, it might be unreliable so clients SHOULD ignore it.
 
@@ -170,10 +170,10 @@ Optionally, one or more user mode characters and other arbitrary server-specific
 "<client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>"
 */
 // 352 RPL_WHOREPLY
-inline std::string rplWhoReply(const std::string& requester, 
+inline std::string rplWhoReply(const std::string& requester,
 							const std::string& channel,
-							const std::string& user, 
-							const std::string& host, 
+							const std::string& user,
+							const std::string& host,
 							const std::string& nick,
 							const std::string& status,
 							const std::string& realname){
@@ -529,282 +529,3 @@ inline std::string InvalidModeParamErr(const std::string& nick, const std::strin
 char mode, const std::string& param, const std::string& reason) {
     return ":" + std::string(SERVER) + " 696 " + nick + " " + channel + " " + mode + " " + param + " :" + reason + CRLF;
 }
-
-
-
-/*
-we dont use, but other groups do:
-// ERR_RESTRICTED (484)
-// "Your connection is restricted"
-inline std::string errRestricted(const std::string& serverName,
-								 const std::string& nick)
-{
-	return ":" + serverName + " 484 " + nick +
-		   " :Your connection is restricted\r\n";
-}
-
-// RPL_YOUREOPER (381)
-inline std::string rplYoureOper(const std::string& serverName,
-								const std::string& nick)
-{
-	return ":" + serverName + " 381 " + nick +
-		   " :You are now an IRC operator\r\n";
-}
-
-// ERR_NOOPERHOST (491) -- if operator login fails due to host restrictions
-inline std::string errNoOperHost(const std::string& serverName,
-								 const std::string& nick)
-{
-	return ":" + serverName + " 491 " + nick + " :No O-lines for your host\r\n";
-}
-
-// RPL_NAMEREPLY 353 <nick> <symbol> <channel> :<names>
-inline std::string rplNameReply(const std::string& serverName,
-							   const std::string& nick,
-							   const std::string& symbol,
-							   const std::string& channel,
-							   const std::string& namelist)
-{
-	return ":" + serverName + " 353 " + nick + " " + symbol + " " + channel +
-		   " :" + namelist + CRLF;
-}
-// RPL_ENDOFNAMES (366) - after enumerating all users
-inline std::string rplEndOfNames(const std::string& serverName,
-								 const std::string& nick,
-								 const std::string& channel)
-{
-	return ":" + serverName + " 366 " + nick + " " + channel +
-		   " :End of /NAMES list\r\n";
-}
-
-// "Cannot join channel (+b)"
-inline std::string errBannedFromChan(const std::string& serverName,
-									 const std::string& nick,
-									 const std::string& channel)
-{
-	return ":" + serverName + " 474 " + nick + " " + channel +
-		   " :Cannot join channel (+b)\r\n";
-}
-// ERR_BADCHANNELNAME (479) add by Helena: -------------> not standard
-inline std::string errBadChannelName(const std::string& serverName,
-									 const std::string& nick,
-									 const std::string& channel)
-{
-	return ":" + serverName + " 479 " + nick + " " + channel +
-		   " :Illegal channel name\r\n";
-}
-
-// ERR_BADCHANMASK (476)
-// "Bad Channel Mask"
-inline std::string errBadChanMask(const std::string& serverName,
-								  const std::string& nick,
-								  const std::string& channel)
-{
-	return ":" + serverName + " 476 " + nick + " " + channel +
-		   " :Bad Channel Mask\r\n";
-}
-
-// ERR_UNAVAILRESOURCE (437)
-// "Resource temporarily unavailable"
-inline std::string errUnavailableResource(const std::string& serverName,
-										  const std::string& nick)
-{
-	return ":" + serverName + " 437 " + nick +
-		   " :Resource temporarily unavailable\r\n";
-}
-// 481 ERR_NOPRIVILEGES
-inline std::string errNoPrivileges(const std::string& serverName,
-								   const std::string& nick)
-{
-	return ":" + serverName + " 481 " + nick +
-		   " :Permission Denied- You're not an IRC operator\r\n";
-}
-
-// RPL_BANLIST (367)
-// "<channel> <ban mask> <set by> <time>"
-inline std::string rplBanList(const std::string& serverName,
-							  const std::string& nick,
-							  const std::string& channel,
-							  const std::string& banMask,
-							  const std::string& setBy,
-							  const std::string& timeStamp)
-{
-	return ":" + serverName + " 367 " + nick + " " + channel + " " + banMask +
-		   " " + setBy + " " + timeStamp + CRLF;
-}
-// RPL_ENDOFBANLIST (368)
-// "<channel> :End of ban list"
-inline std::string rplEndOfBanList(const std::string& serverName,
-								   const std::string& nick,
-								   const std::string& channel)
-{
-	return ":" + serverName + " 368 " + nick + " " + channel +
-		   " :End of ban list\r\n";
-}
-
-// RPL_EXCEPTLIST (348)
-// "<channel> <exception mask>"
-inline std::string rplExceptList(const std::string& serverName,
-								 const std::string& nick,
-								 const std::string& channel,
-								 const std::string& exceptionMask)
-{
-	return ":" + serverName + " 348 " + nick + " " + channel + " " +
-		   exceptionMask + CRLF;
-}
-// RPL_ENDOFEXCEPTLIST (349)
-// "<channel> :End of exception list"
-inline std::string rplEndOfExceptList(const std::string& serverName,
-									  const std::string& nick,
-									  const std::string& channel)
-{
-	return ":" + serverName + " 349 " + nick + " " + channel +
-		   " :End of exception list\r\n";
-}
-// RPL_INVITELIST (346)
-// "<channel> <invite mask>"
-inline std::string rplInviteList(const std::string& serverName,
-								 const std::string& nick,
-								 const std::string& channel,
-								 const std::string& inviteMask)
-{
-	return ":" + serverName + " 346 " + nick + " " + channel + " " +
-		   inviteMask + CRLF;
-}
-
-// RPL_ENDOFINVITELIST (347)
-// "<channel> :End of invite list"
-inline std::string rplEndOfInviteList(const std::string& serverName,
-									  const std::string& nick,
-									  const std::string& channel)
-{
-	return ":" + serverName + " 347 " + nick + " " + channel +
-		   " :End of invite list\r\n";
-}
-
-----> operators:
-// RPL_UNIQOPIS (325)
-// "<channel> :<operator list>"
-inline std::string rplUniqOpIs(const std::string& serverName,
-							   const std::string& nick,
-							   const std::string& channel,
-							   const std::string& opList)
-{
-	return ":" + serverName + " 325 " + nick + " " + channel + " :" + opList +
-		   CRLF;
-}
-
-----> private message:
-ERR_NORECIPIENT (411)
-  "<client> :No recipient given (<command>)"
-Returned by the PRIVMSG command to indicate the message wasn’t delivered because there was no recipient given
-// ERR_NORECIPIENT (411)
-inline std::string errNoRecipient(const std::string& serverName,
-								  const std::string& nick,
-								  const std::string& command)
-{
-	return ":" + serverName + " 411 " + nick + " " + command +
-		   " :No recipient given\r\n";
-}
-
-// ERR_WILDTOPLEVEL (414)
-// "Wildcard not allowed in toplevel domain"
-inline std::string errWildToplevel(const std::string& serverName,
-								   const std::string& nick,
-								   const std::string& mask)
-{
-	return ":" + serverName + " 414 " + nick + " " + mask +
-		   " :Wildcard not allowed in toplevel domain\r\n";
-}
-
-------> away:
-// RPL_AWAY (301)
-// "<nick> <target> :<away message>"
-inline std::string rplAway(const std::string& serverName,
-						   const std::string& nick, const std::string& target,
-						   const std::string& awayMessage)
-{
-	return ":" + serverName + " 301 " + nick + " " + target + " :" +
-		   awayMessage + CRLF;
-}
-
-// RPL_UNAWAY (305)
-// ":You are no longer marked as being away"
-inline std::string rplUnaway(const std::string& serverName,
-							 const std::string& nick)
-{
-	return ":" + serverName + " 305 " + nick +
-		   " :You are no longer marked as being away\r\n";
-}
-
-// RPL_NOWAWAY (306)
-// ":You have been marked as being away"
-inline std::string rplNowAway(const std::string& serverName,
-							  const std::string& nick)
-{
-	return ":" + serverName + " 306 " + nick +
-		   " :You have been marked as being away\r\n";
-}
-		   // ERR_NOTOPLEVEL (413)
-// "No toplevel domain specified"
-inline std::string errNotToplevel(const std::string& serverName,
-								  const std::string& nick,
-								  const std::string& mask)
-{
-	return ":" + serverName + " 413 " + nick + " " + mask +
-		   " :No toplevel domain specified\r\n";
-}
-
-//  Standard PRIVMSG (for broadcast, not a reply code)
-inline std::string rplPrivMsg(const std::string& source,
-							  const std::string& target,
-							  const std::string& message)
-{
-	return ":" + source + " PRIVMSG " + target + " :" + message + CRLF;
-}
-
-// WHO/WHOIS Command Replies
-
-inline std::string rplWhoReply(const std::string& serverName,
-							   const std::string& requestorNick,
-							   const std::string& mask, const std::string& user,
-							   const std::string& host,
-							   const std::string& server,
-							   const std::string& nick, char status,
-							   const std::string& realName)
-{
-	return ":" + serverName + " 352 " + requestorNick + " " + mask + " " +
-		   user + " " + host + " " + server + " " + nick + " " + status +
-		   " :0 " + realName + CRLF;
-}
-
-// 315 RPL_ENDOFWHO
-inline std::string rplEndOfWho(const std::string& serverName,
-							   const std::string& requestorNick,
-							   const std::string& mask)
-{
-	return ":" + serverName + " 315 " + requestorNick + " " + mask +
-		   " :End of /WHO list\r\n";
-}
-
-// WHOIS reply codes
-inline std::string rplWhoisUser(const std::string& serverName,
-								const std::string& requestorNick,
-								const std::string& targetNick,
-								const std::string& user,
-								const std::string& host,
-								const std::string& realName)
-{
-	return ":" + serverName + " 311 " + requestorNick + " " + targetNick + " " +
-		   user + " " + host + " * :" + realName + CRLF;
-}
-
-// If the user is an IRC operator:
-inline std::string rplWhoisOperator(const std::string& serverName,
-									const std::string& requestorNick,
-									const std::string& targetNick)
-{
-	return ":" + serverName + " 313 " + requestorNick + " " + targetNick +
-		   " :is an IRC operator\r\n";
-}
-*/

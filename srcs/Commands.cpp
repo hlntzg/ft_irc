@@ -20,7 +20,7 @@ void	Server::passCommand(Message& msg, Client& cli){
 		return;
 	} else if (cli.isRegistered()){
 		responseToClient(cli, alreadyRegistred(nick));
-		Logger::log(Logger::INFO, "no password is provided");
+		Logger::log(Logger::WARNING, "no password is provided");
 		return ;
 	}
 	// vector.at() is safer than vector.at[0] to access the element.
@@ -48,10 +48,12 @@ void	Server::attempRegisterClient(Client& cli){
 	const std::string& nick = cli.getNick();
 	if (isNickInUse(nick, &cli)){
 		responseToClient(cli, nickNameInUse(nick, nick));
+		Logger::log(Logger::WARNING, "Try to register, user name is in use");
 		return;
 	}
 	if (cli.getPassword() != serv_passwd_){
 		responseToClient(cli, passwdMismatch(nick));
+		Logger::log(Logger::WARNING, "Try to register, password doesn't mattch");
 		return;
 	}
 	cli.setRegistrationStatus(true);
@@ -59,8 +61,6 @@ void	Server::attempRegisterClient(Client& cli){
 	responseToClient(cli,rplYourHost(nick));
 	responseToClient(cli,rplCreated(nick));
 	responseToClient(cli,rplMyInfo(nick));
-	// std::cout << "Print from attempRegiser function\n";
-	// cli.printInfo(); // for testing only
 }
 
 /**
@@ -74,7 +74,6 @@ void	Server::attempRegisterClient(Client& cli){
  */
 bool Server::isNickInUse(const std::string& nick, const Client* requesting_client){
 	for (auto& [fd, user] : clients_){
-		// why do we added second condition here??
 		if (user->getNick() == nick && user->isRegistered() && user.get() != requesting_client){
 			return true;
 		}
