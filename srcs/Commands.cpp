@@ -666,7 +666,7 @@ void	Server::mode(Message& msg, Client& user){
 		return;
 	}
 
-	if (channel_list.empty()) {
+	if (channel_list.empty()){
 		responseToClient(user, needMoreParams("MODE"));
 		return;
 	}
@@ -677,11 +677,11 @@ void	Server::mode(Message& msg, Client& user){
 
 	std::string	channel_name = channel_list.at(0);//params_list.at(0);
 	std::shared_ptr<Channel> channel_ptr = getChannelByName(channel_name);
-	if (!channel_ptr) {
+	if (!channel_ptr){
         responseToClient(user, errNoSuchChannel(user.getNick(), channel_name));
 		return;
     }
-	if (!channel_ptr->isChannelUser(user)) {
+	if (!channel_ptr->isChannelUser(user)){
         responseToClient(user, notOnChannel(user.getNick(), channel_name));
         return;
     }
@@ -694,7 +694,7 @@ void	Server::mode(Message& msg, Client& user){
 	if (params_list.size() > 2)
     	args.assign(params_list.begin() + 2, params_list.end());
 
-	if (mode_flags.empty()) { // display only active modes
+	if (mode_flags.empty()){ // display only active modes
         std::string status = "";
         if (channel_ptr->getInviteMode()) status += "i";
         if (channel_ptr->getTopicMode()) status += "t";
@@ -707,7 +707,7 @@ void	Server::mode(Message& msg, Client& user){
         return;
     }
 
-	if (!channel_ptr->isChannelOperator(user)) {
+	if (!channel_ptr->isChannelOperator(user)){
         responseToClient(user, ChanoPrivsNeeded(user.getNick(), channel_name));
         return;
     }
@@ -716,26 +716,26 @@ void	Server::mode(Message& msg, Client& user){
 	size_t arg_index = 0;
 	std::string update_modes;
 
-	for (size_t i = 0; i < mode_flags.size(); ++i) {
+	for (size_t i = 0; i < mode_flags.size(); ++i){
 		char c = mode_flags[i];
 
-		if (c == '+') {
+		if (c == '+'){
 			adding = true;
 		}
-		else if (c == '-') {
+		else if (c == '-'){
 			adding = false;
 		}
-		else if (c == 'i') {
+		else if (c == 'i'){
 			adding ? channel_ptr->setInviteOnly() : channel_ptr->unsetInviteOnly();
 			update_modes += (adding ? "+i" : "-i");
 		}
-		else if (c == 't') {
+		else if (c == 't'){
 			adding ? channel_ptr->setTopicRestrictions() : channel_ptr->unsetTopicRestrictions();
 			update_modes += (adding ? "+t" : "-t");
 		}
-		else if (c == 'k') {
-			if (adding) {
-				if (arg_index >= args.size()) {
+		else if (c == 'k'){
+			if (adding){
+				if (arg_index >= args.size()){
 					responseToClient(user, needMoreParams("MODE"));
 					return;
 				}
@@ -746,18 +746,18 @@ void	Server::mode(Message& msg, Client& user){
 				channel_ptr->addNewPassword(args[arg_index++]);
 				channel_ptr->setPassword();
 				update_modes += "+k";
-			} else {
+			} else{
 				channel_ptr->unsetPassword();
 				update_modes += "-k";
 			}
 		}
-		else if (c == 'l') {
-			if (adding) {
-				if (arg_index >= args.size()) {
+		else if (c == 'l'){
+			if (adding){
+				if (arg_index >= args.size()){
 					responseToClient(user, needMoreParams("MODE"));
 					return;
 				}
-				if (!isPositiveInteger(args[arg_index])) {
+				if (!isPositiveInteger(args[arg_index])){
     				responseToClient(user, InvalidModeParamErr(user.getNick(), channel_name, 'l', args[arg_index++], "Limit must be a positive integer"));
             		continue;
         		}
@@ -769,22 +769,22 @@ void	Server::mode(Message& msg, Client& user){
 				update_modes += "-l";
 			}
 		}
-		else if (c == 'o') {
-			if (arg_index >= args.size()) {
+		else if (c == 'o'){
+			if (arg_index >= args.size()){
 				responseToClient(user, needMoreParams("MODE"));
 				return;
 			}
 			std::string nick = args[arg_index++];
 			std::shared_ptr<Client> target_ptr = getUserByNick(nick);
-			if (!target_ptr) {
+			if (!target_ptr){
 				responseToClient(user, errNoSuchNick(user.getNick(), nick));
 				continue ;
 			}
-			if (!channel_ptr->isChannelUser(*target_ptr)) {
+			if (!channel_ptr->isChannelUser(*target_ptr)){
 				responseToClient(user, userNotInChannel(user.getNick(), nick, channel_name));
 				continue;
 			}
-			if (adding) {
+			if (adding){
 				channel_ptr->addNewOperator(*target_ptr);
 				update_modes += "+o";
 			} else {
@@ -792,7 +792,7 @@ void	Server::mode(Message& msg, Client& user){
 				update_modes += "-o";
 			}
 		}
-		else {
+		else{
 			responseToClient(user, unknownMode(user.getNick(), std::string(1, c), channel_name));
 		}
 	}
@@ -801,7 +801,7 @@ void	Server::mode(Message& msg, Client& user){
 		arg_index = args.size();
 	std::vector<std::string> params(args.begin(), args.begin() + arg_index);
 	std::string	params_str;
-	for (const std::string& arg : params) {
+	for (const std::string& arg : params){
 		params_str += " " + arg;
 	}
 	std::string message = rplMode(user.getPrefix(), channel_name, update_modes, params_str);
@@ -1045,10 +1045,9 @@ void Server::privmsgCommand(Message& msg, Client& cli){
 }
 
 /**
- * Helper for an old version of the capCommand(), can probably be removed if parsing
- * handles it for msg_trailing_
+ * @brief Remove leading and trailing space characters from a string
  */
-std::string trim(const std::string& str) {
+std::string Server::trim(const std::string& str){
     size_t start = 0;
     while (start < str.length() && std::isspace(str[start])) ++start;
     size_t end = str.length();
@@ -1083,23 +1082,23 @@ void Server::capCommand(Message& msg, Client& cli){
 	}
 }
 
-bool Server::isValidModePassword(const std::string& key) {
-    if (key.empty() || key.length() > 23) {
+bool Server::isValidModePassword(const std::string& key){
+    if (key.empty() || key.length() > 23){
         return false;
     }
-    for (unsigned char ch : key) {
+    for (unsigned char ch : key){
         // Allow if in the specified ASCII ranges
         if ((ch >= 0x01 && ch <= 0x05) || (ch >= 0x07 && ch <= 0x08) || ch == 0x0C ||
-            (ch >= 0x0E && ch <= 0x1F) || (ch >= 0x21 && ch <= 0x7F)) {
+            (ch >= 0x0E && ch <= 0x1F) || (ch >= 0x21 && ch <= 0x7F)){
             continue;
-        } else {
+        } else{
             return false;
         }
     }
     return true;
 }
 
-bool Server::isPositiveInteger(const std::string& s) {
+bool Server::isPositiveInteger(const std::string& s){
     return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
 }
 
@@ -1143,6 +1142,12 @@ void Server::whoisCommand(Message& msg, Client& cli){
 	responseToClient(cli, rplEndOfWhois(cli.getNick(), targetNick));
 }
 
+/**
+ * @brief Used to tell the client the information of all the users in a channel.
+ * Irssi does this query in order to set things like the @ in front of channel operators
+ * Here status is always "H", hopcount is "0", and voiced is ignored, since these
+ * functionalities were not required to be supported in this project
+ */
 void Server::whoCommand(Message& msg, Client& cli){
     std::vector<std::string> params = msg.getParameters();
     if (params.empty()){
