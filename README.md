@@ -31,7 +31,7 @@ This project is about creating an IRC server. It will use an actual IRC client t
 3.6 [poll](#poll)<br>
 3.7 [epoll](#epoll)<br>
 3.8 [fcntl](#fcntl)<br>
-4. [Testing](#Testing)<br>
+4. [Netcat and irssi](#Netcat-and-irssi)<br>
 5. [References](#References)<br>
 
 ## 1.IRC Message
@@ -742,18 +742,41 @@ if (fcntl(fd, F_SETFL, flags) == -1) {
 ```
 After this, all `read()`, `write()` on this fd will become non-blocking.
 
-## 4.Testing
+## 4.Netcat and irssi
 
-### Testing SIGTERM
-1. Get the program PID :
- ```bash
- ps aux | grep irc_server
- ```
-2. Kill it:
-```bash
- kill <PID>
-```
+### 4.1 netcat
+Netcat is a powerful networking utility used for reading from and writing to network connections using TCP or UDP.<br>
+First connect to IRC server: `nc -C <server_host> <server_port>`<br>
+For example, `nc -C localhost 6667`<br>
 
+After connect with IRC server, you can execute below commands:<br>
+`PASS 123456`  -- Give the server <br>
+`NICK nickname` -- Set the nickname <br>
+`USER username ircserv 127.0.0.1 :realname` -- Set up user information<br>
+`JOIN #channel` -- Join a channel<br>
+`PRIVMSG #channel :Hello,everyone!` -- Send a message to a channel<br>
+`PRIVMSG alice :Hello, alice!` -- Send message to a user<br>
+`PART #channel` or `PART #channel :leaving reason` -- Leave from a channel<br>
+`MODE #channel +il 4` -- Change the mode for a channel<br>
+`QUIT` or `QUIT :quit reason` -- Quit from netcat<br>
+Note: before the user gives the correct password, the user can't execute any other commands<br>
+
+### 4.2 irssi
+Irssi is a terminal-based IRC (Internet Relay Chat) client for Unix-like systems.<br>
+Connect to the IRC server : `/connect <host> <server_port> <server_password>`<br>
+For example, `/connect localhost 6667 123456`<br>
+
+Commands you can execute:<br>
+`/join channel` -- join a channel<br>
+`/msg channel :hello, everyone!` -- send message to a channel<br>
+`/msg alice :hello, alice` --  send message to a user<br>
+`/part channel` or `/part channel :leaving reason` -- Leave from a channel<br>
+`/mode channel +il 4` -- Change the mode for a channel<br>
+`/quit` or `/quit :quit reason` -- Quit from netcat<br>
+
+Note:<br>
+ 1. Switching between tabs/windows in Irssi: Use Alt (or Meta) + Number;<br>
+ 2. Irssi has strict format requirements for the replies. So when you implement the reply message, need pay attation to the format, if here is space, then put space there.<br>
 
 ## 5.References
 
