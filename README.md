@@ -777,6 +777,7 @@ Commands you can execute:<br>
 Note:<br>
  1. Switching between tabs/windows in Irssi: Use Alt (or Meta) + Number;<br>
  2. Irssi has strict format requirements for the replies. So when you implement the reply message, need pay attation to the format, if here is space, then put space there.<br>
+ 3. You can use ctrl + z to suspend the irssi client, then using "fg" + press enter in terminal to resume it back.
 
 ## 5.References
 
