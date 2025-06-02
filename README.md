@@ -7,32 +7,60 @@ IRC clients connect to IRC servers in order to join channels. IRC servers are co
 together to form a network.<br>
 This project is about creating an IRC server. It will use an actual IRC client to connect to the server and test it. Internet is ruled by solid standards protocols that allow connected computers to interact with each other. It’s always a good thing to know.
 
-## Contents
-1. [IRC Message](#IRC-Messageg)<br>
-1.1 [Connection Resigstration](#Connection-Resigstration)<br>
-1.1.1 [Password message](#Password-message)<br>
-1.1.2 [NICK message](#NICK-message)<br>
-1.1.3 [USER message](#USER-message)<br>
-1.1.4 [QUIT message](#QUIT-message)<br>
-1.2 [Channel message](#Channel-message)<br>
-1.2.1 [JOIN message](#JOIN-message)<br>
-1.2.2 [KICK commend](#KICK-commend)<br>
-1.2.3 [INVITE message](#INVITE-message)<br>
-1.2.4 [TOPIC message](#TOPIC-message)<br>
-1.2.5 [MODE message](#MODE-message)<br>
-1.3 [Private message](#Private-message)<br>
-2. [Stages for Server](#Stages-for-Server)<br>
-3. [Some Functions](#some-functions)<br>
-3.1 [Socket](#socket)<br>
-3.2 [setsockopt](#setsockopt)<br>
-3.3 [bind](#bind)<br>
-3.4 [Listen](#listen)<br>
-3.5 [Accept](#accpet)<br>
-3.6 [poll](#poll)<br>
-3.7 [epoll](#epoll)<br>
-3.8 [fcntl](#fcntl)<br>
-4. [Netcat and irssi](#Netcat-and-irssi)<br>
-5. [References](#References)<br>
+## Table of Content
+ - [How to Run](#how-to-run)<br>
+1. [IRC Message](#1irc-message)<br>
+1.1 [Connection Resigstration](#11-connection-resigstration)<br>
+1.1.1 [Password message](#111-password-message)<br>
+1.1.2 [NICK message](#112-nick-message)<br>
+1.1.3 [USER message](#113-user-message)<br>
+1.1.4 [QUIT message](#114-quit-message)<br>
+1.2 [Channel message](#12-channel-message)<br>
+1.2.1 [JOIN message](#121-join-message)<br>
+1.2.2 [KICK command](#122-kick-command)<br>
+1.2.3 [INVITE message](#123-invite-message)<br>
+1.2.4 [TOPIC message](#124-topic-message)<br>
+1.2.5 [MODE message](#125-mode-message)<br>
+1.3 [Private message](#13-private-message)<br>
+2. [Stages for Server](#2stages-for-server)<br>
+3. [Some Functions](#3some-functions)<br>
+3.1 [Socket](#31-socket)<br>
+3.2 [setsockopt](#32-setsockopt)<br>
+3.3 [bind](#33-bind)<br>
+3.4 [Listen](#34-listen)<br>
+3.5 [Accept](#35-accept)<br>
+3.6 [poll](#36-poll)<br>
+3.7 [epoll](#37-epoll)<br>
+3.8 [fcntl](#38-fcntl)<br>
+4. [Netcat and irssi](#4netcat-and-irssi)<br>
+5. [References](#5references)<br>
+
+## How to Run?
+### Step 1: Clone the project
+Copy the commands below to your terminal:
+```bash
+git clone https://github.com/Sherry5Wu/ft_irc.git ft_irc && cd ft_irc
+```
+### Step 2: make
+```bash
+make
+```
+It will generate a "ircserv".
+
+### Step 3: Start the server
+```bash
+./ircserv 8880 server2pass
+```
+the syntax is `./ircserv <port> <password>`<br>
+After the server start you can see:
+
+
+Then you can use netcat or irssi to connect with the server.
+For netcat, you can use `nc -C localhost <port>` to connect with the server,
+Then use `PASS`, `USER` and `NICK` to finish the registration. See below:
+
+
+Or using irssi, enter `irssi`+ enter to start the irssi client. Then connect with the server `/connect localhost <port> <password>` "port" should be the server port, "password" should be the server password.
 
 ## 1.IRC Message
 
@@ -115,7 +143,7 @@ message between servers with the nickname for which the USER command belongs to
 :testnick USER guest tolmoon tolsun :Ronnie Reagan
 ```
 
-#### 1.1.4. Quit
+#### 1.1.4. Quit message
 
 Command:   QUIT <br>
 Parameter: [`<Quit message>`]
@@ -238,7 +266,9 @@ TOPIC #test :another topic      ;set the topic on #test to "another
 
 TOPIC #test                     ; check the topic for #test.</pre>
 
-#### 1.2.5 Mode message (here just introduce channel mode)
+#### 1.2.5 Mode message
+
+(here just introduce channel mode)<br>
 
 Command: MODE
 Parameters: `<channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>] [<ban mask>]`
@@ -542,7 +572,7 @@ int listen(int sockfd, int backlog);
 ```
 listen(server_fd, 10);  // Can queue up to 10 pending clients
 ```
-### 3.5. accpt()
+### 3.5. accept()
 🔧 Purpose:
 Accept a new client connection and return a new socket for communication with that client.
 
