@@ -53,14 +53,17 @@ It will generate a "ircserv".
 ```
 the syntax is `./ircserv <port> <password>`<br>
 After the server start you can see:
-
+![server start](https://github.com/user-attachments/assets/b280268c-9fab-4d04-8dc8-2bddbd207e42)
 
 Then you can use netcat or irssi to connect with the server.
+![server](https://github.com/user-attachments/assets/2173b7dc-8513-464a-b521-60f424ed89c2)
+
 For netcat, you can use `nc -C localhost <port>` to connect with the server,
 Then use `PASS`, `USER` and `NICK` to finish the registration. See below:
-
+![netcat](https://github.com/user-attachments/assets/31c43c2b-dc12-4c92-a8df-862a5f6b7428)
 
 Or using irssi, enter `irssi`+ enter to start the irssi client. Then connect with the server `/connect localhost <port> <password>` "port" should be the server port, "password" should be the server password.
+![irssi](https://github.com/user-attachments/assets/757cb913-076f-4fb7-acfc-be15ed256d2e)
 
 ## 1.IRC Message
 
